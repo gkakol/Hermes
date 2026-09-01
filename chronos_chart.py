@@ -8,16 +8,30 @@ OUT_WEST = "chronos_westbound.png"
 OUT_EAST = "chronos_eastbound.png"
 
 
+def create_fallback_chart(out_img: str, title: str):
+    """Tworzy pusty wykres informacyjny, jeśli brakuje jeszcze danych."""
+    plt.figure(figsize=(10, 4))
+    plt.text(0.5, 0.5, "Zbieranie danych telemetrycznych...", horizontalalignment='center', verticalalignment='center', fontsize=12, color='gray')
+    plt.title(title, fontsize=12, pad=10)
+    plt.axis('off')
+    plt.tight_layout()
+    plt.savefig(out_img, dpi=150)
+    plt.close()
+    print(f"📊 Utworzono placeholder: {out_img}")
+
+
 def build_corridor_heatmap(df: pd.DataFrame, direction_name: str, out_img: str):
+    if df.empty:
+        create_fallback_chart(out_img, f"Magistrala N3: {direction_name}")
+        return
+
     subset = df[df["Direction"] == direction_name].copy()
     if subset.empty:
+        create_fallback_chart(out_img, f"Magistrala N3: {direction_name}")
         return
 
-    subset = subset[subset["Onboard Passengers"].astype(str).str.isdigit()]
-    if subset.empty:
-        return
-
-    subset["Onboard Passengers"] = subset["Onboard Passengers"].astype(int)
+    # Zamiana ewentualnych B/D na 0 do celów wizualizacji
+    subset["Onboard Passengers"] = pd.to_numeric(subset["Onboard Passengers"], errors="coerce").fillna(0).astype(int)
     subset["Time_Label"] = subset["Date"] + " " + subset["Origin Departure"]
 
     pivot = subset.pivot_table(
@@ -25,9 +39,10 @@ def build_corridor_heatmap(df: pd.DataFrame, direction_name: str, out_img: str):
         columns="Time_Label",
         values="Onboard Passengers",
         aggfunc="last"
-    )
+    ).fillna(0)
 
-    if pivot.empty:
+    if pivot.empty or pivot.shape[1] == 0:
+        create_fallback_chart(out_img, f"Magistrala N3: {direction_name}")
         return
 
     plt.figure(figsize=(16, 7))
@@ -45,18 +60,18 @@ def build_corridor_heatmap(df: pd.DataFrame, direction_name: str, out_img: str):
 def main():
     print("=== CHRONOS HEATMAP GENERATOR ===")
     if not os.path.isfile(ARCHIVE_FILE):
-        print("[i] Brak archiwum oracle_pulse.csv.")
+        create_fallback_chart(OUT_WEST, "Magistrala N3: Sanok ➔ Wrocław")
+        create_fallback_chart(OUT_EAST, "Magistrala N3: Wrocław ➔ Sanok")
         return
 
     try:
         df = pd.read_csv(ARCHIVE_FILE)
-        if df.empty or "Direction" not in df.columns:
-            return
-
         build_corridor_heatmap(df, "Sanok ➔ Wrocław", OUT_WEST)
         build_corridor_heatmap(df, "Wrocław ➔ Sanok", OUT_EAST)
     except Exception as e:
         print(f"[!] Błąd generatora wykresów: {e}")
+        create_fallback_chart(OUT_WEST, "Magistrala N3: Sanok ➔ Wrocław")
+        create_fallback_chart(OUT_EAST, "Magistrala N3: Wrocław ➔ Sanok")
 
 
 if __name__ == "__main__":
