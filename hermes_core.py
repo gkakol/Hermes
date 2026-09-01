@@ -159,36 +159,36 @@ def get_recent_history_changes(csv_filename: str, route_label: str, limit: int =
     except Exception:
         return []
 
-  changes = []
-  for (d_kurs, h_kurs), rows in history_per_course.items():
-    if len(rows) > 1:
-      prev = rows[-2]
-      curr = rows[-1]
+    changes = []
+    for (d_kurs, h_kurs), rows in history_per_course.items():
+        if len(rows) > 1:
+            prev = rows[-2]
+            curr = rows[-1]
 
-      p_price = float(prev.get("Cena (PLN)", 0))
-      c_price = float(curr.get("Cena (PLN)", 0))
-      p_seats = prev.get("Wolne miejsca", "B/D")
-      c_seats = curr.get("Wolne miejsca", "B/D")
+            p_price = float(prev.get("Cena (PLN)", 0))
+            c_price = float(curr.get("Cena (PLN)", 0))
+            p_seats = prev.get("Wolne miejsca", "B/D")
+            c_seats = curr.get("Wolne miejsca", "B/D")
 
-      price_str = (
-          f"{p_price:.2f} zł ➔ **{c_price:.2f} zł**"
-          if abs(c_price - p_price) > 0.01
-          else f"{c_price:.2f} zł"
-      )
-      if p_seats != c_seats and c_seats != "B/D" and p_seats != "B/D":
-        diff = int(c_seats) - int(p_seats)
-        diff_str = f" ({diff:+d})" if diff != 0 else ""
-        seats_str = f"{p_seats} ➔ **{c_seats} szt.**{diff_str}"
-      else:
-        seats_str = f"{c_seats} szt." if c_seats != "B/D" else "B/D"
+            price_str = (
+                f"{p_price:.2f} zł ➔ **{c_price:.2f} zł**"
+                if abs(c_price - p_price) > 0.01
+                else f"{c_price:.2f} zł"
+            )
+            if p_seats != c_seats and c_seats != "B/D" and p_seats != "B/D":
+                diff = int(c_seats) - int(p_seats)
+                diff_str = f" ({diff:+d})" if diff != 0 else ""
+                seats_str = f"{p_seats} ➔ **{c_seats} szt.**{diff_str}"
+            else:
+                seats_str = f"{c_seats} szt." if c_seats != "B/D" else "B/D"
 
-      changes.append({
-          "time": curr.get("Data sprawdzenia", ""),
-          "route": route_label,
-          "course": f"📅 {d_kurs} ({h_kurs})",
-          "price_change": price_str,
-          "seats_change": seats_str,
-      })
+            changes.append({
+                "time": curr.get("Data sprawdzenia", ""),
+                "route": route_label,
+                "course": f"📅 {d_kurs} ({h_kurs})",
+                "price_change": price_str,
+                "seats_change": seats_str,
+            })
 
     changes = sorted(changes, key=lambda x: x["time"], reverse=True)
     return changes[:limit]
@@ -272,7 +272,6 @@ def check_and_notify_new_schedule(active_dates: list):
     if not active_dates:
         return
 
-    # Bezpieczne chronologiczne sortowanie
     dt_dates = sorted(active_dates, key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
     furthest = dt_dates[-1]
 
@@ -356,12 +355,10 @@ def query_neobus(session: requests.Session, from_id: str, from_name: str, to_id:
 def get_fast_seat_count(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, target_hours: str, known_seats: int = None) -> int:
     session = requests.Session()
 
-    # Optymalizacja z referencyjnego kodu: sprawdzamy najpierw znany stan z CSV
     if known_seats and 1 <= known_seats <= 50:
         res = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=known_seats)
         if res is not None and any(c["hours"] == target_hours for c in res):
             if known_seats == 50:
-                # Sprawdzamy czy to nie tabor 65 lub 90
                 res_65 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=65)
                 if res_65 is not None and any(c["hours"] == target_hours for c in res_65):
                     res_90 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=90)
@@ -374,7 +371,6 @@ def get_fast_seat_count(from_id: str, from_name: str, to_id: str, to_name: str, 
         else:
             high = known_seats
     else:
-        # Szybki check czy kurs nie jest pełny (50)
         res_50 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=50)
         if res_50 and any(c["hours"] == target_hours for c in res_50):
             res_65 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=65)
@@ -441,7 +437,6 @@ def check_route_base(route_label: str, from_id: str, from_name: str, to_id: str,
         else:
             empty_days += 1
 
-        # Zabezpieczenie przed skanowaniem pustych miesięcy
         if empty_days >= 6:
             print(f"🛑 [Koniec puli] Brak biletów od {d}. Koniec trasy.", flush=True)
             break
@@ -464,11 +459,9 @@ def main():
     known_sw = load_known_seats(CSV_SANOK_WROCLAW)
     known_ws = load_known_seats(CSV_WROCLAW_SANOK)
 
-    # 1. Pobieranie siatki połączeń
     courses_san_wro = check_route_base("Sanok ➔ Wrocław", STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], dates, known_sw)
     courses_wro_san = check_route_base("Wrocław ➔ Sanok", STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], dates, known_ws)
 
-    # 2. Bezpieczna weryfikacja horyzontu nowej puli
     all_active_dates = list({c["date"] for c in (courses_san_wro + courses_wro_san)})
     check_and_notify_new_schedule(all_active_dates)
 
@@ -476,7 +469,6 @@ def main():
     total_count = len(all_courses)
     print(f"\n🚀 Badanie miejsc dla {total_count} kursów ({MAX_WORKERS} wątków)...", flush=True)
 
-    # 3. Równoległe badanie miejsc
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = [executor.submit(enrich_course_with_seats, course) for course in all_courses]
         done = 0
@@ -486,12 +478,10 @@ def main():
             pct = (done / total_count) * 100
             print(f"  [💺 {done:03d}/{total_count} | {pct:5.1f}%] {res['route']} | {res['date']} ({res['hours']}) ➔ Miejsca: {res['seats']} | {res['price']:.2f} zł", flush=True)
 
-    # 4. Zapis do plików CSV
     print("\n💾 Zapisywanie baz CSV...", flush=True)
     save_route_to_csv(courses_san_wro, CSV_SANOK_WROCLAW)
     save_route_to_csv(courses_wro_san, CSV_WROCLAW_SANOK)
 
-    # 5. Generowanie raportu README.md
     generate_markdown_readme(courses_san_wro, courses_wro_san)
 
     total_time = time.time() - start_t
