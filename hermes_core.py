@@ -16,16 +16,15 @@ from requests.adapters import HTTPAdapter
 
 PROJECT_NAME = "Project Aether: N3 Transit Observatory"
 DAYS_FORWARD_SEARCH = 90
-MAX_CONCURRENT_WORKERS = 8
+MAX_CONCURRENT_WORKERS = 10
 TARGET_PROMO_THRESHOLD = 50.00
-ANALYZE_FLOW_DAYS_COUNT = 7
+ANALYZE_FLOW_DAYS_COUNT = 3  # Precyzyjne potoki dla 3 najbliższych dni
 
 DATA_ARCHIVE_CSV = "oracle_pulse.csv"
 HORIZON_STATE_FILE = "chronos_boundary.txt"
 README_REPORT_FILE = "README.md"
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
-# 8 węzłów magistrali N3
 NODES_CATALOG = {
     "sanok": {"id": "17", "name": "SANOK D.A. Lipińskiego", "short": "Sanok"},
     "niebylec": {"id": "19", "name": "NIEBYLEC", "short": "Niebylec"},
@@ -112,11 +111,11 @@ GATEWAY_HEADERS = {
 def init_protocol_session() -> requests.Session:
     sess = requests.Session()
     retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
-    adapter = HTTPAdapter(max_retries=retries, pool_connections=10, pool_maxsize=20)
+    adapter = HTTPAdapter(max_retries=retries, pool_connections=15, pool_maxsize=30)
     sess.mount("https://", adapter)
     sess.mount("http://", adapter)
     try:
-        sess.get(GATEWAY_ENDPOINT, headers=GATEWAY_HEADERS, timeout=10)
+        sess.get(GATEWAY_ENDPOINT, headers=GATEWAY_HEADERS, timeout=8)
     except Exception:
         pass
     return sess
@@ -147,7 +146,7 @@ def fetch_node_pair(session: requests.Session, from_id: str, from_name: str, to_
         "final_stop_name": to_name,
     }
     try:
-        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=GATEWAY_HEADERS, timeout=8)
+        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=GATEWAY_HEADERS, timeout=7)
         if r.status_code != 200:
             return []
 
@@ -196,7 +195,7 @@ def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: 
         return 0, 0.0
     price_unit = matched[0]["price"]
 
-    # Szybki check 65 miejsc
+    # 1. Szybki check 65 miejsc
     c65 = fetch_node_pair(sess, from_id, from_name, to_id, to_name, date_str, seats_probe=65)
     if any(is_timestamp_matched(c["departure"], dep_time) for c in c65):
         c90 = fetch_node_pair(sess, from_id, from_name, to_id, to_name, date_str, seats_probe=90)
@@ -219,23 +218,20 @@ def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: 
     return exact_seats, price_unit
 
 
-def evaluate_segment_task(s_from: dict, s_to: dict, dep_time: str, date_str: str) -> dict:
+def evaluate_segment_item(item: dict) -> dict:
     free_seats, unit_price = resolve_segment_capacity(
-        s_from["id"], s_from["name"], s_to["id"], s_to["name"], date_str, dep_time
+        item["from_node"]["id"], item["from_node"]["name"],
+        item["to_node"]["id"], item["to_node"]["name"],
+        item["date"], item["dep_time"]
     )
     cap = 90 if free_seats > 65 else 65
     pax = max(0, cap - free_seats) if free_seats > 0 else 0
-    return {
-        "segment": f"{s_from['short']} ➔ {s_to['short']}",
-        "node_origin": s_from["short"],
-        "node_target": s_to["short"],
-        "dep_time": dep_time,
-        "price": unit_price,
-        "free_seats": free_seats if free_seats > 0 else "B/D",
-        "capacity": cap,
-        "passengers": pax if free_seats > 0 else None,
-        "revenue": (pax * unit_price) if free_seats > 0 else 0.0
-    }
+    item["free_seats"] = free_seats if free_seats > 0 else "B/D"
+    item["capacity"] = cap
+    item["passengers"] = pax if free_seats > 0 else None
+    item["price"] = unit_price
+    item["revenue"] = (pax * unit_price) if free_seats > 0 else 0.0
+    return item
 
 
 # =====================================================================
@@ -399,7 +395,7 @@ def main():
 
     terminus_direct = []
 
-    # ETAP 1: Szybki skan bezpośredni Sanok <-> Wrocław
+    # ETAP 1: Skan krańcowy Sanok <-> Wrocław
     print(f"\n📡 [ETAP 1/2] Skanowanie krańcowe relacji bezpośrednich ({total_days} dni)...", flush=True)
     for idx, d in enumerate(horizon, 1):
         west = fetch_node_pair(session, NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], d, 1)
@@ -417,11 +413,13 @@ def main():
     all_dates = sorted(list({c["date"] for c in terminus_direct}), key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
     check_and_signal_horizon_expansion(all_dates)
 
-    # ETAP 2: Dokładna analityka 7 odcinków N3 dla najbliższych dni rozkładowych
+    # ETAP 2: Płaska kolejka segmentów potoków
     flow_dates = all_dates[:ANALYZE_FLOW_DAYS_COUNT] if all_dates else horizon[:ANALYZE_FLOW_DAYS_COUNT]
-    print(f"\n🔬 [ETAP 2/2] Rekonstrukcja potoków pasażerskich (7 segmentów na kurs, {len(flow_dates)} dni)...", flush=True)
+    print(f"\n🔬 [ETAP 2/2] Przygotowanie kolejki segmentów potoków ({len(flow_dates)} dni)...", flush=True)
 
-    flow_dataset = []
+    courses_meta = []
+    flat_segments_queue = []
+
     for d in flow_dates:
         d_obj = datetime.strptime(d, "%d.%m.%Y")
         dow = d_obj.isoweekday()
@@ -433,46 +431,82 @@ def main():
             direction = "Sanok ➔ Wrocław" if "W" in c_def["id"] else "Wrocław ➔ Sanok"
             nodes_keys = c_def["nodes"]
             schedule = c_def["schedule"]
+            course_id = f"{c_def['id']}_{d}"
 
-            futures_pool = []
-            with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_WORKERS) as seg_exec:
-                for i in range(len(nodes_keys) - 1):
-                    s_orig = NODES_CATALOG[nodes_keys[i]]
-                    s_dest = NODES_CATALOG[nodes_keys[i + 1]]
-                    futures_pool.append(seg_exec.submit(evaluate_segment_task, s_orig, s_dest, schedule[nodes_keys[i]], d))
-
-                segments_eval = [f.result() for f in futures_pool]
-
-            if not any(s["price"] > 0 for s in segments_eval):
-                continue
-
-            for idx, s in enumerate(segments_eval):
-                pax = s["passengers"]
-                delta_str = "Start trasy"
-                if idx > 0 and pax is not None and segments_eval[idx - 1]["passengers"] is not None:
-                    diff = pax - segments_eval[idx - 1]["passengers"]
-                    delta_str = f"📈 +{diff}" if diff > 0 else (f"📉 {diff}" if diff < 0 else "➡️ 0")
-                s["delta_str"] = delta_str
-
-            total_rev = sum(s["revenue"] for s in segments_eval)
-            max_c = max(s["capacity"] for s in segments_eval)
-            valid_p = [s["passengers"] for s in segments_eval if s["passengers"] is not None]
-            avg_p = sum(valid_p) / len(valid_p) if valid_p else 0
-
-            flow_dataset.append({
+            courses_meta.append({
+                "course_id": course_id,
                 "direction": direction,
                 "course_name": c_def["name"],
                 "date": d,
                 "start_time": schedule[nodes_keys[0]],
-                "capacity": max_c,
-                "total_revenue": total_rev,
-                "avg_load_factor": (avg_p / max_c) * 100,
-                "segments": segments_eval
+                "num_segments": len(nodes_keys) - 1
             })
+
+            for i in range(len(nodes_keys) - 1):
+                flat_segments_queue.append({
+                    "course_id": course_id,
+                    "seg_index": i,
+                    "date": d,
+                    "from_node": NODES_CATALOG[nodes_keys[i]],
+                    "to_node": NODES_CATALOG[nodes_keys[i + 1]],
+                    "segment": f"{NODES_CATALOG[nodes_keys[i]]['short']} ➔ {NODES_CATALOG[nodes_keys[i + 1]]['short']}",
+                    "node_origin": NODES_CATALOG[nodes_keys[i]]["short"],
+                    "node_target": NODES_CATALOG[nodes_keys[i + 1]]["short"],
+                    "dep_time": schedule[nodes_keys[i]]
+                })
+
+    total_queue_len = len(flat_segments_queue)
+    print(f"⚡ Równoległe przetwarzanie {total_queue_len} segmentów ({MAX_CONCURRENT_WORKERS} wątków)...", flush=True)
+
+    processed_segments = []
+    done_seg = 0
+
+    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_WORKERS) as executor:
+        futures = [executor.submit(evaluate_segment_item, item) for item in flat_segments_queue]
+        for fut in as_completed(futures):
+            res = fut.result()
+            processed_segments.append(res)
+            done_seg += 1
+            if done_seg % 15 == 0 or done_seg == total_queue_len:
+                pct = (done_seg / total_queue_len) * 100
+                print(f"  [⚡ {done_seg:02d}/{total_queue_len} | {pct:4.1f}%] Zbadano segment: {res['segment']} ({res['date']} {res['dep_time']}) -> {res.get('free_seats', 'B/D')} wolnych", flush=True)
+
+    # Rekonstrukcja struktury kursów
+    flow_dataset = []
+    for meta in courses_meta:
+        c_segs = [s for s in processed_segments if s["course_id"] == meta["course_id"]]
+        c_segs.sort(key=lambda x: x["seg_index"])
+
+        if not any(s.get("price", 0) > 0 for s in c_segs):
+            continue
+
+        for idx, s in enumerate(c_segs):
+            pax = s["passengers"]
+            delta_str = "Start trasy"
+            if idx > 0 and pax is not None and c_segs[idx - 1]["passengers"] is not None:
+                diff = pax - c_segs[idx - 1]["passengers"]
+                delta_str = f"📈 +{diff}" if diff > 0 else (f"📉 {diff}" if diff < 0 else "➡️ 0")
+            s["delta_str"] = delta_str
+
+        tot_rev = sum(s.get("revenue", 0.0) for s in c_segs)
+        max_c = max(s.get("capacity", 65) for s in c_segs)
+        valid_p = [s["passengers"] for s in c_segs if s["passengers"] is not None]
+        avg_p = sum(valid_p) / len(valid_p) if valid_p else 0
+
+        flow_dataset.append({
+            "direction": meta["direction"],
+            "course_name": meta["course_name"],
+            "date": meta["date"],
+            "start_time": meta["start_time"],
+            "capacity": max_c,
+            "total_revenue": tot_rev,
+            "avg_load_factor": (avg_p / max_c) * 100,
+            "segments": c_segs
+        })
 
     flow_dataset.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["start_time"]))
 
-    # Zapis i publikacja
+    # Zapis bazy i README
     print("\n💾 Utrwalanie telemetrii w archiwum...", flush=True)
     save_pulse_archive(flow_dataset, DATA_ARCHIVE_CSV)
     generate_observatory_readme(flow_dataset, terminus_direct)
