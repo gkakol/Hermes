@@ -5,23 +5,21 @@ import os
 import re
 import sys
 import time
-import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
-from urllib3.util import Retry
-from requests.adapters import HTTPAdapter
 
 # =====================================================================
 #                        KONFIGURACJA
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 8
+MAX_WORKERS = 8
 TARGET_PROMO_PRICE = 50.00
+TICKET_TYPE = "normal"
 
 CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
 CSV_WROCLAW_SANOK = "ceny_wroclaw_sanok.csv"
-HORIZON_FILE = "chronos_boundary.txt"
+LATEST_DATE_FILE = "ostatnia_data_sprzedazy.txt"
 README_FILE = "README.md"
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
@@ -30,294 +28,261 @@ STOPS = {
     "wroclaw": {"id": "77", "name": "WROCŁAW PKS Polbus"}
 }
 
-GATEWAY_ENDPOINT = "https://neobus.pl/"
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept": "application/json, text/javascript, */*; q=0.01",
-    "Accept-Language": "pl,en-US;q=0.9,en;q=0.8",
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     "X-Requested-With": "XMLHttpRequest",
     "Origin": "https://neobus.pl",
-    "Referer": "https://neobus.pl/",
+    "Referer": "https://neobus.pl/"
 }
 
-_thread_local = threading.local()
 
+# =====================================================================
+#                   DYNAMIKA DAT I BAZA CSV
+# =====================================================================
 
-def get_session() -> requests.Session:
-    if not hasattr(_thread_local, "session"):
-        s = requests.Session()
-        retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
-        adapter = HTTPAdapter(max_retries=retries, pool_connections=10, pool_maxsize=20)
-        s.mount("https://", adapter)
-        s.mount("http://", adapter)
-        try:
-            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=6)
-        except Exception:
-            pass
-        _thread_local.session = s
-    return _thread_local.session
-
-
-def normalize_time(t: str) -> str:
-    return re.sub(r'[-]', ':', t.strip())
-
-
-def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1) -> dict:
-    session = get_session()
-    payload = {
-        "ajax": "true",
-        "dataType": "json",
-        "module": "neotickets",
-        "step": "1",
-        "ticket_type": "normal",
-        "initial_stop": str(from_id),
-        "final_stop": str(to_id),
-        "passengers": str(passengers),
-        "date_there": date_str,
-        "date_return": "",
-        "initial_stop_name": from_name,
-        "final_stop_name": to_name,
-    }
-    try:
-        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=6)
-        if r.status_code != 200:
-            return {}
-
-        try:
-            raw = r.json()
-        except Exception:
-            raw = json.loads(r.text)
-
-        content = raw.get("neotickets", raw) if isinstance(raw, dict) else raw
-        data = json.loads(content) if isinstance(content, str) else content
-
-        courses = {}
-        if isinstance(data, dict) and "ga4_data" in data and len(data["ga4_data"]) > 0:
-            for it in data["ga4_data"][0].get("items", []):
-                name = it.get("item_name", "")
-                p_val = it.get("price") or it.get("discount", 0.0)
-                try:
-                    price = float(p_val)
-                except (ValueError, TypeError):
-                    price = 0.0
-
-                m = re.search(r"(\d{2}[-:]\d{2})\s*-\s*(\d{2}[-:]\d{2})", name)
-                if m:
-                    dep = normalize_time(m.group(1))
-                    arr = normalize_time(m.group(2))
-                    h_str = f"{dep} -> {arr}"
-                else:
-                    dep = name
-                    h_str = name
-
-                if price > 0:
-                    courses[dep] = {"hours": h_str, "price": price}
-
-        return courses
-    except Exception:
-        return {}
-
-
-def scan_day_directions(date_str: str) -> tuple:
-    sw = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 1)
-    ws = query_api(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 1)
-    return date_str, sw, ws
-
-
-def resolve_course_seats(c: dict) -> dict:
-    f_id, f_name = c["from_id"], c["from_name"]
-    t_id, t_name = c["to_id"], c["to_name"]
-    d, dep = c["date"], c["departure"]
-
-    # 1. Sprawdzenie pełnej pojemności (50 miejsc)
-    r50 = query_api(f_id, f_name, t_id, t_name, d, 50)
-    if dep in r50:
-        r65 = query_api(f_id, f_name, t_id, t_name, d, 65)
-        if dep in r65:
-            r90 = query_api(f_id, f_name, t_id, t_name, d, 90)
-            c["seats"] = 90 if dep in r90 else 65
-        else:
-            c["seats"] = 50
-        return c
-
-    # 2. Jeśli mniej niż 50, badamy próg 25
-    r25 = query_api(f_id, f_name, t_id, t_name, d, 25)
-    if dep in r25:
-        r35 = query_api(f_id, f_name, t_id, t_name, d, 35)
-        c["seats"] = 35 if dep in r35 else 25
-        return c
-
-    # 3. Końcówka miejsc (<25)
-    r10 = query_api(f_id, f_name, t_id, t_name, d, 10)
-    if dep in r10:
-        c["seats"] = 10
-    else:
-        r5 = query_api(f_id, f_name, t_id, t_name, d, 5)
-        c["seats"] = 5 if dep in r5 else 1
-
-    return c
-
-
-def generate_dates(days_count: int) -> list:
+def generate_dynamic_dates(days_count: int) -> list:
     today = date.today()
     return [(today + timedelta(days=i)).strftime("%d.%m.%Y") for i in range(days_count)]
 
 
-def load_previous_snapshot(csv_file: str) -> dict:
-    prev = {}
-    if not os.path.isfile(csv_file):
-        return prev
-    try:
-        with open(csv_file, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                key = (row.get("Data kursu"), row.get("Godzina kursu"))
-                try:
-                    price = float(row.get("Cena (PLN)", 0))
-                    seats = row.get("Wolne miejsca", "B/D")
-                    prev[key] = {
-                        "price": price,
-                        "seats": int(seats) if str(seats).isdigit() else None
-                    }
-                except Exception:
-                    pass
-    except Exception:
-        pass
-    return prev
+def load_known_seats(csv_filename: str) -> dict:
+    known = {}
+    if os.path.isfile(csv_filename):
+        try:
+            with open(csv_filename, mode="r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    key = (row.get("Data kursu"), row.get("Godzina kursu"))
+                    val = row.get("Wolne miejsca", "").strip()
+                    if val.isdigit():
+                        known[key] = int(val)
+        except Exception:
+            pass
+    return known
 
 
-def update_database(courses: list, csv_file: str):
-    if not courses:
+def save_route_to_csv(courses_list: list, csv_filename: str):
+    if not courses_list:
         return
-    file_exists = os.path.isfile(csv_file)
-    ts = time.strftime("%Y-%m-%d %H:%M:%S")
-    rows = []
-    for c in courses:
-        rows.append([
-            ts,
-            c["date"],
-            c["hours"],
-            f"{c['price']:.2f}",
-            str(c.get("seats", "B/D"))
-        ])
 
-    with open(csv_file, "a", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
-        if not file_exists:
-            w.writerow(["Data pomiaru", "Data kursu", "Godzina kursu", "Cena (PLN)", "Wolne miejsca"])
-        w.writerows(rows)
-    print(f"💾 [{csv_file}] Zapisano {len(rows)} rekordów.", flush=True)
+    file_exists = os.path.isfile(csv_filename)
+    last_records = {}
 
+    if file_exists:
+        try:
+            with open(csv_filename, mode="r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    key = (row.get("Data kursu"), row.get("Godzina kursu"))
+                    try:
+                        price = float(row.get("Cena (PLN)", 0))
+                        seats = row.get("Wolne miejsca") or "B/D"
+                        last_records[key] = (price, str(seats).strip())
+                    except (ValueError, TypeError):
+                        pass
+        except Exception as e:
+            print(f"[!] Ostrzeżenie przy odczycie {csv_filename}: {e}", flush=True)
 
-def compute_deltas(current_courses: list, prev_dict: dict) -> list:
-    deltas = []
-    for c in current_courses:
+    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    records_to_add = []
+
+    for c in courses_list:
         key = (c["date"], c["hours"])
-        prev = prev_dict.get(key)
-        if not prev:
-            continue
+        prev = last_records.get(key)
+        curr_seats_str = str(c.get("seats", "B/D")).strip()
 
-        curr_seats = c.get("seats") if isinstance(c.get("seats"), int) else None
-        prev_seats = prev.get("seats")
-        curr_price = c["price"]
-        prev_price = prev.get("price", 0.0)
+        is_new = prev is None
+        price_changed = prev and abs(c["price"] - prev[0]) > 0.01
+        seats_changed = prev and prev[1] != curr_seats_str
 
-        price_diff = round(curr_price - prev_price, 2)
-        seats_diff = (curr_seats - prev_seats) if (curr_seats is not None and prev_seats is not None) else 0
+        if is_new or price_changed or seats_changed:
+            records_to_add.append([
+                timestamp,
+                c["date"],
+                c["hours"],
+                f"{c['price']:.2f}",
+                curr_seats_str
+            ])
 
-        if abs(price_diff) >= 0.01 or seats_diff != 0:
-            deltas.append({
-                "route": c["route"],
-                "date": c["date"],
-                "hours": c["hours"],
-                "curr_price": curr_price,
-                "price_diff": price_diff,
-                "curr_seats": curr_seats,
-                "seats_diff": seats_diff
-            })
-    return deltas
+    if records_to_add:
+        with open(csv_filename, mode="a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(["Data sprawdzenia", "Data kursu", "Godzina kursu", "Cena (PLN)", "Wolne miejsca"])
+            writer.writerows(records_to_add)
+        print(f"💾 [{csv_filename}] Zaktualizowano {len(records_to_add)} wierszy.", flush=True)
+    else:
+        print(f"⚡ [{csv_filename}] Ceny i stan miejsc bez zmian.", flush=True)
 
 
-def render_bar(seats: int) -> str:
+# =====================================================================
+#                 FORMATOWANIE WSKAŹNIKÓW I RAPORTU
+# =====================================================================
+
+def render_progress_bar(seats: int, total: int = 50) -> str:
     if not isinstance(seats, int) or seats < 0:
         return "B/D"
-    total = 90 if seats > 65 else (65 if seats > 50 else 50)
+    if seats > 65:
+        total = 90
+    elif seats > 50:
+        total = 65
     filled = max(0, min(10, int(round((seats / total) * 10))))
     bar = "█" * filled + "░" * (10 - filled)
     return f"[{bar}] {seats}/{total}"
 
 
-def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
-    now_ts = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+def get_status_badge(seats) -> str:
+    if isinstance(seats, int):
+        if seats <= 5:
+            return "🔴"
+        elif seats <= 25:
+            return "🟡"
+        return "🟢"
+    return "⚪"
+
+
+def get_recent_history_changes(csv_filename: str, route_label: str, limit: int = 8) -> list:
+    if not os.path.isfile(csv_filename):
+        return []
+
+    history_per_course = {}
+    try:
+        with open(csv_filename, mode="r", encoding="utf-8") as f:
+            reader = list(csv.DictReader(f))
+            for row in reader:
+                key = (row.get("Data kursu"), row.get("Godzina kursu"))
+                if key not in history_per_course:
+                    history_per_course[key] = []
+                history_per_course[key].append(row)
+    except Exception:
+        return []
+
+  changes = []
+  for (d_kurs, h_kurs), rows in history_per_course.items():
+    if len(rows) > 1:
+      prev = rows[-2]
+      curr = rows[-1]
+
+      p_price = float(prev.get("Cena (PLN)", 0))
+      c_price = float(curr.get("Cena (PLN)", 0))
+      p_seats = prev.get("Wolne miejsca", "B/D")
+      c_seats = curr.get("Wolne miejsca", "B/D")
+
+      price_str = (
+          f"{p_price:.2f} zł ➔ **{c_price:.2f} zł**"
+          if abs(c_price - p_price) > 0.01
+          else f"{c_price:.2f} zł"
+      )
+      if p_seats != c_seats and c_seats != "B/D" and p_seats != "B/D":
+        diff = int(c_seats) - int(p_seats)
+        diff_str = f" ({diff:+d})" if diff != 0 else ""
+        seats_str = f"{p_seats} ➔ **{c_seats} szt.**{diff_str}"
+      else:
+        seats_str = f"{c_seats} szt." if c_seats != "B/D" else "B/D"
+
+      changes.append({
+          "time": curr.get("Data sprawdzenia", ""),
+          "route": route_label,
+          "course": f"📅 {d_kurs} ({h_kurs})",
+          "price_change": price_str,
+          "seats_change": seats_str,
+      })
+
+    changes = sorted(changes, key=lambda x: x["time"], reverse=True)
+    return changes[:limit]
+
+
+def generate_markdown_readme(courses_san_wro: list, courses_wro_san: list):
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
     md = [
         "# 🚌 Sentinel N3: Sanok ⇄ Wrocław\n\n",
-        f"> 🕒 **Ostatnia aktualizacja:** `{now_ts}` | 📡 **Zakres:** 120+ dni rozkładowych\n\n",
-        "## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)\n\n"
+        f"> 🕒 **Ostatnia aktualizacja:** `{now_str}`  \n",
+        "> 🟢 **Dużo miejsc (>25)** | 🟡 **Średnie obłożenie (6–25)** | 🔴 **Ostatnie miejsca (1–5)**\n\n",
+        "## ⚡ 1. Ostatnie zarejestrowane zmiany cen i stanu miejsc\n\n",
+        "| Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |\n",
+        "| :--- | :--- | :--- | :--- | :--- |\n"
     ]
 
-    if deltas:
-        md.append("| Trasa | Data | Kurs | Aktualna Cena | Zmiana Ceny (Δ) | Wolne Miejsca | Zmiana Miejsc (Δ) |\n")
-        md.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n")
-        for d in deltas:
-            p_delta = f"🟢 `{d['price_diff']:+.2f} zł`" if d['price_diff'] < 0 else (f"🔴 `{d['price_diff']:+.2f} zł`" if d['price_diff'] > 0 else "0.00 zł")
-            s_delta = f"📉 `{d['seats_diff']:+d} miejsc`" if d['seats_diff'] < 0 else (f"📈 `{d['seats_diff']:+d} miejsc`" if d['seats_diff'] > 0 else "Bez zmian")
-            s_str = f"{d['curr_seats']}" if d['curr_seats'] is not None else "B/D"
-            md.append(f"| {d['route']} | 📅 **{d['date']}** | ⏰ {d['hours']} | **{d['curr_price']:.2f} zł** | {p_delta} | `{s_str}` | {s_delta} |\n")
+    recent_sw = get_recent_history_changes(CSV_SANOK_WROCLAW, "Sanok ➔ Wrocław", limit=6)
+    recent_ws = get_recent_history_changes(CSV_WROCLAW_SANOK, "Wrocław ➔ Sanok", limit=6)
+    recent_all = sorted(recent_sw + recent_ws, key=lambda x: x["time"], reverse=True)[:10]
+
+    if recent_all:
+        for r in recent_all:
+            md.append(f"| `{r['time']}` | {r['route']} | {r['course']} | {r['price_change']} | {r['seats_change']} |\n")
     else:
-        md.append("> ℹ️ Brak zmian cen i zajętości miejsc od ostatniego cyklu pomiarowego.\n")
+        md.append("| - | - | Brak odnotowanych zmian w ostatnim cyklu | - | - |\n")
 
     md.extend([
         "\n---\n\n",
-        "## 🗺️ 2. Mapy Obłożenia i Dostępności Miejsc (Heatmapy)\n\n",
+        "## 📊 2. Kalendarz Obłożenia Miejsc (Heatmapy)\n\n",
         "### 🚌 Trasa: Sanok ➔ Wrocław\n\n",
         "![Heatmapa Sanok -> Wrocław](heatmapa_sanok_wroclaw.png)\n\n",
         "### 🚌 Trasa: Wrocław ➔ Sanok\n\n",
         "![Heatmapa Wrocław -> Sanok](heatmapa_wroclaw_sanok.png)\n\n",
         "---\n\n",
-        "## 📋 3. Pełny Rozkład i Dostępność Kursów\n\n",
-        "### 📍 Sanok ➔ Wrocław\n\n",
-        "| Data | Kurs | Wolne miejsca | Cena | Status |\n",
-        "| :--- | :---: | :---: | :---: | :---: |\n"
+        "## 📍 3. Pełny Rozkład i Dostępność Kursów\n\n",
+        "### 🧭 Sanok ➔ Wrocław\n\n",
+        "| Data | Godzina odjazdu | Wolne miejsca | Cena | Zakup |\n",
+        "| :--- | :--- | :--- | :--- | :---: |\n"
     ])
 
     for c in courses_san_wro:
-        s_val = c.get("seats", 0)
-        bar = render_bar(s_val)
-        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
-        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
+        seats_val = c.get("seats", "B/D")
+        badge = get_status_badge(seats_val)
+        seats_bar = render_progress_bar(seats_val) if isinstance(seats_val, int) else "B/D"
+        price_tag = f"🔥 **{c['price']:.2f} PLN**" if c["price"] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} PLN"
+        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | {badge} `{seats_bar}` | {price_tag} | [Kup bilet](https://neobus.pl/) |\n")
 
     md.extend([
-        "\n### 📍 Wrocław ➔ Sanok\n\n",
-        "| Data | Kurs | Wolne miejsca | Cena | Status |\n",
-        "| :--- | :---: | :---: | :---: | :---: |\n"
+        "\n### 🧭 Wrocław ➔ Sanok\n\n",
+        "| Data | Godzina odjazdu | Wolne miejsca | Cena | Zakup |\n",
+        "| :--- | :--- | :--- | :--- | :---: |\n"
     ])
 
     for c in courses_wro_san:
-        s_val = c.get("seats", 0)
-        bar = render_bar(s_val)
-        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
-        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
+        seats_val = c.get("seats", "B/D")
+        badge = get_status_badge(seats_val)
+        seats_bar = render_progress_bar(seats_val) if isinstance(seats_val, int) else "B/D"
+        price_tag = f"🔥 **{c['price']:.2f} PLN**" if c["price"] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} PLN"
+        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | {badge} `{seats_bar}` | {price_tag} | [Kup bilet](https://neobus.pl/) |\n")
 
     with open(README_FILE, "w", encoding="utf-8") as f:
         f.writelines(md)
-    print("📄 Zaktualizowano README.md.", flush=True)
+    print("📄 Wygenerowano README.md.", flush=True)
 
 
-def check_and_notify_horizon(active_dates: list):
+# =====================================================================
+#                   POWIADOMIENIA DISCORD
+# =====================================================================
+
+def send_discord_message(content: str):
+    if not DISCORD_WEBHOOK_URL:
+        return
+    try:
+        requests.post(DISCORD_WEBHOOK_URL, json={"username": "Sentinel Radar", "content": content}, headers={"Content-Type": "application/json"}, timeout=10)
+    except Exception:
+        pass
+
+
+def check_and_notify_new_schedule(active_dates: list):
     if not active_dates:
         return
+
+    # Bezpieczne chronologiczne sortowanie
     dt_dates = sorted(active_dates, key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
     furthest = dt_dates[-1]
 
     prev = ""
-    if os.path.isfile(HORIZON_FILE):
-        with open(HORIZON_FILE, "r", encoding="utf-8") as f:
+    if os.path.isfile(LATEST_DATE_FILE):
+        with open(LATEST_DATE_FILE, "r", encoding="utf-8") as f:
             prev = f.read().strip()
 
     if not prev:
-        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
+        with open(LATEST_DATE_FILE, "w", encoding="utf-8") as f:
             f.write(furthest)
         return
 
@@ -326,102 +291,212 @@ def check_and_notify_horizon(active_dates: list):
 
     if d_furthest > d_prev:
         msg = (
-            f"📢 **OTWARTO NOWĄ PULĘ BILETÓW!** @everyone\n\n"
-            f"📅 Sprzedaż wydłużona do: **{furthest}** (wcześniej: {prev})\n"
-            f"🚀 Sprawdź bilety na https://neobus.pl/"
+            f"📢 **NEOBUS OTWORZYŁ NOWĄ PULĘ BILETÓW!** @everyone\n\n"
+            f"📅 Nowy zakres sprzedaży wydłużony do: **{furthest}** (wcześniej: {prev})\n"
+            f"🚀 Bilety promocyjne za 1 zł: https://neobus.pl/"
         )
-        if DISCORD_WEBHOOK_URL:
-            try:
-                requests.post(DISCORD_WEBHOOK_URL, json={"username": "Sentinel Radar", "content": msg}, timeout=8)
-            except Exception:
-                pass
-        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
+        send_discord_message(msg)
+        with open(LATEST_DATE_FILE, "w", encoding="utf-8") as f:
             f.write(furthest)
 
+
+# =====================================================================
+#                    ZAPYTANIA API I FAST PROBING
+# =====================================================================
+
+def query_neobus(session: requests.Session, from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1, retries: int = 3):
+    payload = {
+        "ajax": "true",
+        "dataType": "json",
+        "module": "neotickets",
+        "step": "1",
+        "ticket_type": TICKET_TYPE,
+        "initial_stop": from_id,
+        "final_stop": to_id,
+        "passengers": str(passengers),
+        "date_there": date_str,
+        "date_return": "",
+        "initial_stop_name": from_name,
+        "final_stop_name": to_name,
+    }
+    for _ in range(retries):
+        try:
+            resp = session.post("https://neobus.pl/", data=payload, headers=HEADERS, timeout=10)
+            if resp.status_code == 200:
+                raw = resp.json()
+                content = raw.get("neotickets", raw) if isinstance(raw, dict) else raw
+                data = json.loads(content) if isinstance(content, str) else content
+
+                courses = []
+                if isinstance(data, dict) and "ga4_data" in data and len(data["ga4_data"]) > 0:
+                    for it in data["ga4_data"][0].get("items", []):
+                        name = it.get("item_name", "")
+                        price = it.get("price") or it.get("discount", 0.0)
+                        try:
+                            price = float(price)
+                        except Exception:
+                            price = 0.0
+
+                        match_hours = re.search(r"(\d{2}[-:]\d{2})\s*-\s*(\d{2}[-:]\d{2})", name)
+                        if match_hours:
+                            dep = match_hours.group(1).replace('-', ':')
+                            arr = match_hours.group(2).replace('-', ':')
+                            hours_str = f"{dep} -> {arr}"
+                        else:
+                            hours_str = name
+
+                        if price > 0:
+                            courses.append({"hours": hours_str, "price": price})
+                return courses
+        except Exception:
+            time.sleep(0.2)
+    return None
+
+
+def get_fast_seat_count(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, target_hours: str, known_seats: int = None) -> int:
+    session = requests.Session()
+
+    # Optymalizacja z referencyjnego kodu: sprawdzamy najpierw znany stan z CSV
+    if known_seats and 1 <= known_seats <= 50:
+        res = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=known_seats)
+        if res is not None and any(c["hours"] == target_hours for c in res):
+            if known_seats == 50:
+                # Sprawdzamy czy to nie tabor 65 lub 90
+                res_65 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=65)
+                if res_65 is not None and any(c["hours"] == target_hours for c in res_65):
+                    res_90 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=90)
+                    return 90 if (res_90 and any(c["hours"] == target_hours for c in res_90)) else 65
+                return 50
+            res_plus = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=known_seats + 1)
+            if res_plus is not None and not any(c["hours"] == target_hours for c in res_plus):
+                return known_seats
+            high = 50
+        else:
+            high = known_seats
+    else:
+        # Szybki check czy kurs nie jest pełny (50)
+        res_50 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=50)
+        if res_50 and any(c["hours"] == target_hours for c in res_50):
+            res_65 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=65)
+            if res_65 and any(c["hours"] == target_hours for c in res_65):
+                res_90 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=90)
+                return 90 if (res_90 and any(c["hours"] == target_hours for c in res_90)) else 65
+            return 50
+        high = 50
+
+    low = 1
+    exact_seats = 1
+
+    while low <= high:
+        mid = (low + high) // 2
+        res = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=mid)
+        if res is None:
+            continue
+        if any(c["hours"] == target_hours for c in res):
+            exact_seats = mid
+            low = mid + 1
+        else:
+            high = mid - 1
+
+    return exact_seats
+
+
+def enrich_course_with_seats(course: dict) -> dict:
+    course["seats"] = get_fast_seat_count(
+        course["from_id"],
+        course["from_name"],
+        course["to_id"],
+        course["to_name"],
+        course["date"],
+        course["hours"],
+        course.get("known_seats")
+    )
+    return course
+
+
+def check_route_base(route_label: str, from_id: str, from_name: str, to_id: str, to_name: str, dates_list: list, known_dict: dict):
+    print(f"🚌 Skanuję siatkę połączeń: {route_label}...", flush=True)
+    session = requests.Session()
+    courses = []
+    empty_days = 0
+
+    for d in dates_list:
+        found = query_neobus(session, from_id, from_name, to_id, to_name, d, passengers=1)
+        if found:
+            empty_days = 0
+            for c in found:
+                k_seats = known_dict.get((d, c["hours"]))
+                courses.append({
+                    "route": route_label,
+                    "date": d,
+                    "hours": c["hours"],
+                    "price": c["price"],
+                    "from_id": from_id,
+                    "from_name": from_name,
+                    "to_id": to_id,
+                    "to_name": to_name,
+                    "known_seats": k_seats,
+                    "seats": "B/D"
+                })
+        else:
+            empty_days += 1
+
+        # Zabezpieczenie przed skanowaniem pustych miesięcy
+        if empty_days >= 6:
+            print(f"🛑 [Koniec puli] Brak biletów od {d}. Koniec trasy.", flush=True)
+            break
+
+    return courses
+
+
+# =====================================================================
+#                           GŁÓWNY PROGRAM
+# =====================================================================
 
 def main():
     start_t = time.time()
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: PEŁNY PODGLĄD NA ŻYWO (SANOK ⇄ WROCŁAW)", flush=True)
+    print("=== SENTINEL N3: SANOK ⇄ WROCŁAW (FAST ADAPTIVE ENGINE) ===", flush=True)
     print("==========================================================", flush=True)
 
-    prev_san_wro = load_previous_snapshot(CSV_SANOK_WROCLAW)
-    prev_wro_san = load_previous_snapshot(CSV_WROCLAW_SANOK)
+    dates = generate_dynamic_dates(DAYS_FORWARD_SEARCH)
 
-    dates = generate_dates(DAYS_FORWARD_SEARCH)
-    total_days = len(dates)
+    known_sw = load_known_seats(CSV_SANOK_WROCLAW)
+    known_ws = load_known_seats(CSV_WROCLAW_SANOK)
 
-    raw_courses = []
+    # 1. Pobieranie siatki połączeń
+    courses_san_wro = check_route_base("Sanok ➔ Wrocław", STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], dates, known_sw)
+    courses_wro_san = check_route_base("Wrocław ➔ Sanok", STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], dates, known_ws)
 
-    # ETAP 1: Skan siatki połączeń
-    print(f"\n📡 [ETAP 1/2] Skanowanie kalendarza połączeń ({total_days} dni)...", flush=True)
-    done_scan = 0
-    with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = [executor.submit(scan_day_directions, d) for d in dates]
-        for fut in as_completed(futures):
-            day_str, sw_dict, ws_dict = fut.result()
-            done_scan += 1
+    # 2. Bezpieczna weryfikacja horyzontu nowej puli
+    all_active_dates = list({c["date"] for c in (courses_san_wro + courses_wro_san)})
+    check_and_notify_new_schedule(all_active_dates)
 
-            for dep, data in sw_dict.items():
-                raw_courses.append({
-                    "route": "Sanok ➔ Wrocław", "date": day_str, "hours": data["hours"], "departure": dep,
-                    "price": data["price"], "from_id": STOPS["sanok"]["id"], "from_name": STOPS["sanok"]["name"],
-                    "to_id": STOPS["wroclaw"]["id"], "to_name": STOPS["wroclaw"]["name"]
-                })
+    all_courses = courses_san_wro + courses_wro_san
+    total_count = len(all_courses)
+    print(f"\n🚀 Badanie miejsc dla {total_count} kursów ({MAX_WORKERS} wątków)...", flush=True)
 
-            for dep, data in ws_dict.items():
-                raw_courses.append({
-                    "route": "Wrocław ➔ Sanok", "date": day_str, "hours": data["hours"], "departure": dep,
-                    "price": data["price"], "from_id": STOPS["wroclaw"]["id"], "from_name": STOPS["wroclaw"]["name"],
-                    "to_id": STOPS["sanok"]["id"], "to_name": STOPS["sanok"]["name"]
-                })
-
-            if done_scan % 20 == 0 or done_scan == total_days:
-                pct = (done_scan / total_days) * 100
-                print(f"  [📅 {done_scan:03d}/{total_days} | {pct:5.1f}%] Przeskanowano dni...", flush=True)
-
-    total_courses = len(raw_courses)
-    print(f"\n✅ Znaleziono {total_courses} kursów w rozkładzie.", flush=True)
-
-    # Weryfikacja horyzontu dat
-    all_dates = list({c["date"] for c in raw_courses})
-    check_and_notify_horizon(all_dates)
-
-    # ETAP 2: Dokładne badanie każdego kursu z logowaniem na żywo
-    print(f"\n🔬 [ETAP 2/2] Badanie miejsc dla każdego kursu z osobna ({total_courses} zadań)...", flush=True)
-    done_eval = 0
-    courses_san_wro = []
-    courses_wro_san = []
-
-    with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = {executor.submit(resolve_course_seats, c): c for c in raw_courses}
+    # 3. Równoległe badanie miejsc
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        futures = [executor.submit(enrich_course_with_seats, course) for course in all_courses]
+        done = 0
         for fut in as_completed(futures):
             res = fut.result()
-            if res["route"] == "Sanok ➔ Wrocław":
-                courses_san_wro.append(res)
-            else:
-                courses_wro_san.append(res)
+            done += 1
+            pct = (done / total_count) * 100
+            print(f"  [💺 {done:03d}/{total_count} | {pct:5.1f}%] {res['route']} | {res['date']} ({res['hours']}) ➔ Miejsca: {res['seats']} | {res['price']:.2f} zł", flush=True)
 
-            done_eval += 1
-            pct = (done_eval / total_courses) * 100
-            print(f"  [💺 {done_eval:03d}/{total_courses} | {pct:5.1f}%] {res['route']} | {res['date']} {res['hours']} ➔ Miejsca: {res['seats']} | Cena: {res['price']:.2f} zł", flush=True)
+    # 4. Zapis do plików CSV
+    print("\n💾 Zapisywanie baz CSV...", flush=True)
+    save_route_to_csv(courses_san_wro, CSV_SANOK_WROCLAW)
+    save_route_to_csv(courses_wro_san, CSV_WROCLAW_SANOK)
 
-    # Sortowanie chronologiczne
-    courses_san_wro.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
-    courses_wro_san.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
+    # 5. Generowanie raportu README.md
+    generate_markdown_readme(courses_san_wro, courses_wro_san)
 
-    # Zmiany względem poprzedniego pomiaru
-    deltas = compute_deltas(courses_san_wro, prev_san_wro) + compute_deltas(courses_wro_san, prev_wro_san)
-
-    # Zapis danych
-    print("\n💾 Zapisywanie baz CSV i generowanie README.md...", flush=True)
-    update_database(courses_san_wro, CSV_SANOK_WROCLAW)
-    update_database(courses_wro_san, CSV_WROCLAW_SANOK)
-    build_readme(courses_san_wro, courses_wro_san, deltas)
-
-    elapsed = time.time() - start_t
+    total_time = time.time() - start_t
     print("==========================================================", flush=True)
-    print(f"⏱️ ZAKOŃCZONO POMYŚLNIE W CZASIE: {elapsed:.2f} s", flush=True)
+    print(f"⏱️ ZAKOŃCZONO W CZASIE: {total_time:.2f} s", flush=True)
     print("==========================================================", flush=True)
 
 
