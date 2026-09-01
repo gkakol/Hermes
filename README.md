@@ -1,6 +1,6 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `01.09.2026 21:02:29`  
+> 🕒 **Ostatnia aktualizacja:** `01.09.2026 21:09:23`  
 > 🟢 **Dużo miejsc (>25)** | 🟡 **Średnie obłożenie (6–25)** | 🔴 **Ostatnie miejsca (1–5)**
 
 ## ⚡ 1. Ostatnie zarejestrowane zmiany cen i stanu miejsc
