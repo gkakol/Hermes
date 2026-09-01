@@ -5,11 +5,8 @@ import os
 import re
 import sys
 import time
-import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
-from urllib3.util import Retry
-from requests.adapters import HTTPAdapter
 
 # =====================================================================
 #                        KONFIGURACJA
@@ -26,9 +23,10 @@ LATEST_DATE_FILE = "ostatnia_data_sprzedazy.txt"
 README_FILE = "README.md"
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
+# Dokładne nazwy przystanków zgodne z formularzem Neobusa
 STOPS = {
     "sanok": {"id": "17", "name": "SANOK D.A. Lipińskiego"},
-    "wroclaw": {"id": "77", "name": "WROCŁAW PKS Polbus"}
+    "wroclaw": {"id": "77", "name": "WROCŁAW PKS Polbus ul. Sucha 1"}
 }
 
 HEADERS = {
@@ -39,28 +37,6 @@ HEADERS = {
     "Origin": "https://neobus.pl",
     "Referer": "https://neobus.pl/"
 }
-
-_thread_local = threading.local()
-
-
-def get_warmed_session() -> requests.Session:
-    """Zwraca sesję z zainicjowanymi ciasteczkami omijającymi WAF."""
-    if not hasattr(_thread_local, "session"):
-        s = requests.Session()
-        retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
-        adapter = HTTPAdapter(max_retries=retries, pool_connections=10, pool_maxsize=20)
-        s.mount("https://", adapter)
-        s.mount("http://", adapter)
-        try:
-            s.get("https://neobus.pl/", headers=HEADERS, timeout=8)
-        except Exception:
-            pass
-        _thread_local.session = s
-    return _thread_local.session
-
-
-def normalize_time(t: str) -> str:
-    return re.sub(r'[-]', ':', t.strip())
 
 
 # =====================================================================
@@ -146,10 +122,13 @@ def save_route_to_csv(courses_list: list, csv_filename: str):
 #                 FORMATOWANIE WSKAŹNIKÓW I RAPORTU
 # =====================================================================
 
-def render_progress_bar(seats: int) -> str:
+def render_progress_bar(seats: int, total: int = 50) -> str:
     if not isinstance(seats, int) or seats < 0:
         return "B/D"
-    total = 90 if seats > 65 else (65 if seats > 50 else 50)
+    if seats > 65:
+        total = 90
+    elif seats > 50:
+        total = 65
     filled = max(0, min(10, int(round((seats / total) * 10))))
     bar = "█" * filled + "░" * (10 - filled)
     return f"[{bar}] {seats}/{total}"
@@ -325,8 +304,7 @@ def check_and_notify_new_schedule(active_dates: list):
 #                    ZAPYTANIA API I POMIAR MIEJSC
 # =====================================================================
 
-def query_neobus(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1, retries: int = 2):
-    session = get_warmed_session()
+def query_neobus(session: requests.Session, from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1, retries: int = 3):
     payload = {
         "ajax": "true",
         "dataType": "json",
@@ -343,7 +321,7 @@ def query_neobus(from_id: str, from_name: str, to_id: str, to_name: str, date_st
     }
     for _ in range(retries):
         try:
-            resp = session.post("https://neobus.pl/", data=payload, headers=HEADERS, timeout=8)
+            resp = session.post("https://neobus.pl/", data=payload, headers=HEADERS, timeout=10)
             if resp.status_code == 200:
                 raw = resp.json()
                 content = raw.get("neotickets", raw) if isinstance(raw, dict) else raw
@@ -361,8 +339,8 @@ def query_neobus(from_id: str, from_name: str, to_id: str, to_name: str, date_st
 
                         match_hours = re.search(r"(\d{2}[-:]\d{2})\s*-\s*(\d{2}[-:]\d{2})", name)
                         if match_hours:
-                            dep = normalize_time(match_hours.group(1))
-                            arr = normalize_time(match_hours.group(2))
+                            dep = match_hours.group(1).replace('-', ':')
+                            arr = match_hours.group(2).replace('-', ':')
                             hours_str = f"{dep} -> {arr}"
                         else:
                             hours_str = name
@@ -371,14 +349,14 @@ def query_neobus(from_id: str, from_name: str, to_id: str, to_name: str, date_st
                             courses.append({"hours": hours_str, "price": price})
                 return courses
         except Exception:
-            time.sleep(0.15)
+            time.sleep(0.2)
     return None
 
 
 def scan_single_day_task(date_str: str, known_sw: dict, known_ws: dict) -> tuple:
-    """Równoległe badanie obu relacji dla danego dnia."""
-    sw_found = query_neobus(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, passengers=1)
-    ws_found = query_neobus(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, passengers=1)
+    session = requests.Session()
+    sw_found = query_neobus(session, STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, passengers=1)
+    ws_found = query_neobus(session, STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, passengers=1)
 
     res_sw = []
     if sw_found:
@@ -406,41 +384,40 @@ def scan_single_day_task(date_str: str, known_sw: dict, known_ws: dict) -> tuple
 
 
 def get_fast_seat_count(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, target_hours: str, known_seats: int = None) -> int:
-    # 1. Sprawdzenie znanego stanu z bazy CSV (Fast Exit)
+    session = requests.Session()
+
     if known_seats and 1 <= known_seats <= 50:
-        res = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=known_seats)
+        res = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=known_seats)
         if res is not None and any(c["hours"] == target_hours for c in res):
             if known_seats == 50:
-                res_65 = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=65)
+                res_65 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=65)
                 if res_65 is not None and any(c["hours"] == target_hours for c in res_65):
-                    res_90 = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=90)
+                    res_90 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=90)
                     return 90 if (res_90 and any(c["hours"] == target_hours for c in res_90)) else 65
                 return 50
-            res_plus = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=known_seats + 1)
+            res_plus = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=known_seats + 1)
             if res_plus is not None and not any(c["hours"] == target_hours for c in res_plus):
                 return known_seats
             high = 50
         else:
             high = known_seats
     else:
-        # Szybki check czy kurs nie jest pełny (50 miejsc)
-        res_50 = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=50)
+        res_50 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=50)
         if res_50 and any(c["hours"] == target_hours for c in res_50):
-            res_65 = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=65)
+            res_65 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=65)
             if res_65 and any(c["hours"] == target_hours for c in res_65):
-                res_90 = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=90)
+                res_90 = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=90)
                 return 90 if (res_90 and any(c["hours"] == target_hours for c in res_90)) else 65
             return 50
         high = 50
 
-    # 2. Wyszukiwanie binarne z ograniczeniem do 5 kroków
     low = 1
     exact_seats = 1
     for _ in range(5):
         if low > high:
             break
         mid = (low + high) // 2
-        res = query_neobus(from_id, from_name, to_id, to_name, date_str, passengers=mid)
+        res = query_neobus(session, from_id, from_name, to_id, to_name, date_str, passengers=mid)
         if res is None:
             continue
         if any(c["hours"] == target_hours for c in res):
@@ -481,8 +458,7 @@ def main():
     known_sw = load_known_seats(CSV_SANOK_WROCLAW)
     known_ws = load_known_seats(CSV_WROCLAW_SANOK)
 
-    # 1. Równoległe pobieranie siatki połączeń z zachowaniem sesji
-    print(f"\n📡 [ETAP 1/2] Równoległe skanowanie siatki połączeń ({total_days} dni)...", flush=True)
+    print(f"\n📡 [ETAP 1/2] Skanowanie siatki połączeń ({total_days} dni)...", flush=True)
     courses_san_wro = []
     courses_wro_san = []
     done_days = 0
@@ -503,11 +479,9 @@ def main():
     total_count = len(all_courses)
     print(f"\n✅ Zakończono mapowanie. Znaleziono łącznie {total_count} aktywnych kursów.", flush=True)
 
-    # 2. Bezpieczna weryfikacja horyzontu nowej puli
     all_active_dates = list({c["date"] for c in all_courses})
     check_and_notify_new_schedule(all_active_dates)
 
-    # 3. Równoległe badanie miejsc z logowaniem na żywo
     print(f"\n🚀 [ETAP 2/2] Badanie miejsc dla {total_count} kursów ({MAX_WORKERS} wątków)...", flush=True)
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = [executor.submit(enrich_course_with_seats, course) for course in all_courses]
@@ -518,11 +492,9 @@ def main():
             pct = (done / total_count) * 100
             print(f"  [💺 {done:03d}/{total_count} | {pct:5.1f}%] {res['route']} | {res['date']} ({res['hours']}) ➔ Miejsca: {res['seats']} | {res['price']:.2f} zł", flush=True)
 
-    # 4. Chronologiczne sortowanie
     courses_san_wro.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["hours"]))
     courses_wro_san.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["hours"]))
 
-    # 5. Zapis do plików CSV i generowanie README
     print("\n💾 Zapisywanie baz CSV...", flush=True)
     save_route_to_csv(courses_san_wro, CSV_SANOK_WROCLAW)
     save_route_to_csv(courses_wro_san, CSV_WROCLAW_SANOK)
