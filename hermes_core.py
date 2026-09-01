@@ -1,5 +1,6 @@
 import csv
 from datetime import date, datetime, timedelta
+import html
 import json
 import os
 import re
@@ -16,7 +17,7 @@ from requests.adapters import HTTPAdapter
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 10
+PARALLEL_WORKERS = 5  # Bezpieczna liczba wątków chroniąca przed banem WAF
 TARGET_PROMO_PRICE = 50.00
 
 CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
@@ -47,8 +48,8 @@ _thread_local = threading.local()
 def get_session() -> requests.Session:
     if not hasattr(_thread_local, "session"):
         s = requests.Session()
-        retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
-        adapter = HTTPAdapter(max_retries=retries, pool_connections=10, pool_maxsize=20)
+        retries = Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
+        adapter = HTTPAdapter(max_retries=retries, pool_connections=5, pool_maxsize=10)
         s.mount("https://", adapter)
         s.mount("http://", adapter)
         try:
@@ -63,7 +64,7 @@ def normalize_time(t: str) -> str:
     return re.sub(r'[-]', ':', t.strip())
 
 
-def query_roundtrip_raw(date_str: str, passengers: int = 1) -> tuple:
+def query_roundtrip_neobus(date_str: str, passengers: int = 1) -> tuple:
     """Wysyła jedno zapytanie Tam+Powrót dla danej liczby pasażerów."""
     session = get_session()
     payload = {
@@ -81,7 +82,7 @@ def query_roundtrip_raw(date_str: str, passengers: int = 1) -> tuple:
         "final_stop_name": STOPS["wroclaw"]["name"],
     }
     try:
-        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=7)
+        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=10)
         if r.status_code != 200:
             return {}, {}
 
@@ -96,8 +97,8 @@ def query_roundtrip_raw(date_str: str, passengers: int = 1) -> tuple:
         there_dict = {}
         back_dict = {}
 
+        # 1. Parsowanie ga4_data (Tam = indeks 0, Powrót = indeks 1)
         if isinstance(data, dict) and "ga4_data" in data and len(data["ga4_data"]) > 0:
-            # ga4_data[0] = Tam (Sanok -> Wrocław), ga4_data[1] = Powrót (Wrocław -> Sanok)
             for idx, section in enumerate(data["ga4_data"]):
                 target = there_dict if idx == 0 else back_dict
                 for it in section.get("items", []):
@@ -120,27 +121,56 @@ def query_roundtrip_raw(date_str: str, passengers: int = 1) -> tuple:
                     if price > 0:
                         target[dep] = {"hours": h_str, "price": price}
 
+        # 2. Awaryjny fallback na HTML
+        if not there_dict and isinstance(data, dict) and "html" in data:
+            raw_html = html.unescape(data["html"])
+            blocks = re.findall(r'(\d{2}:\d{2})\s*(?:-|–|&ndash;)\s*(\d{2}:\d{2}).*?([\d\s]+[.,]\d{2})\s*zł', raw_html, re.DOTALL)
+            for dep, arr, p_str in blocks:
+                clean_p = float(p_str.replace(" ", "").replace(",", "."))
+                there_dict[dep] = {"hours": f"{dep} -> {arr}", "price": clean_p}
+
         return there_dict, back_dict
-    except Exception:
+    except Exception as e:
         return {}, {}
 
 
-def process_single_day_full_roundtrip(date_str: str) -> tuple:
-    """Bada wszystkie kursy i miejsca w obu kierunkach dla całego dnia w kilku krokach binarnych."""
-    # Krok 1: Pobranie bazowej siatki i cen (passengers=1)
-    base_there, base_back = query_roundtrip_raw(date_str, passengers=1)
-    if not base_there and not base_back:
+def scan_single_day_schedule(date_str: str) -> tuple:
+    """Etap 1: Pobiera siatkę połączeń dla 1 pasażera."""
+    time.sleep(0.05)
+    there, back = query_roundtrip_neobus(date_str, passengers=1)
+    
+    res_there = []
+    for dep, data in there.items():
+        res_there.append({
+            "route": "Sanok ➔ Wrocław", "date": date_str, "hours": data["hours"],
+            "departure": dep, "price": data["price"], "seats": 1
+        })
+        
+    res_back = []
+    for dep, data in back.items():
+        res_back.append({
+            "route": "Wrocław ➔ Sanok", "date": date_str, "hours": data["hours"],
+            "departure": dep, "price": data["price"], "seats": 1
+        })
+        
+    return date_str, res_there, res_back
+
+
+def resolve_seats_for_active_day(day_data: tuple) -> tuple:
+    """Etap 2: Bada binarnie wolne miejsca dla dnia, w którym faktycznie są kursy."""
+    date_str, courses_there, courses_back = day_data
+    if not courses_there and not courses_back:
         return date_str, [], []
 
-    # Słowniki do zbierania wyników: {dep: exact_seats}
-    seats_there = {dep: 1 for dep in base_there}
-    seats_back = {dep: 1 for dep in base_back}
+    seats_there = {c["departure"]: 1 for c in courses_there}
+    seats_back = {c["departure"]: 1 for c in courses_back}
 
-    # Krok 2: Sprawdzenie progu 65 miejsc dla całego dnia
-    t65, b65 = query_roundtrip_raw(date_str, passengers=65)
+    time.sleep(0.05)
+    # Check 65 miejsc
+    t65, b65 = query_roundtrip_neobus(date_str, passengers=65)
     
-    # Kursy, które mają >65 miejsc sprawdzamy pod kątem 90 (piętrowe)
-    t90, b90 = query_roundtrip_raw(date_str, passengers=90)
+    # Check 90 miejsc (piętrowe)
+    t90, b90 = query_roundtrip_neobus(date_str, passengers=90)
     for dep in list(seats_there.keys()):
         if dep in t90:
             seats_there[dep] = 90
@@ -153,52 +183,36 @@ def process_single_day_full_roundtrip(date_str: str) -> tuple:
         elif dep in b65:
             seats_back[dep] = 65
 
-    # Krok 3: Wyszukiwanie binarne dla pozostałych kursów (1..64)
-    # Zamiast per kurs, sprawdzamy mid globalnie dla dnia
-    low, high = 2, 64
-    while low <= high:
-        mid = (low + high) // 2
-        t_mid, b_mid = query_roundtrip_raw(date_str, passengers=mid)
+    # Wyszukiwanie binarne dla kursów poniżej 65 miejsc
+    unresolved_there = [dep for dep, val in seats_there.items() if val < 65]
+    unresolved_back = [dep for dep, val in seats_back.items() if val < 65]
 
-        # Aktualizujemy miejsca dla kursów, które jeszcze nie mają ustalonego maxa
-        for dep in seats_there:
-            if seats_there[dep] < 65 and dep in t_mid:
-                seats_there[dep] = max(seats_there[dep], mid)
+    if unresolved_there or unresolved_back:
+        low, high = 2, 64
+        while low <= high:
+            mid = (low + high) // 2
+            t_mid, b_mid = query_roundtrip_neobus(date_str, passengers=mid)
 
-        for dep in seats_back:
-            if seats_back[dep] < 65 and dep in b_mid:
-                seats_back[dep] = max(seats_back[dep], mid)
+            for dep in unresolved_there:
+                if dep in t_mid:
+                    seats_there[dep] = max(seats_there[dep], mid)
 
-        # Warunek podziału: jeśli którykolwiek nieustalony kurs ma jeszcze dostępne miejsca w mid
-        any_active_in_mid = any(dep in t_mid for dep in seats_there if seats_there[dep] < 65) or \
-                            any(dep in b_mid for dep in seats_back if seats_back[dep] < 65)
-        if any_active_in_mid:
-            low = mid + 1
-        else:
-            high = mid - 1
+            for dep in unresolved_back:
+                if dep in b_mid:
+                    seats_back[dep] = max(seats_back[dep], mid)
 
-    # Formatowanie listy wynikowej
-    courses_there = []
-    for dep, data in base_there.items():
-        courses_there.append({
-            "route": "Sanok ➔ Wrocław",
-            "date": date_str,
-            "hours": data["hours"],
-            "departure": dep,
-            "price": data["price"],
-            "seats": seats_there.get(dep, 1)
-        })
+            any_available = any(dep in t_mid for dep in unresolved_there) or any(dep in b_mid for dep in unresolved_back)
+            if any_available:
+                low = mid + 1
+            else:
+                high = mid - 1
+            time.sleep(0.05)
 
-    courses_back = []
-    for dep, data in base_back.items():
-        courses_back.append({
-            "route": "Wrocław ➔ Sanok",
-            "date": date_str,
-            "hours": data["hours"],
-            "departure": dep,
-            "price": data["price"],
-            "seats": seats_back.get(dep, 1)
-        })
+    for c in courses_there:
+        c["seats"] = seats_there.get(c["departure"], 1)
+
+    for c in courses_back:
+        c["seats"] = seats_back.get(c["departure"], 1)
 
     return date_str, courses_there, courses_back
 
@@ -383,7 +397,7 @@ def check_and_notify_horizon(active_dates: list):
 def main():
     start_t = time.time()
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: ULTRA-FAST ROUNDTRIP ENGINE (120+ DNI)", flush=True)
+    print("🚀 SENTINEL N3: SANOK ⇄ WROCŁAW (120+ DNI ROUNDTRIP)", flush=True)
     print("==========================================================", flush=True)
 
     prev_san_wro = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -392,26 +406,43 @@ def main():
     dates = generate_dates(DAYS_FORWARD_SEARCH)
     total_days = len(dates)
 
+    # ETAP 1: Szybki skan kalendarza (1 zapytanie = cały dzień w obie strony)
+    print(f"\n📡 [ETAP 1/2] Skanowanie kalendarza połączeń ({total_days} dni)...", flush=True)
+    active_days_data = []
+    done_scan = 0
+    with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
+        futures = [executor.submit(scan_single_day_schedule, d) for d in dates]
+        for fut in as_completed(futures):
+            day_str, res_sw, res_ws = fut.result()
+            done_scan += 1
+            if res_sw or res_ws:
+                active_days_data.append((day_str, res_sw, res_ws))
+            if done_scan % 15 == 0 or done_scan == total_days:
+                pct = (done_scan / total_days) * 100
+                print(f"  [📅 {done_scan:03d}/{total_days} | {pct:5.1f}%] Przeskanowano horyzont (Aktywnych dni ze sprzedażą: {len(active_days_data)})...", flush=True)
+
+    total_active = len(active_days_data)
+    print(f"\n✅ Wykryto {total_active} dni z aktywną sprzedażą biletów.", flush=True)
+
+    # ETAP 2: Dokładne badanie wolnych miejsc tylko dla dni z aktywnymi kursami
     courses_san_wro = []
     courses_wro_san = []
 
-    print(f"\n📡 Równoległe skanowanie i badanie miejsc w trybie Roundtrip ({total_days} dni | {PARALLEL_WORKERS} wątków)...", flush=True)
-    done_days = 0
+    print(f"\n🔬 [ETAP 2/2] Binarne badanie miejsc dla {total_active} aktywnych dni...", flush=True)
+    done_eval = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = [executor.submit(process_single_day_full_roundtrip, d) for d in dates]
+        futures = [executor.submit(resolve_seats_for_active_day, item) for item in active_days_data]
         for fut in as_completed(futures):
             day_str, res_sw, res_ws = fut.result()
             courses_san_wro.extend(res_sw)
             courses_wro_san.extend(res_ws)
-            done_days += 1
-            pct = (done_days / total_days) * 100
-            total_found = len(res_sw) + len(res_ws)
-            if total_found > 0:
-                print(f"  [⚡ {done_days:03d}/{total_days} | {pct:5.1f}%] {day_str} ➔ Zbadano {total_found} kursów (Tam & Powrót)", flush=True)
+            done_eval += 1
+            pct = (done_eval / total_active) * 100
+            print(f"  [💺 {done_eval:02d}/{total_active} | {pct:5.1f}%] Data: {day_str} ➔ Zbadano {len(res_sw) + len(res_ws)} kursów w obie strony", flush=True)
 
     all_courses = courses_san_wro + courses_wro_san
     total_courses = len(all_courses)
-    print(f"\n✅ Zbadano łącznie {total_courses} kursów w obu kierunkach.", flush=True)
+    print(f"\n🚀 Zakończono pomiary. Zbadano łącznie {total_courses} kursów.", flush=True)
 
     all_dates = sorted(list({c["date"] for c in all_courses}), key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
     check_and_notify_horizon(all_dates)
