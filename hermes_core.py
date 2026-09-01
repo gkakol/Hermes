@@ -157,56 +157,66 @@ def scan_single_day_schedule(date_str: str) -> tuple:
 
 
 def resolve_seats_for_active_day(day_data: tuple) -> tuple:
-    """Etap 2: Bada binarnie wolne miejsca dla dnia, w którym faktycznie są kursy."""
+    """Ultra-szybkie badanie z wczesnym wyjściem (Fast-Path)."""
     date_str, courses_there, courses_back = day_data
     if not courses_there and not courses_back:
         return date_str, [], []
 
-    seats_there = {c["departure"]: 1 for c in courses_there}
-    seats_back = {c["departure"]: 1 for c in courses_back}
+    seats_there = {}
+    seats_back = {}
 
-    time.sleep(0.05)
-    # Check 65 miejsc
+    # KROK 1: Sprawdzenie pełnej pojemności (65 i 90)
     t65, b65 = query_roundtrip_neobus(date_str, passengers=65)
-    
-    # Check 90 miejsc (piętrowe)
     t90, b90 = query_roundtrip_neobus(date_str, passengers=90)
-    for dep in list(seats_there.keys()):
+
+    # Kursy z kompletem miejsc oznaczamy od razu (Fast-Path)
+    for c in courses_there:
+        dep = c["departure"]
         if dep in t90:
             seats_there[dep] = 90
         elif dep in t65:
             seats_there[dep] = 65
 
-    for dep in list(seats_back.keys()):
+    for c in courses_back:
+        dep = c["departure"]
         if dep in b90:
             seats_back[dep] = 90
         elif dep in b65:
             seats_back[dep] = 65
 
-    # Wyszukiwanie binarne dla kursów poniżej 65 miejsc
-    unresolved_there = [dep for dep, val in seats_there.items() if val < 65]
-    unresolved_back = [dep for dep, val in seats_back.items() if val < 65]
+    # KROK 2: Wyszukiwanie binarne odpalamy TYLKO dla kursów, które mają <65 miejsc
+    unresolved_there = [c["departure"] for c in courses_there if c["departure"] not in seats_there]
+    unresolved_back = [c["departure"] for c in courses_back if c["departure"] not in seats_back]
 
+    # Jeśli wszystkie kursy były puste (np. dalekie daty), kończymy natychmiast!
     if unresolved_there or unresolved_back:
-        low, high = 2, 64
-        while low <= high:
-            mid = (low + high) // 2
+        low_map = {dep: 1 for dep in unresolved_there + unresolved_back}
+        high_map = {dep: 64 for dep in unresolved_there + unresolved_back}
+
+        while True:
+            active_deps = [dep for dep in low_map if low_map[dep] <= high_map[dep]]
+            if not active_deps:
+                break  # Wszystkie kursy ustalone co do jednego fotela!
+
+            # Wyznaczamy wspólny środek dla aktywnych kursów
+            mid = (min(low_map[d] for d in active_deps) + max(high_map[d] for d in active_deps)) // 2
+            mid = max(2, min(64, mid))
+
             t_mid, b_mid = query_roundtrip_neobus(date_str, passengers=mid)
 
-            for dep in unresolved_there:
-                if dep in t_mid:
-                    seats_there[dep] = max(seats_there[dep], mid)
+            for dep in list(active_deps):
+                found = (dep in t_mid) if dep in unresolved_there else (dep in b_mid)
+                if found:
+                    low_map[dep] = mid + 1
+                    # Zapisujemy najlepszy potwierdzony wynik
+                    if dep in unresolved_there:
+                        seats_there[dep] = max(seats_there.get(dep, 1), mid)
+                    else:
+                        seats_back[dep] = max(seats_back.get(dep, 1), mid)
+                else:
+                    high_map[dep] = mid - 1
 
-            for dep in unresolved_back:
-                if dep in b_mid:
-                    seats_back[dep] = max(seats_back[dep], mid)
-
-            any_available = any(dep in t_mid for dep in unresolved_there) or any(dep in b_mid for dep in unresolved_back)
-            if any_available:
-                low = mid + 1
-            else:
-                high = mid - 1
-            time.sleep(0.05)
+            time.sleep(0.03)
 
     for c in courses_there:
         c["seats"] = seats_there.get(c["departure"], 1)
