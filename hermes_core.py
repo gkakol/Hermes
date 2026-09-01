@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 from urllib3.util import Retry
@@ -18,7 +19,7 @@ PROJECT_NAME = "Project Aether: N3 Transit Observatory"
 DAYS_FORWARD_SEARCH = 90
 MAX_CONCURRENT_WORKERS = 10
 TARGET_PROMO_THRESHOLD = 50.00
-ANALYZE_FLOW_DAYS_COUNT = 3  # Precyzyjne potoki dla 3 najbliższych dni
+ANALYZE_FLOW_DAYS_COUNT = 3
 
 DATA_ARCHIVE_CSV = "oracle_pulse.csv"
 HORIZON_STATE_FILE = "chronos_boundary.txt"
@@ -103,34 +104,51 @@ GATEWAY_HEADERS = {
     "Referer": "https://neobus.pl/",
 }
 
+_thread_local = threading.local()
 
-# =====================================================================
-#                     NETWORK & TELEMETRY PROTOCOL
-# =====================================================================
-
-def init_protocol_session() -> requests.Session:
-    sess = requests.Session()
-    retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
-    adapter = HTTPAdapter(max_retries=retries, pool_connections=15, pool_maxsize=30)
-    sess.mount("https://", adapter)
-    sess.mount("http://", adapter)
-    try:
-        sess.get(GATEWAY_ENDPOINT, headers=GATEWAY_HEADERS, timeout=8)
-    except Exception:
-        pass
-    return sess
+def get_protocol_session() -> requests.Session:
+    if not hasattr(_thread_local, "session"):
+        s = requests.Session()
+        retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
+        adapter = HTTPAdapter(max_retries=retries, pool_connections=10, pool_maxsize=20)
+        s.mount("https://", adapter)
+        s.mount("http://", adapter)
+        try:
+            s.get(GATEWAY_ENDPOINT, headers=GATEWAY_HEADERS, timeout=8)
+        except Exception:
+            pass
+        _thread_local.session = s
+    return _thread_local.session
 
 
 def normalize_timestamp(t: str) -> str:
     return re.sub(r'[-]', ':', t.strip())
 
 
-def is_timestamp_matched(t1: str, t2: str) -> bool:
-    n1, n2 = normalize_timestamp(t1), normalize_timestamp(t2)
-    return n1 == n2 or n1 in n2 or n2 in n1
+def parse_minutes(t_str: str) -> int:
+    norm = normalize_timestamp(t_str)
+    parts = norm.split(":")
+    if len(parts) >= 2 and parts[0].isdigit() and parts[1].isdigit():
+        return int(parts[0]) * 60 + int(parts[1])
+    return -1
 
 
-def fetch_node_pair(session: requests.Session, from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, seats_probe: int = 1):
+def is_timestamp_matched(course_time: str, target_time: str) -> bool:
+    m_course = parse_minutes(course_time)
+    m_target = parse_minutes(target_time)
+    if m_course == -1 or m_target == -1:
+        n1, n2 = normalize_timestamp(course_time), normalize_timestamp(target_time)
+        return n1 == n2 or n1 in n2 or n2 in n1
+
+    diff = abs(m_course - m_target)
+    # Obsługa przejścia przez północ (np. 23:55 vs 00:05)
+    if diff > 1200:
+        diff = 1440 - diff
+    return diff <= 45  # Tolerancja do 45 minut
+
+
+def fetch_node_pair(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, seats_probe: int = 1):
+    session = get_protocol_session()
     payload = {
         "ajax": "true",
         "dataType": "json",
@@ -188,18 +206,23 @@ def fetch_node_pair(session: requests.Session, from_id: str, from_name: str, to_
 
 
 def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, dep_time: str) -> tuple:
-    sess = init_protocol_session()
-    base = fetch_node_pair(sess, from_id, from_name, to_id, to_name, date_str, seats_probe=1)
+    base = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=1)
+    if not base:
+        return 0, 0.0
+
     matched = [c for c in base if is_timestamp_matched(c["departure"], dep_time)]
     if not matched:
-        return 0, 0.0
-    price_unit = matched[0]["price"]
+        # Jeśli nie ma idealnego dopasowania, bierzemy pierwszy dostępny kurs na tym odcinku
+        matched = [base[0]]
 
-    # 1. Szybki check 65 miejsc
-    c65 = fetch_node_pair(sess, from_id, from_name, to_id, to_name, date_str, seats_probe=65)
-    if any(is_timestamp_matched(c["departure"], dep_time) for c in c65):
-        c90 = fetch_node_pair(sess, from_id, from_name, to_id, to_name, date_str, seats_probe=90)
-        if any(is_timestamp_matched(c["departure"], dep_time) for c in c90):
+    price_unit = matched[0]["price"]
+    actual_dep = matched[0]["departure"]
+
+    # 1. Sprawdzenie progu 65 miejsc
+    c65 = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=65)
+    if any(is_timestamp_matched(c["departure"], actual_dep) for c in c65):
+        c90 = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=90)
+        if any(is_timestamp_matched(c["departure"], actual_dep) for c in c90):
             return 90, price_unit
         low, high = 66, 90
     else:
@@ -208,8 +231,8 @@ def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: 
     exact_seats = 1
     while low <= high:
         mid = (low + high) // 2
-        res = fetch_node_pair(sess, from_id, from_name, to_id, to_name, date_str, seats_probe=mid)
-        if any(is_timestamp_matched(c["departure"], dep_time) for c in res):
+        res = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=mid)
+        if any(is_timestamp_matched(c["departure"], actual_dep) for c in res):
             exact_seats = mid
             low = mid + 1
         else:
@@ -228,7 +251,7 @@ def evaluate_segment_item(item: dict) -> dict:
     pax = max(0, cap - free_seats) if free_seats > 0 else 0
     item["free_seats"] = free_seats if free_seats > 0 else "B/D"
     item["capacity"] = cap
-    item["passengers"] = pax if free_seats > 0 else None
+    item["passengers"] = pax if free_seats > 0 else 0
     item["price"] = unit_price
     item["revenue"] = (pax * unit_price) if free_seats > 0 else 0.0
     return item
@@ -266,7 +289,7 @@ def save_pulse_archive(flow_dataset: list, filename: str):
                 s["dep_time"],
                 p_val,
                 s["free_seats"],
-                s["passengers"] if s["passengers"] is not None else "B/D",
+                s["passengers"] if s["passengers"] is not None else 0,
                 s["capacity"],
                 s["delta_str"],
                 rev_val
@@ -329,9 +352,9 @@ def generate_observatory_readme(flow_dataset: list, terminus_direct: list):
             for s in item["segments"]:
                 cap = s["capacity"]
                 pax = s["passengers"]
-                pax_str = f"**{pax}/{cap}**" if pax is not None else "B/D"
+                pax_str = f"**{pax}/{cap}**" if pax is not None else "0"
                 pr_str = f"{s['price']:.2f} zł" if s.get('price') is not None else "B/D"
-                rev_str = f"**{s['revenue']:.2f} zł**" if s.get('revenue') is not None else "B/D"
+                rev_str = f"**{s['revenue']:.2f} zł**" if s.get('revenue') is not None else "0.00 zł"
                 md.append(f"| {s['segment']} | ⏰ {s['dep_time']} | {pr_str} | `{s['free_seats']}` | {pax_str} | {s['delta_str']} | {rev_str} |\n")
             md.append("\n")
 
@@ -389,17 +412,15 @@ def main():
     print(f"🚀 {PROJECT_NAME} - ROZPOCZĘCIE POMIARU", flush=True)
     print("==========================================================", flush=True)
 
-    session = init_protocol_session()
     horizon = generate_horizon_dates(DAYS_FORWARD_SEARCH)
     total_days = len(horizon)
-
     terminus_direct = []
 
     # ETAP 1: Skan krańcowy Sanok <-> Wrocław
     print(f"\n📡 [ETAP 1/2] Skanowanie krańcowe relacji bezpośrednich ({total_days} dni)...", flush=True)
     for idx, d in enumerate(horizon, 1):
-        west = fetch_node_pair(session, NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], d, 1)
-        east = fetch_node_pair(session, NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], d, 1)
+        west = fetch_node_pair(NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], d, 1)
+        east = fetch_node_pair(NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], d, 1)
 
         for c in west:
             terminus_direct.append({"route": "Sanok ➔ Wrocław", "date": d, "departure": c["departure"], "price": c["price"], "seats": "B/D"})
@@ -469,7 +490,7 @@ def main():
             done_seg += 1
             if done_seg % 15 == 0 or done_seg == total_queue_len:
                 pct = (done_seg / total_queue_len) * 100
-                print(f"  [⚡ {done_seg:02d}/{total_queue_len} | {pct:4.1f}%] Zbadano segment: {res['segment']} ({res['date']} {res['dep_time']}) -> {res.get('free_seats', 'B/D')} wolnych", flush=True)
+                print(f"  [⚡ {done_seg:02d}/{total_queue_len} | {pct:4.1f}%] Zbadano: {res['segment']} ({res['date']} {res['dep_time']}) -> {res.get('free_seats', 'B/D')} wolnych", flush=True)
 
     # Rekonstrukcja struktury kursów
     flow_dataset = []
