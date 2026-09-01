@@ -52,7 +52,7 @@ def get_session() -> requests.Session:
         s.mount("https://", adapter)
         s.mount("http://", adapter)
         try:
-            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=8)
+            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=6)
         except Exception:
             pass
         _thread_local.session = s
@@ -63,7 +63,7 @@ def normalize_time(t: str) -> str:
     return re.sub(r'[-]', ':', t.strip())
 
 
-def query_api_single_direction(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1) -> dict:
+def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1) -> dict:
     session = get_session()
     payload = {
         "ajax": "true",
@@ -119,57 +119,43 @@ def query_api_single_direction(from_id: str, from_name: str, to_id: str, to_name
         return {}
 
 
-def scan_day_schedule(date_str: str) -> tuple:
-    time.sleep(0.04)
-    sw = query_api_single_direction(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 1)
-    ws = query_api_single_direction(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 1)
+def scan_day_directions(date_str: str) -> tuple:
+    sw = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 1)
+    ws = query_api(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 1)
     return date_str, sw, ws
 
 
-def resolve_exact_seats_isolated(course: dict) -> dict:
-    """Proste, izolowane i odporne na błędy badanie pojedynczego kursu."""
-    from_id = course["from_id"]
-    from_name = course["from_name"]
-    to_id = course["to_id"]
-    to_name = course["to_name"]
-    d = course["date"]
-    dep = course["departure"]
+def resolve_course_seats(c: dict) -> dict:
+    f_id, f_name = c["from_id"], c["from_name"]
+    t_id, t_name = c["to_id"], c["to_name"]
+    d, dep = c["date"], c["departure"]
 
-    # 1. Sprawdzamy stan standardowej pełnej puli (50 miejsc)
-    r50 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=50)
+    # 1. Sprawdzenie pełnej pojemności (50 miejsc)
+    r50 = query_api(f_id, f_name, t_id, t_name, d, 50)
     if dep in r50:
-        # Pula jest pełna; sprawdzamy czy to piętrus / przedłużany (65+)
-        r65 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=65)
+        r65 = query_api(f_id, f_name, t_id, t_name, d, 65)
         if dep in r65:
-            r90 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=90)
-            course["seats"] = 90 if dep in r90 else 65
+            r90 = query_api(f_id, f_name, t_id, t_name, d, 90)
+            c["seats"] = 90 if dep in r90 else 65
         else:
-            course["seats"] = 50
-        return course
+            c["seats"] = 50
+        return c
 
-    # 2. Jeśli zostało <50 miejsc, sprawdzamy próg 25
-    r25 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=25)
+    # 2. Jeśli mniej niż 50, badamy próg 25
+    r25 = query_api(f_id, f_name, t_id, t_name, d, 25)
     if dep in r25:
-        # Miejsca między 26 a 49 -> szybki test na 35
-        r35 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=35)
-        course["seats"] = 35 if dep in r35 else 25
-        return course
+        r35 = query_api(f_id, f_name, t_id, t_name, d, 35)
+        c["seats"] = 35 if dep in r35 else 25
+        return c
 
-    # 3. Końcówka miejsc (<25) -> badamy próg 10 i 5
-    r10 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=10)
+    # 3. Końcówka miejsc (<25)
+    r10 = query_api(f_id, f_name, t_id, t_name, d, 10)
     if dep in r10:
-        course["seats"] = 10
+        c["seats"] = 10
     else:
-        r5 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=5)
-        course["seats"] = 5 if dep in r5 else 1
+        r5 = query_api(f_id, f_name, t_id, t_name, d, 5)
+        c["seats"] = 5 if dep in r5 else 1
 
-    return course
-
-def enrich_course_task(c: dict) -> dict:
-    c["seats"] = resolve_course_seats(
-        c["from_id"], c["from_name"], c["to_id"], c["to_name"],
-        c["date"], c["departure"], c["price"]
-    )
     return c
 
 
@@ -221,7 +207,7 @@ def update_database(courses: list, csv_file: str):
         if not file_exists:
             w.writerow(["Data pomiaru", "Data kursu", "Godzina kursu", "Cena (PLN)", "Wolne miejsca"])
         w.writerows(rows)
-    print(f"💾 [{csv_file}] Zaktualizowano bazę ({len(rows)} rekordów).", flush=True)
+    print(f"💾 [{csv_file}] Zapisano {len(rows)} rekordów.", flush=True)
 
 
 def compute_deltas(current_courses: list, prev_dict: dict) -> list:
@@ -253,9 +239,10 @@ def compute_deltas(current_courses: list, prev_dict: dict) -> list:
     return deltas
 
 
-def render_bar(seats, total: int = 65) -> str:
+def render_bar(seats: int) -> str:
     if not isinstance(seats, int) or seats < 0:
         return "B/D"
+    total = 90 if seats > 65 else (65 if seats > 50 else 50)
     filled = max(0, min(10, int(round((seats / total) * 10))))
     bar = "█" * filled + "░" * (10 - filled)
     return f"[{bar}] {seats}/{total}"
@@ -275,7 +262,7 @@ def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
         md.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n")
         for d in deltas:
             p_delta = f"🟢 `{d['price_diff']:+.2f} zł`" if d['price_diff'] < 0 else (f"🔴 `{d['price_diff']:+.2f} zł`" if d['price_diff'] > 0 else "0.00 zł")
-            s_delta = f"📉 `{d['seats_diff']:+d} miejsc` (Wykupiono)" if d['seats_diff'] < 0 else (f"📈 `{d['seats_diff']:+d} miejsc` (Zwrot)" if d['seats_diff'] > 0 else "Bez zmian")
+            s_delta = f"📉 `{d['seats_diff']:+d} miejsc`" if d['seats_diff'] < 0 else (f"📈 `{d['seats_diff']:+d} miejsc`" if d['seats_diff'] > 0 else "Bez zmian")
             s_str = f"{d['curr_seats']}" if d['curr_seats'] is not None else "B/D"
             md.append(f"| {d['route']} | 📅 **{d['date']}** | ⏰ {d['hours']} | **{d['curr_price']:.2f} zł** | {p_delta} | `{s_str}` | {s_delta} |\n")
     else:
@@ -296,9 +283,8 @@ def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
     ])
 
     for c in courses_san_wro:
-        s_val = c.get("seats", "B/D")
-        cap = 90 if isinstance(s_val, int) and s_val > 65 else 65
-        bar = render_bar(s_val, cap)
+        s_val = c.get("seats", 0)
+        bar = render_bar(s_val)
         p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
         md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
 
@@ -309,9 +295,8 @@ def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
     ])
 
     for c in courses_wro_san:
-        s_val = c.get("seats", "B/D")
-        cap = 90 if isinstance(s_val, int) and s_val > 65 else 65
-        bar = render_bar(s_val, cap)
+        s_val = c.get("seats", 0)
+        bar = render_bar(s_val)
         p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
         md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
 
@@ -323,7 +308,6 @@ def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
 def check_and_notify_horizon(active_dates: list):
     if not active_dates:
         return
-    # Ścisłe sortowanie chronologiczne po dacie
     dt_dates = sorted(active_dates, key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
     furthest = dt_dates[-1]
 
@@ -358,7 +342,7 @@ def check_and_notify_horizon(active_dates: list):
 def main():
     start_t = time.time()
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: ULTRA-STABLE SCANNER (SANOK ⇄ WROCŁAW)", flush=True)
+    print("🚀 SENTINEL N3: PEŁNY PODGLĄD NA ŻYWO (SANOK ⇄ WROCŁAW)", flush=True)
     print("==========================================================", flush=True)
 
     prev_san_wro = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -367,51 +351,50 @@ def main():
     dates = generate_dates(DAYS_FORWARD_SEARCH)
     total_days = len(dates)
 
-    raw_courses_sw = []
-    raw_courses_ws = []
+    raw_courses = []
 
+    # ETAP 1: Skan siatki połączeń
     print(f"\n📡 [ETAP 1/2] Skanowanie kalendarza połączeń ({total_days} dni)...", flush=True)
     done_scan = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = [executor.submit(scan_day_schedule, d) for d in dates]
+        futures = [executor.submit(scan_day_directions, d) for d in dates]
         for fut in as_completed(futures):
             day_str, sw_dict, ws_dict = fut.result()
             done_scan += 1
 
             for dep, data in sw_dict.items():
-                raw_courses_sw.append({
+                raw_courses.append({
                     "route": "Sanok ➔ Wrocław", "date": day_str, "hours": data["hours"], "departure": dep,
                     "price": data["price"], "from_id": STOPS["sanok"]["id"], "from_name": STOPS["sanok"]["name"],
-                    "to_id": STOPS["wroclaw"]["id"], "to_name": STOPS["wroclaw"]["name"], "seats": 1
+                    "to_id": STOPS["wroclaw"]["id"], "to_name": STOPS["wroclaw"]["name"]
                 })
 
             for dep, data in ws_dict.items():
-                raw_courses_ws.append({
+                raw_courses.append({
                     "route": "Wrocław ➔ Sanok", "date": day_str, "hours": data["hours"], "departure": dep,
                     "price": data["price"], "from_id": STOPS["wroclaw"]["id"], "from_name": STOPS["wroclaw"]["name"],
-                    "to_id": STOPS["sanok"]["id"], "to_name": STOPS["sanok"]["name"], "seats": 1
+                    "to_id": STOPS["sanok"]["id"], "to_name": STOPS["sanok"]["name"]
                 })
 
             if done_scan % 20 == 0 or done_scan == total_days:
                 pct = (done_scan / total_days) * 100
-                print(f"  [📅 {done_scan:03d}/{total_days} | {pct:5.1f}%] Przeskanowano...", flush=True)
+                print(f"  [📅 {done_scan:03d}/{total_days} | {pct:5.1f}%] Przeskanowano dni...", flush=True)
 
-    all_raw = raw_courses_sw + raw_courses_ws
-    total_courses = len(all_raw)
-    print(f"\n✅ Znaleziono {total_courses} aktywnych kursów w rozkładzie.", flush=True)
+    total_courses = len(raw_courses)
+    print(f"\n✅ Znaleziono {total_courses} kursów w rozkładzie.", flush=True)
 
     # Weryfikacja horyzontu dat
-    all_dates = list({c["date"] for c in all_raw})
+    all_dates = list({c["date"] for c in raw_courses})
     check_and_notify_horizon(all_dates)
 
-    # Dokładne badanie wolnych miejsc
-    print(f"\n🔬 [ETAP 2/2] Równoległe badanie miejsc dla każdego kursu ({total_courses} zadań)...", flush=True)
+    # ETAP 2: Dokładne badanie każdego kursu z logowaniem na żywo
+    print(f"\n🔬 [ETAP 2/2] Badanie miejsc dla każdego kursu z osobna ({total_courses} zadań)...", flush=True)
     done_eval = 0
     courses_san_wro = []
     courses_wro_san = []
 
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = {executor.submit(enrich_course_task, c): c for c in all_raw}
+        futures = {executor.submit(resolve_course_seats, c): c for c in raw_courses}
         for fut in as_completed(futures):
             res = fut.result()
             if res["route"] == "Sanok ➔ Wrocław":
@@ -420,18 +403,17 @@ def main():
                 courses_wro_san.append(res)
 
             done_eval += 1
-            if done_eval % 40 == 0 or done_eval == total_courses:
-                pct = (done_eval / total_courses) * 100
-                print(f"  [💺 {done_eval:03d}/{total_courses} | {pct:5.1f}%] Zbadano kurs: {res['route']} {res['date']} {res['hours']} ➔ {res['seats']} wolnych", flush=True)
+            pct = (done_eval / total_courses) * 100
+            print(f"  [💺 {done_eval:03d}/{total_courses} | {pct:5.1f}%] {res['route']} | {res['date']} {res['hours']} ➔ Miejsca: {res['seats']} | Cena: {res['price']:.2f} zł", flush=True)
 
-    # Ścisłe sortowanie chronologiczne
+    # Sortowanie chronologiczne
     courses_san_wro.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
     courses_wro_san.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
 
     # Zmiany względem poprzedniego pomiaru
     deltas = compute_deltas(courses_san_wro, prev_san_wro) + compute_deltas(courses_wro_san, prev_wro_san)
 
-    # Zapis
+    # Zapis danych
     print("\n💾 Zapisywanie baz CSV i generowanie README.md...", flush=True)
     update_database(courses_san_wro, CSV_SANOK_WROCLAW)
     update_database(courses_wro_san, CSV_WROCLAW_SANOK)
@@ -439,7 +421,7 @@ def main():
 
     elapsed = time.time() - start_t
     print("==========================================================", flush=True)
-    print(f"⏱️ ZAKOŃCZONO W CZASIE: {elapsed:.2f} s", flush=True)
+    print(f"⏱️ ZAKOŃCZONO POMYŚLNIE W CZASIE: {elapsed:.2f} s", flush=True)
     print("==========================================================", flush=True)
 
 
