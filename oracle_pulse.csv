@@ -454,3 +454,87 @@ Timestamp,Direction,Course Name,Date,Origin Departure,Segment,Node Origin,Node T
 2026-09-01 11:36:26,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Balice ➔ Katowice,Balice,Katowice,04:00,0.00,B/D,0,65,➡️ 0,0.00
 2026-09-01 11:36:26,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Katowice ➔ Gliwice,Katowice,Gliwice,04:55,0.00,B/D,0,65,➡️ 0,0.00
 2026-09-01 11:36:26,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Gliwice ➔ Wrocław,Gliwice,Wrocław,05:22,0.00,B/D,0,65,➡️ 0,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Sanok ➔ Niebylec,Sanok,Niebylec,03:00,23.75,1,64,65,Start trasy,1520.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Niebylec ➔ Rzeszów,Niebylec,Rzeszów,04:00,14.00,1,64,65,➡️ 0,896.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Rzeszów ➔ Kraków MDA,Rzeszów,Kraków MDA,04:40,0.00,B/D,0,65,📉 -64,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Kraków MDA ➔ Balice,Kraków MDA,Balice,06:55,27.00,1,64,65,📈 +64,1728.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Balice ➔ Katowice,Balice,Katowice,07:20,0.00,B/D,0,65,📉 -64,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Katowice ➔ Gliwice,Katowice,Gliwice,08:30,0.00,B/D,0,65,➡️ 0,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),01.09.2026,03:00,Gliwice ➔ Wrocław,Gliwice,Wrocław,09:00,0.00,B/D,0,65,➡️ 0,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Sanok ➔ Niebylec,Sanok,Niebylec,23:50,23.75,1,64,65,Start trasy,1520.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Niebylec ➔ Rzeszów,Niebylec,Rzeszów,00:50,14.00,1,64,65,➡️ 0,896.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Rzeszów ➔ Kraków MDA,Rzeszów,Kraków MDA,01:30,0.00,B/D,0,65,📉 -64,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Kraków MDA ➔ Balice,Kraków MDA,Balice,03:35,27.00,1,64,65,📈 +64,1728.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Balice ➔ Katowice,Balice,Katowice,04:00,48.00,1,64,65,➡️ 0,3072.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Katowice ➔ Gliwice,Katowice,Gliwice,04:55,18.90,1,64,65,➡️ 0,1209.60
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),01.09.2026,23:50,Gliwice ➔ Wrocław,Gliwice,Wrocław,05:22,34.45,1,64,65,➡️ 0,2204.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Wrocław ➔ Gliwice,Wrocław,Gliwice,15:35,0.00,B/D,0,65,Start trasy,0.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Gliwice ➔ Katowice,Gliwice,Katowice,17:40,0.00,B/D,0,65,➡️ 0,0.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Katowice ➔ Balice,Katowice,Balice,18:15,45.60,54,11,65,📈 +11,501.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Balice ➔ Kraków MDA,Balice,Kraków MDA,19:05,0.00,B/D,0,65,📉 -11,0.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Kraków MDA ➔ Rzeszów,Kraków MDA,Rzeszów,19:45,42.40,54,11,65,📈 +11,466.40
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Rzeszów ➔ Niebylec,Rzeszów,Niebylec,21:55,0.00,B/D,0,65,📉 -11,0.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),02.09.2026,15:35,Niebylec ➔ Sanok,Niebylec,Sanok,22:30,25.00,54,11,65,📈 +11,275.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Wrocław ➔ Gliwice,Wrocław,Gliwice,22:25,34.45,82,8,90,Start trasy,275.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Gliwice ➔ Katowice,Gliwice,Katowice,00:20,19.95,81,9,90,📈 +1,179.55
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Katowice ➔ Balice,Katowice,Balice,00:50,45.60,80,10,90,📈 +1,456.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Balice ➔ Kraków MDA,Balice,Kraków MDA,01:50,27.00,69,21,90,📈 +11,567.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Kraków MDA ➔ Rzeszów,Kraków MDA,Rzeszów,02:20,42.40,63,2,65,📉 -19,84.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Rzeszów ➔ Niebylec,Rzeszów,Niebylec,04:30,13.30,43,22,65,📈 +20,292.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),02.09.2026,22:25,Niebylec ➔ Sanok,Niebylec,Sanok,05:00,25.00,56,9,65,📉 -13,225.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Sanok ➔ Niebylec,Sanok,Niebylec,03:00,23.75,55,10,65,Start trasy,237.50
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Niebylec ➔ Rzeszów,Niebylec,Rzeszów,04:00,14.00,53,12,65,📈 +2,168.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Rzeszów ➔ Kraków MDA,Rzeszów,Kraków MDA,04:40,42.40,61,4,65,📉 -8,169.60
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Kraków MDA ➔ Balice,Kraków MDA,Balice,06:55,27.00,61,4,65,➡️ 0,108.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Balice ➔ Katowice,Balice,Katowice,07:20,48.00,1,64,65,📈 +60,3072.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Katowice ➔ Gliwice,Katowice,Gliwice,08:30,18.90,1,64,65,➡️ 0,1209.60
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny I (03:00),03.09.2026,03:00,Gliwice ➔ Wrocław,Gliwice,Wrocław,09:00,34.45,1,64,65,➡️ 0,2204.80
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Sanok ➔ Niebylec,Sanok,Niebylec,06:35,23.75,56,9,65,Start trasy,213.75
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Niebylec ➔ Rzeszów,Niebylec,Rzeszów,07:40,14.00,56,9,65,➡️ 0,126.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Rzeszów ➔ Kraków MDA,Rzeszów,Kraków MDA,08:40,42.40,45,20,65,📈 +11,848.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Kraków MDA ➔ Balice,Kraków MDA,Balice,10:55,27.00,53,12,65,📉 -8,324.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Balice ➔ Katowice,Balice,Katowice,11:30,48.00,58,7,65,📉 -5,336.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Katowice ➔ Gliwice,Katowice,Gliwice,12:30,18.90,60,5,65,📉 -2,94.50
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Poranny II (06:35),03.09.2026,06:35,Gliwice ➔ Wrocław,Gliwice,Wrocław,13:00,34.45,60,5,65,➡️ 0,172.25
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Wrocław ➔ Gliwice,Wrocław,Gliwice,07:45,34.45,90,0,90,Start trasy,0.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Gliwice ➔ Katowice,Gliwice,Katowice,09:45,19.95,90,0,90,➡️ 0,0.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Katowice ➔ Balice,Katowice,Balice,10:15,45.60,89,1,90,📈 +1,45.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Balice ➔ Kraków MDA,Balice,Kraków MDA,11:05,27.00,89,1,90,➡️ 0,27.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Kraków MDA ➔ Rzeszów,Kraków MDA,Rzeszów,11:45,42.40,87,3,90,📈 +2,127.20
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Rzeszów ➔ Niebylec,Rzeszów,Niebylec,13:50,13.30,3,62,65,📈 +59,824.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Poranny (07:45),03.09.2026,07:45,Niebylec ➔ Sanok,Niebylec,Sanok,14:35,25.00,63,2,65,📉 -60,50.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Sanok ➔ Niebylec,Sanok,Niebylec,10:10,23.75,63,2,65,Start trasy,47.50
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Niebylec ➔ Rzeszów,Niebylec,Rzeszów,11:25,0.00,B/D,0,65,📉 -2,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Rzeszów ➔ Kraków MDA,Rzeszów,Kraków MDA,12:20,42.40,70,20,90,📈 +20,848.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Kraków MDA ➔ Balice,Kraków MDA,Balice,14:40,27.00,73,17,90,📉 -3,459.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Balice ➔ Katowice,Balice,Katowice,15:15,48.00,87,3,90,📉 -14,144.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Katowice ➔ Gliwice,Katowice,Gliwice,16:25,18.90,90,0,90,📉 -3,0.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Południowy (10:10),03.09.2026,10:10,Gliwice ➔ Wrocław,Gliwice,Wrocław,16:55,34.45,88,2,90,📈 +2,68.90
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Wrocław ➔ Gliwice,Wrocław,Gliwice,12:00,34.45,1,64,65,Start trasy,2204.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Gliwice ➔ Katowice,Gliwice,Katowice,14:00,19.95,64,1,65,📉 -63,19.95
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Katowice ➔ Balice,Katowice,Balice,14:30,45.60,62,3,65,📈 +2,136.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Balice ➔ Kraków MDA,Balice,Kraków MDA,15:20,27.00,59,6,65,📈 +3,162.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Kraków MDA ➔ Rzeszów,Kraków MDA,Rzeszów,16:15,42.40,57,8,65,📈 +2,339.20
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Rzeszów ➔ Niebylec,Rzeszów,Niebylec,18:40,13.30,31,34,65,📈 +26,452.20
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Południowy (12:00),03.09.2026,12:00,Niebylec ➔ Sanok,Niebylec,Sanok,19:20,25.00,56,9,65,📉 -25,225.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Wrocław ➔ Gliwice,Wrocław,Gliwice,15:35,34.45,61,4,65,Start trasy,137.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Gliwice ➔ Katowice,Gliwice,Katowice,17:40,19.95,60,5,65,📈 +1,99.75
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Katowice ➔ Balice,Katowice,Balice,18:15,45.60,59,6,65,📈 +1,273.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Balice ➔ Kraków MDA,Balice,Kraków MDA,19:05,27.00,54,11,65,📈 +5,297.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Kraków MDA ➔ Rzeszów,Kraków MDA,Rzeszów,19:45,42.40,50,15,65,📈 +4,636.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Rzeszów ➔ Niebylec,Rzeszów,Niebylec,21:55,13.30,49,16,65,📈 +1,212.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Popołudniowy (15:35),03.09.2026,15:35,Niebylec ➔ Sanok,Niebylec,Sanok,22:30,25.00,51,14,65,📉 -2,350.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Wrocław ➔ Gliwice,Wrocław,Gliwice,22:25,34.45,86,4,90,Start trasy,137.80
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Gliwice ➔ Katowice,Gliwice,Katowice,00:20,19.95,84,6,90,📈 +2,119.70
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Katowice ➔ Balice,Katowice,Balice,00:50,45.60,74,16,90,📈 +10,729.60
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Balice ➔ Kraków MDA,Balice,Kraków MDA,01:50,27.00,70,20,90,📈 +4,540.00
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Kraków MDA ➔ Rzeszów,Kraków MDA,Rzeszów,02:20,42.40,67,23,90,📈 +3,975.20
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Rzeszów ➔ Niebylec,Rzeszów,Niebylec,04:30,13.30,60,5,65,📉 -18,66.50
+2026-09-01 12:14:48,Wrocław ➔ Sanok,Nocny (22:25),03.09.2026,22:25,Niebylec ➔ Sanok,Niebylec,Sanok,05:00,25.00,63,2,65,📉 -3,50.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Sanok ➔ Niebylec,Sanok,Niebylec,23:50,23.75,47,18,65,Start trasy,427.50
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Niebylec ➔ Rzeszów,Niebylec,Rzeszów,00:50,14.00,56,9,65,📉 -9,126.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Rzeszów ➔ Kraków MDA,Rzeszów,Kraków MDA,01:30,42.40,49,16,65,📈 +7,678.40
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Kraków MDA ➔ Balice,Kraków MDA,Balice,03:35,27.00,55,10,65,📉 -6,270.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Balice ➔ Katowice,Balice,Katowice,04:00,48.00,84,6,90,📉 -4,288.00
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Katowice ➔ Gliwice,Katowice,Gliwice,04:55,18.90,88,2,90,📉 -4,37.80
+2026-09-01 12:14:48,Sanok ➔ Wrocław,Nocny (23:50),03.09.2026,23:50,Gliwice ➔ Wrocław,Gliwice,Wrocław,05:22,34.45,89,1,90,📉 -1,34.45
