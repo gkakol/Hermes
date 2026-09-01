@@ -1,6 +1,5 @@
 import csv
 from datetime import date, datetime, timedelta
-import html
 import json
 import os
 import re
@@ -17,7 +16,7 @@ from requests.adapters import HTTPAdapter
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 5  # Bezpieczna liczba wątków chroniąca przed banem WAF
+PARALLEL_WORKERS = 8
 TARGET_PROMO_PRICE = 50.00
 
 CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
@@ -48,8 +47,8 @@ _thread_local = threading.local()
 def get_session() -> requests.Session:
     if not hasattr(_thread_local, "session"):
         s = requests.Session()
-        retries = Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
-        adapter = HTTPAdapter(max_retries=retries, pool_connections=5, pool_maxsize=10)
+        retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
+        adapter = HTTPAdapter(max_retries=retries, pool_connections=10, pool_maxsize=20)
         s.mount("https://", adapter)
         s.mount("http://", adapter)
         try:
@@ -64,8 +63,7 @@ def normalize_time(t: str) -> str:
     return re.sub(r'[-]', ':', t.strip())
 
 
-def query_roundtrip_neobus(date_str: str, passengers: int = 1) -> tuple:
-    """Wysyła jedno zapytanie Tam+Powrót dla danej liczby pasażerów."""
+def query_api_single_direction(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1) -> dict:
     session = get_session()
     payload = {
         "ajax": "true",
@@ -73,18 +71,18 @@ def query_roundtrip_neobus(date_str: str, passengers: int = 1) -> tuple:
         "module": "neotickets",
         "step": "1",
         "ticket_type": "normal",
-        "initial_stop": STOPS["sanok"]["id"],
-        "final_stop": STOPS["wroclaw"]["id"],
+        "initial_stop": str(from_id),
+        "final_stop": str(to_id),
         "passengers": str(passengers),
         "date_there": date_str,
-        "date_return": date_str,
-        "initial_stop_name": STOPS["sanok"]["name"],
-        "final_stop_name": STOPS["wroclaw"]["name"],
+        "date_return": "",
+        "initial_stop_name": from_name,
+        "final_stop_name": to_name,
     }
     try:
-        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=10)
+        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=6)
         if r.status_code != 200:
-            return {}, {}
+            return {}
 
         try:
             raw = r.json()
@@ -94,137 +92,71 @@ def query_roundtrip_neobus(date_str: str, passengers: int = 1) -> tuple:
         content = raw.get("neotickets", raw) if isinstance(raw, dict) else raw
         data = json.loads(content) if isinstance(content, str) else content
 
-        there_dict = {}
-        back_dict = {}
-
-        # 1. Parsowanie ga4_data (Tam = indeks 0, Powrót = indeks 1)
+        courses = {}
         if isinstance(data, dict) and "ga4_data" in data and len(data["ga4_data"]) > 0:
-            for idx, section in enumerate(data["ga4_data"]):
-                target = there_dict if idx == 0 else back_dict
-                for it in section.get("items", []):
-                    name = it.get("item_name", "")
-                    p_val = it.get("price") or it.get("discount", 0.0)
-                    try:
-                        price = float(p_val)
-                    except (ValueError, TypeError):
-                        price = 0.0
+            for it in data["ga4_data"][0].get("items", []):
+                name = it.get("item_name", "")
+                p_val = it.get("price") or it.get("discount", 0.0)
+                try:
+                    price = float(p_val)
+                except (ValueError, TypeError):
+                    price = 0.0
 
-                    m = re.search(r"(\d{2}[-:]\d{2})\s*-\s*(\d{2}[-:]\d{2})", name)
-                    if m:
-                        dep = normalize_time(m.group(1))
-                        arr = normalize_time(m.group(2))
-                        h_str = f"{dep} -> {arr}"
-                    else:
-                        dep = name
-                        h_str = name
-
-                    if price > 0:
-                        target[dep] = {"hours": h_str, "price": price}
-
-        # 2. Awaryjny fallback na HTML
-        if not there_dict and isinstance(data, dict) and "html" in data:
-            raw_html = html.unescape(data["html"])
-            blocks = re.findall(r'(\d{2}:\d{2})\s*(?:-|–|&ndash;)\s*(\d{2}:\d{2}).*?([\d\s]+[.,]\d{2})\s*zł', raw_html, re.DOTALL)
-            for dep, arr, p_str in blocks:
-                clean_p = float(p_str.replace(" ", "").replace(",", "."))
-                there_dict[dep] = {"hours": f"{dep} -> {arr}", "price": clean_p}
-
-        return there_dict, back_dict
-    except Exception as e:
-        return {}, {}
-
-
-def scan_single_day_schedule(date_str: str) -> tuple:
-    """Etap 1: Pobiera siatkę połączeń dla 1 pasażera."""
-    time.sleep(0.05)
-    there, back = query_roundtrip_neobus(date_str, passengers=1)
-    
-    res_there = []
-    for dep, data in there.items():
-        res_there.append({
-            "route": "Sanok ➔ Wrocław", "date": date_str, "hours": data["hours"],
-            "departure": dep, "price": data["price"], "seats": 1
-        })
-        
-    res_back = []
-    for dep, data in back.items():
-        res_back.append({
-            "route": "Wrocław ➔ Sanok", "date": date_str, "hours": data["hours"],
-            "departure": dep, "price": data["price"], "seats": 1
-        })
-        
-    return date_str, res_there, res_back
-
-
-def resolve_seats_for_active_day(day_data: tuple) -> tuple:
-    """Ultra-szybkie badanie z wczesnym wyjściem (Fast-Path)."""
-    date_str, courses_there, courses_back = day_data
-    if not courses_there and not courses_back:
-        return date_str, [], []
-
-    seats_there = {}
-    seats_back = {}
-
-    # KROK 1: Sprawdzenie pełnej pojemności (65 i 90)
-    t65, b65 = query_roundtrip_neobus(date_str, passengers=65)
-    t90, b90 = query_roundtrip_neobus(date_str, passengers=90)
-
-    # Kursy z kompletem miejsc oznaczamy od razu (Fast-Path)
-    for c in courses_there:
-        dep = c["departure"]
-        if dep in t90:
-            seats_there[dep] = 90
-        elif dep in t65:
-            seats_there[dep] = 65
-
-    for c in courses_back:
-        dep = c["departure"]
-        if dep in b90:
-            seats_back[dep] = 90
-        elif dep in b65:
-            seats_back[dep] = 65
-
-    # KROK 2: Wyszukiwanie binarne odpalamy TYLKO dla kursów, które mają <65 miejsc
-    unresolved_there = [c["departure"] for c in courses_there if c["departure"] not in seats_there]
-    unresolved_back = [c["departure"] for c in courses_back if c["departure"] not in seats_back]
-
-    # Jeśli wszystkie kursy były puste (np. dalekie daty), kończymy natychmiast!
-    if unresolved_there or unresolved_back:
-        low_map = {dep: 1 for dep in unresolved_there + unresolved_back}
-        high_map = {dep: 64 for dep in unresolved_there + unresolved_back}
-
-        while True:
-            active_deps = [dep for dep in low_map if low_map[dep] <= high_map[dep]]
-            if not active_deps:
-                break  # Wszystkie kursy ustalone co do jednego fotela!
-
-            # Wyznaczamy wspólny środek dla aktywnych kursów
-            mid = (min(low_map[d] for d in active_deps) + max(high_map[d] for d in active_deps)) // 2
-            mid = max(2, min(64, mid))
-
-            t_mid, b_mid = query_roundtrip_neobus(date_str, passengers=mid)
-
-            for dep in list(active_deps):
-                found = (dep in t_mid) if dep in unresolved_there else (dep in b_mid)
-                if found:
-                    low_map[dep] = mid + 1
-                    # Zapisujemy najlepszy potwierdzony wynik
-                    if dep in unresolved_there:
-                        seats_there[dep] = max(seats_there.get(dep, 1), mid)
-                    else:
-                        seats_back[dep] = max(seats_back.get(dep, 1), mid)
+                m = re.search(r"(\d{2}[-:]\d{2})\s*-\s*(\d{2}[-:]\d{2})", name)
+                if m:
+                    dep = normalize_time(m.group(1))
+                    arr = normalize_time(m.group(2))
+                    h_str = f"{dep} -> {arr}"
                 else:
-                    high_map[dep] = mid - 1
+                    dep = name
+                    h_str = name
 
-            time.sleep(0.03)
+                if price > 0:
+                    courses[dep] = {"hours": h_str, "price": price}
 
-    for c in courses_there:
-        c["seats"] = seats_there.get(c["departure"], 1)
+        return courses
+    except Exception:
+        return {}
 
-    for c in courses_back:
-        c["seats"] = seats_back.get(c["departure"], 1)
 
-    return date_str, courses_there, courses_back
+def scan_day_schedule(date_str: str) -> tuple:
+    time.sleep(0.04)
+    sw = query_api_single_direction(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 1)
+    ws = query_api_single_direction(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 1)
+    return date_str, sw, ws
+
+
+def resolve_course_seats(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, target_dep: str, base_price: float) -> int:
+    time.sleep(0.03)
+    c65 = query_api_single_direction(from_id, from_name, to_id, to_name, date_str, passengers=65)
+    if target_dep in c65:
+        c90 = query_api_single_direction(from_id, from_name, to_id, to_name, date_str, passengers=90)
+        return 90 if target_dep in c90 else 65
+
+    # Bezpieczne, twarde wyszukiwanie binarne w 5 krokach
+    low, high = 1, 64
+    exact = 1
+    for _ in range(6):
+        if low > high:
+            break
+        mid = (low + high) // 2
+        res = query_api_single_direction(from_id, from_name, to_id, to_name, date_str, passengers=mid)
+        if target_dep in res:
+            exact = mid
+            low = mid + 1
+        else:
+            high = mid - 1
+        time.sleep(0.02)
+
+    return exact
+
+
+def enrich_course_task(c: dict) -> dict:
+    c["seats"] = resolve_course_seats(
+        c["from_id"], c["from_name"], c["to_id"], c["to_name"],
+        c["date"], c["departure"], c["price"]
+    )
+    return c
 
 
 def generate_dates(days_count: int) -> list:
@@ -275,7 +207,7 @@ def update_database(courses: list, csv_file: str):
         if not file_exists:
             w.writerow(["Data pomiaru", "Data kursu", "Godzina kursu", "Cena (PLN)", "Wolne miejsca"])
         w.writerows(rows)
-    print(f"💾 [{csv_file}] Zapisano {len(rows)} rekordów.", flush=True)
+    print(f"💾 [{csv_file}] Zaktualizowano bazę ({len(rows)} rekordów).", flush=True)
 
 
 def compute_deltas(current_courses: list, prev_dict: dict) -> list:
@@ -377,8 +309,10 @@ def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
 def check_and_notify_horizon(active_dates: list):
     if not active_dates:
         return
-    dt_dates = sorted([time.strptime(d, "%d.%m.%Y") for d in active_dates])
-    furthest = time.strftime("%d.%m.%Y", dt_dates[-1])
+    # Ścisłe sortowanie chronologiczne po dacie
+    dt_dates = sorted(active_dates, key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
+    furthest = dt_dates[-1]
+
     prev = ""
     if os.path.isfile(HORIZON_FILE):
         with open(HORIZON_FILE, "r", encoding="utf-8") as f:
@@ -389,11 +323,14 @@ def check_and_notify_horizon(active_dates: list):
             f.write(furthest)
         return
 
-    if time.strptime(furthest, "%d.%m.%Y") > time.strptime(prev, "%d.%m.%Y"):
+    d_furthest = datetime.strptime(furthest, "%d.%m.%Y")
+    d_prev = datetime.strptime(prev, "%d.%m.%Y")
+
+    if d_furthest > d_prev:
         msg = (
             f"📢 **OTWARTO NOWĄ PULĘ BILETÓW!** @everyone\n\n"
             f"📅 Sprzedaż wydłużona do: **{furthest}** (wcześniej: {prev})\n"
-            f"🚀 Sprawdź promocyjne bilety na https://neobus.pl/"
+            f"🚀 Sprawdź bilety na https://neobus.pl/"
         )
         if DISCORD_WEBHOOK_URL:
             try:
@@ -407,7 +344,7 @@ def check_and_notify_horizon(active_dates: list):
 def main():
     start_t = time.time()
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: SANOK ⇄ WROCŁAW (120+ DNI ROUNDTRIP)", flush=True)
+    print("🚀 SENTINEL N3: ULTRA-STABLE SCANNER (SANOK ⇄ WROCŁAW)", flush=True)
     print("==========================================================", flush=True)
 
     prev_san_wro = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -416,55 +353,71 @@ def main():
     dates = generate_dates(DAYS_FORWARD_SEARCH)
     total_days = len(dates)
 
-    # ETAP 1: Szybki skan kalendarza (1 zapytanie = cały dzień w obie strony)
+    raw_courses_sw = []
+    raw_courses_ws = []
+
     print(f"\n📡 [ETAP 1/2] Skanowanie kalendarza połączeń ({total_days} dni)...", flush=True)
-    active_days_data = []
     done_scan = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = [executor.submit(scan_single_day_schedule, d) for d in dates]
+        futures = [executor.submit(scan_day_schedule, d) for d in dates]
         for fut in as_completed(futures):
-            day_str, res_sw, res_ws = fut.result()
+            day_str, sw_dict, ws_dict = fut.result()
             done_scan += 1
-            if res_sw or res_ws:
-                active_days_data.append((day_str, res_sw, res_ws))
-            if done_scan % 15 == 0 or done_scan == total_days:
+
+            for dep, data in sw_dict.items():
+                raw_courses_sw.append({
+                    "route": "Sanok ➔ Wrocław", "date": day_str, "hours": data["hours"], "departure": dep,
+                    "price": data["price"], "from_id": STOPS["sanok"]["id"], "from_name": STOPS["sanok"]["name"],
+                    "to_id": STOPS["wroclaw"]["id"], "to_name": STOPS["wroclaw"]["name"], "seats": 1
+                })
+
+            for dep, data in ws_dict.items():
+                raw_courses_ws.append({
+                    "route": "Wrocław ➔ Sanok", "date": day_str, "hours": data["hours"], "departure": dep,
+                    "price": data["price"], "from_id": STOPS["wroclaw"]["id"], "from_name": STOPS["wroclaw"]["name"],
+                    "to_id": STOPS["sanok"]["id"], "to_name": STOPS["sanok"]["name"], "seats": 1
+                })
+
+            if done_scan % 20 == 0 or done_scan == total_days:
                 pct = (done_scan / total_days) * 100
-                print(f"  [📅 {done_scan:03d}/{total_days} | {pct:5.1f}%] Przeskanowano horyzont (Aktywnych dni ze sprzedażą: {len(active_days_data)})...", flush=True)
+                print(f"  [📅 {done_scan:03d}/{total_days} | {pct:5.1f}%] Przeskanowano...", flush=True)
 
-    total_active = len(active_days_data)
-    print(f"\n✅ Wykryto {total_active} dni z aktywną sprzedażą biletów.", flush=True)
+    all_raw = raw_courses_sw + raw_courses_ws
+    total_courses = len(all_raw)
+    print(f"\n✅ Znaleziono {total_courses} aktywnych kursów w rozkładzie.", flush=True)
 
-    # ETAP 2: Dokładne badanie wolnych miejsc tylko dla dni z aktywnymi kursami
+    # Weryfikacja horyzontu dat
+    all_dates = list({c["date"] for c in all_raw})
+    check_and_notify_horizon(all_dates)
+
+    # Dokładne badanie wolnych miejsc
+    print(f"\n🔬 [ETAP 2/2] Równoległe badanie miejsc dla każdego kursu ({total_courses} zadań)...", flush=True)
+    done_eval = 0
     courses_san_wro = []
     courses_wro_san = []
 
-    print(f"\n🔬 [ETAP 2/2] Binarne badanie miejsc dla {total_active} aktywnych dni...", flush=True)
-    done_eval = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
-        futures = [executor.submit(resolve_seats_for_active_day, item) for item in active_days_data]
+        futures = {executor.submit(enrich_course_task, c): c for c in all_raw}
         for fut in as_completed(futures):
-            day_str, res_sw, res_ws = fut.result()
-            courses_san_wro.extend(res_sw)
-            courses_wro_san.extend(res_ws)
+            res = fut.result()
+            if res["route"] == "Sanok ➔ Wrocław":
+                courses_san_wro.append(res)
+            else:
+                courses_wro_san.append(res)
+
             done_eval += 1
-            pct = (done_eval / total_active) * 100
-            print(f"  [💺 {done_eval:02d}/{total_active} | {pct:5.1f}%] Data: {day_str} ➔ Zbadano {len(res_sw) + len(res_ws)} kursów w obie strony", flush=True)
+            if done_eval % 40 == 0 or done_eval == total_courses:
+                pct = (done_eval / total_courses) * 100
+                print(f"  [💺 {done_eval:03d}/{total_courses} | {pct:5.1f}%] Zbadano kurs: {res['route']} {res['date']} {res['hours']} ➔ {res['seats']} wolnych", flush=True)
 
-    all_courses = courses_san_wro + courses_wro_san
-    total_courses = len(all_courses)
-    print(f"\n🚀 Zakończono pomiary. Zbadano łącznie {total_courses} kursów.", flush=True)
-
-    all_dates = sorted(list({c["date"] for c in all_courses}), key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
-    check_and_notify_horizon(all_dates)
-
-    # Sortowanie chronologiczne
+    # Ścisłe sortowanie chronologiczne
     courses_san_wro.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
     courses_wro_san.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
 
-    # Wyliczanie zmian względem poprzedniego pomiaru
+    # Zmiany względem poprzedniego pomiaru
     deltas = compute_deltas(courses_san_wro, prev_san_wro) + compute_deltas(courses_wro_san, prev_wro_san)
 
-    # Zapis danych
+    # Zapis
     print("\n💾 Zapisywanie baz CSV i generowanie README.md...", flush=True)
     update_database(courses_san_wro, CSV_SANOK_WROCLAW)
     update_database(courses_wro_san, CSV_WROCLAW_SANOK)
@@ -472,7 +425,7 @@ def main():
 
     elapsed = time.time() - start_t
     print("==========================================================", flush=True)
-    print(f"⏱️ ZAKOŃCZONO POMYŚLNIE W CZASIE: {elapsed:.2f} s", flush=True)
+    print(f"⏱️ ZAKOŃCZONO W CZASIE: {elapsed:.2f} s", flush=True)
     print("==========================================================", flush=True)
 
 
