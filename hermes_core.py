@@ -126,30 +126,44 @@ def scan_day_schedule(date_str: str) -> tuple:
     return date_str, sw, ws
 
 
-def resolve_course_seats(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, target_dep: str, base_price: float) -> int:
-    time.sleep(0.03)
-    c65 = query_api_single_direction(from_id, from_name, to_id, to_name, date_str, passengers=65)
-    if target_dep in c65:
-        c90 = query_api_single_direction(from_id, from_name, to_id, to_name, date_str, passengers=90)
-        return 90 if target_dep in c90 else 65
+def resolve_exact_seats_isolated(course: dict) -> dict:
+    """Proste, izolowane i odporne na błędy badanie pojedynczego kursu."""
+    from_id = course["from_id"]
+    from_name = course["from_name"]
+    to_id = course["to_id"]
+    to_name = course["to_name"]
+    d = course["date"]
+    dep = course["departure"]
 
-    # Bezpieczne, twarde wyszukiwanie binarne w 5 krokach
-    low, high = 1, 64
-    exact = 1
-    for _ in range(6):
-        if low > high:
-            break
-        mid = (low + high) // 2
-        res = query_api_single_direction(from_id, from_name, to_id, to_name, date_str, passengers=mid)
-        if target_dep in res:
-            exact = mid
-            low = mid + 1
+    # 1. Sprawdzamy stan standardowej pełnej puli (50 miejsc)
+    r50 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=50)
+    if dep in r50:
+        # Pula jest pełna; sprawdzamy czy to piętrus / przedłużany (65+)
+        r65 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=65)
+        if dep in r65:
+            r90 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=90)
+            course["seats"] = 90 if dep in r90 else 65
         else:
-            high = mid - 1
-        time.sleep(0.02)
+            course["seats"] = 50
+        return course
 
-    return exact
+    # 2. Jeśli zostało <50 miejsc, sprawdzamy próg 25
+    r25 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=25)
+    if dep in r25:
+        # Miejsca między 26 a 49 -> szybki test na 35
+        r35 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=35)
+        course["seats"] = 35 if dep in r35 else 25
+        return course
 
+    # 3. Końcówka miejsc (<25) -> badamy próg 10 i 5
+    r10 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=10)
+    if dep in r10:
+        course["seats"] = 10
+    else:
+        r5 = query_api_single_direction(from_id, from_name, to_id, to_name, d, passengers=5)
+        course["seats"] = 5 if dep in r5 else 1
+
+    return course
 
 def enrich_course_task(c: dict) -> dict:
     c["seats"] = resolve_course_seats(
