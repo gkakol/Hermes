@@ -2,7 +2,7 @@ name: Olympus Synchronization Protocol
 
 on:
   schedule:
-    - cron: '*/25 * * * *'
+    - cron: '*/50 * * * *'
   workflow_dispatch:
 
 permissions:
