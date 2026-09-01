@@ -1,17 +1,14 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `01.09.2026 21:09:23`  
-> 🟢 **Dużo miejsc (>25)** | 🟡 **Średnie obłożenie (6–25)** | 🔴 **Ostatnie miejsca (1–5)**
+> 🕒 **Ostatnia aktualizacja:** `01.09.2026 21:16:37` | 📡 **Zakres:** 120+ dni rozkładowych
 
-## ⚡ 1. Ostatnie zarejestrowane zmiany cen i stanu miejsc
+## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
-| Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |
-| :--- | :--- | :--- | :--- | :--- |
-| - | - | Brak odnotowanych zmian w ostatnim cyklu | - | - |
+> ℹ️ Brak zmian cen i zajętości miejsc od ostatniego cyklu pomiarowego.
 
 ---
 
-## 📊 2. Kalendarz Obłożenia Miejsc (Heatmapy)
+## 🗺️ 2. Mapy Obłożenia i Dostępności Miejsc (Heatmapy)
 
 ### 🚌 Trasa: Sanok ➔ Wrocław
 
@@ -23,14 +20,14 @@
 
 ---
 
-## 📍 3. Pełny Rozkład i Dostępność Kursów
+## 📋 3. Pełny Rozkład i Dostępność Kursów
 
-### 🧭 Sanok ➔ Wrocław
+### 📍 Sanok ➔ Wrocław
 
-| Data | Godzina odjazdu | Wolne miejsca | Cena | Zakup |
-| :--- | :--- | :--- | :--- | :---: |
+| Data | Kurs | Wolne miejsca | Cena | Status |
+| :--- | :---: | :---: | :---: | :---: |
 
-### 🧭 Wrocław ➔ Sanok
+### 📍 Wrocław ➔ Sanok
 
-| Data | Godzina odjazdu | Wolne miejsca | Cena | Zakup |
-| :--- | :--- | :--- | :--- | :---: |
+| Data | Kurs | Wolne miejsca | Cena | Status |
+| :--- | :---: | :---: | :---: | :---: |
