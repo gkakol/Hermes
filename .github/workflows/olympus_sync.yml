@@ -2,7 +2,7 @@ name: Kosmiczny bus
 
 on:
   schedule:
-    - cron: '*/25 * * * *'
+    - cron: '*/55 * * * *'
   workflow_dispatch:
 
 permissions:
