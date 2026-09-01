@@ -12,89 +12,26 @@ from urllib3.util import Retry
 from requests.adapters import HTTPAdapter
 
 # =====================================================================
-#                     HERMES CONFIGURATION & MAPPING
+#                        KONFIGURACJA
 # =====================================================================
 
-PROJECT_NAME = "Project Aether: N3 Transit Observatory"
-DAYS_FORWARD_SEARCH = 90
-MAX_CONCURRENT_WORKERS = 10
-TARGET_PROMO_THRESHOLD = 50.00
-ANALYZE_FLOW_DAYS_COUNT = 3
+DAYS_FORWARD_SEARCH = 120
+PARALLEL_WORKERS = 10
+TARGET_PROMO_PRICE = 50.00
 
-DATA_ARCHIVE_CSV = "oracle_pulse.csv"
-HORIZON_STATE_FILE = "chronos_boundary.txt"
-README_REPORT_FILE = "README.md"
+CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
+CSV_WROCLAW_SANOK = "ceny_wroclaw_sanok.csv"
+HORIZON_FILE = "chronos_boundary.txt"
+README_FILE = "README.md"
 DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL", "")
 
-NODES_CATALOG = {
-    "sanok": {"id": "17", "name": "SANOK D.A. Lipińskiego", "short": "Sanok"},
-    "niebylec": {"id": "19", "name": "NIEBYLEC", "short": "Niebylec"},
-    "rzeszow": {"id": "76", "name": "RZESZÓW D.A. PKS", "short": "Rzeszów"},
-    "krakow_mda": {"id": "71", "name": "KRAKÓW MDA", "short": "Kraków MDA"},
-    "balice": {"id": "72", "name": "KRAKÓW Lotnisko Balice", "short": "Balice"},
-    "katowice": {"id": "73", "name": "KATOWICE D.A. ul. Sądowa 5", "short": "Katowice"},
-    "gliwice": {"id": "123", "name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a", "short": "Gliwice"},
-    "wroclaw": {"id": "77", "name": "WROCŁAW PKS Polbus", "short": "Wrocław"}
+STOPS = {
+    "sanok": {"id": "17", "name": "SANOK D.A. Lipińskiego"},
+    "wroclaw": {"id": "77", "name": "WROCŁAW PKS Polbus"}
 }
 
-LINE_N3_WESTBOUND = [
-    {
-        "id": "N3_W1", "name": "Nocny (23:50)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["sanok", "niebylec", "rzeszow", "krakow_mda", "balice", "katowice", "gliwice", "wroclaw"],
-        "schedule": {"sanok": "23:50", "niebylec": "00:50", "rzeszow": "01:30", "krakow_mda": "03:35", "balice": "04:00", "katowice": "04:55", "gliwice": "05:22", "wroclaw": "07:25"}
-    },
-    {
-        "id": "N3_W2", "name": "Poranny I (03:00)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["sanok", "niebylec", "rzeszow", "krakow_mda", "balice", "katowice", "gliwice", "wroclaw"],
-        "schedule": {"sanok": "03:00", "niebylec": "04:00", "rzeszow": "04:40", "krakow_mda": "06:55", "balice": "07:20", "katowice": "08:30", "gliwice": "09:00", "wroclaw": "10:55"}
-    },
-    {
-        "id": "N3_W3", "name": "Poranny II (06:35)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["sanok", "niebylec", "rzeszow", "krakow_mda", "balice", "katowice", "gliwice", "wroclaw"],
-        "schedule": {"sanok": "06:35", "niebylec": "07:40", "rzeszow": "08:40", "krakow_mda": "10:55", "balice": "11:30", "katowice": "12:30", "gliwice": "13:00", "wroclaw": "15:05"}
-    },
-    {
-        "id": "N3_W4", "name": "Południowy (10:10)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["sanok", "niebylec", "rzeszow", "krakow_mda", "balice", "katowice", "gliwice", "wroclaw"],
-        "schedule": {"sanok": "10:10", "niebylec": "11:25", "rzeszow": "12:20", "krakow_mda": "14:40", "balice": "15:15", "katowice": "16:25", "gliwice": "16:55", "wroclaw": "18:50"}
-    },
-    {
-        "id": "N3_W5_SUN", "name": "Popołudniowy Niedzielny (16:20)", "days": [7],
-        "nodes": ["sanok", "niebylec", "rzeszow", "krakow_mda", "balice", "katowice", "gliwice", "wroclaw"],
-        "schedule": {"sanok": "16:20", "niebylec": "17:30", "rzeszow": "18:20", "krakow_mda": "20:35", "balice": "21:00", "katowice": "22:00", "gliwice": "22:27", "wroclaw": "00:20"}
-    }
-]
-
-LINE_N3_EASTBOUND = [
-    {
-        "id": "N3_E1_MON", "name": "Poranny Poniedziałkowy (03:40)", "days": [1],
-        "nodes": ["wroclaw", "gliwice", "katowice", "balice", "krakow_mda", "rzeszow", "niebylec", "sanok"],
-        "schedule": {"wroclaw": "03:40", "gliwice": "05:40", "katowice": "06:10", "balice": "07:00", "krakow_mda": "07:40", "rzeszow": "09:55", "niebylec": "10:34", "sanok": "11:37"}
-    },
-    {
-        "id": "N3_E2", "name": "Poranny (07:45)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["wroclaw", "gliwice", "katowice", "balice", "krakow_mda", "rzeszow", "niebylec", "sanok"],
-        "schedule": {"wroclaw": "07:45", "gliwice": "09:45", "katowice": "10:15", "balice": "11:05", "krakow_mda": "11:45", "rzeszow": "13:50", "niebylec": "14:35", "sanok": "15:27"}
-    },
-    {
-        "id": "N3_E3", "name": "Południowy (12:00)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["wroclaw", "gliwice", "katowice", "balice", "krakow_mda", "rzeszow", "niebylec", "sanok"],
-        "schedule": {"wroclaw": "12:00", "gliwice": "14:00", "katowice": "14:30", "balice": "15:20", "krakow_mda": "16:15", "rzeszow": "18:40", "niebylec": "19:20", "sanok": "20:14"}
-    },
-    {
-        "id": "N3_E4", "name": "Popołudniowy (15:35)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["wroclaw", "gliwice", "katowice", "balice", "krakow_mda", "rzeszow", "niebylec", "sanok"],
-        "schedule": {"wroclaw": "15:35", "gliwice": "17:40", "katowice": "18:15", "balice": "19:05", "krakow_mda": "19:45", "rzeszow": "21:55", "niebylec": "22:30", "sanok": "23:36"}
-    },
-    {
-        "id": "N3_E5", "name": "Nocny (22:25)", "days": [1, 2, 3, 4, 5, 6, 7],
-        "nodes": ["wroclaw", "gliwice", "katowice", "balice", "krakow_mda", "rzeszow", "niebylec", "sanok"],
-        "schedule": {"wroclaw": "22:25", "gliwice": "00:20", "katowice": "00:50", "balice": "01:50", "krakow_mda": "02:20", "rzeszow": "04:30", "niebylec": "05:00", "sanok": "06:11"}
-    }
-]
-
 GATEWAY_ENDPOINT = "https://neobus.pl/"
-GATEWAY_HEADERS = {
+HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:154.0) Gecko/20100101 Firefox/154.0",
     "Accept": "application/json, text/javascript, */*; q=0.01",
     "Accept-Language": "pl,en-US;q=0.9,en;q=0.8",
@@ -106,7 +43,8 @@ GATEWAY_HEADERS = {
 
 _thread_local = threading.local()
 
-def get_protocol_session() -> requests.Session:
+
+def get_session() -> requests.Session:
     if not hasattr(_thread_local, "session"):
         s = requests.Session()
         retries = Retry(total=2, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504])
@@ -114,41 +52,19 @@ def get_protocol_session() -> requests.Session:
         s.mount("https://", adapter)
         s.mount("http://", adapter)
         try:
-            s.get(GATEWAY_ENDPOINT, headers=GATEWAY_HEADERS, timeout=8)
+            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=8)
         except Exception:
             pass
         _thread_local.session = s
     return _thread_local.session
 
 
-def normalize_timestamp(t: str) -> str:
+def normalize_time(t: str) -> str:
     return re.sub(r'[-]', ':', t.strip())
 
 
-def parse_minutes(t_str: str) -> int:
-    norm = normalize_timestamp(t_str)
-    parts = norm.split(":")
-    if len(parts) >= 2 and parts[0].isdigit() and parts[1].isdigit():
-        return int(parts[0]) * 60 + int(parts[1])
-    return -1
-
-
-def is_timestamp_matched(course_time: str, target_time: str) -> bool:
-    m_course = parse_minutes(course_time)
-    m_target = parse_minutes(target_time)
-    if m_course == -1 or m_target == -1:
-        n1, n2 = normalize_timestamp(course_time), normalize_timestamp(target_time)
-        return n1 == n2 or n1 in n2 or n2 in n1
-
-    diff = abs(m_course - m_target)
-    # Obsługa przejścia przez północ (np. 23:55 vs 00:05)
-    if diff > 1200:
-        diff = 1440 - diff
-    return diff <= 45  # Tolerancja do 45 minut
-
-
-def fetch_node_pair(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, seats_probe: int = 1):
-    session = get_protocol_session()
+def fetch_courses(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int = 1):
+    session = get_session()
     payload = {
         "ajax": "true",
         "dataType": "json",
@@ -157,14 +73,14 @@ def fetch_node_pair(from_id: str, from_name: str, to_id: str, to_name: str, date
         "ticket_type": "normal",
         "initial_stop": str(from_id),
         "final_stop": str(to_id),
-        "passengers": str(seats_probe),
+        "passengers": str(passengers),
         "date_there": date_str,
         "date_return": "",
         "initial_stop_name": from_name,
         "final_stop_name": to_name,
     }
     try:
-        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=GATEWAY_HEADERS, timeout=7)
+        r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=7)
         if r.status_code != 200:
             return []
 
@@ -176,14 +92,11 @@ def fetch_node_pair(from_id: str, from_name: str, to_id: str, to_name: str, date
         content = raw.get("neotickets", raw) if isinstance(raw, dict) else raw
         data = json.loads(content) if isinstance(content, str) else content
 
-        records = []
+        courses = []
         if isinstance(data, dict) and "ga4_data" in data and len(data["ga4_data"]) > 0:
-            items = data["ga4_data"][0].get("items", [])
-            for it in items:
+            for it in data["ga4_data"][0].get("items", []):
                 name = it.get("item_name", "")
-                p_val = it.get("price")
-                if p_val is None:
-                    p_val = it.get("discount", 0.0)
+                p_val = it.get("price") or it.get("discount", 0.0)
                 try:
                     price = float(p_val)
                 except (ValueError, TypeError):
@@ -191,38 +104,32 @@ def fetch_node_pair(from_id: str, from_name: str, to_id: str, to_name: str, date
 
                 m = re.search(r"(\d{2}[-:]\d{2})\s*-\s*(\d{2}[-:]\d{2})", name)
                 if m:
-                    dep = normalize_timestamp(m.group(1))
-                    arr = normalize_timestamp(m.group(2))
-                    h_label = f"{dep} -> {arr}"
+                    dep = normalize_time(m.group(1))
+                    arr = normalize_time(m.group(2))
+                    h_str = f"{dep} -> {arr}"
                 else:
                     dep = name
-                    h_label = name
+                    h_str = name
 
                 if price > 0:
-                    records.append({"hours": h_label, "departure": dep, "price": price})
-        return records
+                    courses.append({"hours": h_str, "departure": dep, "price": price})
+        return courses
     except Exception:
         return []
 
 
-def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, dep_time: str) -> tuple:
-    base = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=1)
-    if not base:
-        return 0, 0.0
-
-    matched = [c for c in base if is_timestamp_matched(c["departure"], dep_time)]
+def resolve_seats(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, dep_time: str) -> tuple:
+    base = fetch_courses(from_id, from_name, to_id, to_name, date_str, passengers=1)
+    matched = [c for c in base if c["departure"] == dep_time]
     if not matched:
-        # Jeśli nie ma idealnego dopasowania, bierzemy pierwszy dostępny kurs na tym odcinku
-        matched = [base[0]]
-
+        return 0, 0.0
     price_unit = matched[0]["price"]
-    actual_dep = matched[0]["departure"]
 
-    # 1. Sprawdzenie progu 65 miejsc
-    c65 = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=65)
-    if any(is_timestamp_matched(c["departure"], actual_dep) for c in c65):
-        c90 = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=90)
-        if any(is_timestamp_matched(c["departure"], actual_dep) for c in c90):
+    # Sprawdzenie progu 65 miejsc
+    c65 = fetch_courses(from_id, from_name, to_id, to_name, date_str, passengers=65)
+    if any(c["departure"] == dep_time for c in c65):
+        c90 = fetch_courses(from_id, from_name, to_id, to_name, date_str, passengers=90)
+        if any(c["departure"] == dep_time for c in c90):
             return 90, price_unit
         low, high = 66, 90
     else:
@@ -231,8 +138,8 @@ def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: 
     exact_seats = 1
     while low <= high:
         mid = (low + high) // 2
-        res = fetch_node_pair(from_id, from_name, to_id, to_name, date_str, seats_probe=mid)
-        if any(is_timestamp_matched(c["departure"], actual_dep) for c in res):
+        res = fetch_courses(from_id, from_name, to_id, to_name, date_str, passengers=mid)
+        if any(c["departure"] == dep_time for c in res):
             exact_seats = mid
             low = mid + 1
         else:
@@ -241,73 +148,99 @@ def resolve_segment_capacity(from_id: str, from_name: str, to_id: str, to_name: 
     return exact_seats, price_unit
 
 
-def evaluate_segment_item(item: dict) -> dict:
-    free_seats, unit_price = resolve_segment_capacity(
-        item["from_node"]["id"], item["from_node"]["name"],
-        item["to_node"]["id"], item["to_node"]["name"],
-        item["date"], item["dep_time"]
+def enrich_seats_task(course: dict) -> dict:
+    seats, price = resolve_seats(
+        course["from_id"], course["from_name"],
+        course["to_id"], course["to_name"],
+        course["date"], course["departure"]
     )
-    cap = 90 if free_seats > 65 else 65
-    pax = max(0, cap - free_seats) if free_seats > 0 else 0
-    item["free_seats"] = free_seats if free_seats > 0 else "B/D"
-    item["capacity"] = cap
-    item["passengers"] = pax if free_seats > 0 else 0
-    item["price"] = unit_price
-    item["revenue"] = (pax * unit_price) if free_seats > 0 else 0.0
-    return item
+    course["seats"] = seats if seats > 0 else "B/D"
+    if price > 0:
+        course["price"] = price
+    return course
 
 
-# =====================================================================
-#                     ANALYTICS & REPORTING
-# =====================================================================
-
-def generate_horizon_dates(count: int) -> list:
+def generate_dates(days_count: int) -> list:
     today = date.today()
-    return [(today + timedelta(days=i)).strftime("%d.%m.%Y") for i in range(count)]
+    return [(today + timedelta(days=i)).strftime("%d.%m.%Y") for i in range(days_count)]
 
 
-def save_pulse_archive(flow_dataset: list, filename: str):
-    if not flow_dataset:
+def load_previous_snapshot(csv_file: str) -> dict:
+    prev = {}
+    if not os.path.isfile(csv_file):
+        return prev
+    try:
+        with open(csv_file, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                key = (row.get("Data kursu"), row.get("Godzina kursu"))
+                try:
+                    price = float(row.get("Cena (PLN)", 0))
+                    seats = row.get("Wolne miejsca", "B/D")
+                    prev[key] = {
+                        "price": price,
+                        "seats": int(seats) if str(seats).isdigit() else None
+                    }
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return prev
+
+
+def update_database(courses: list, csv_file: str):
+    if not courses:
         return
-    file_exists = os.path.isfile(filename)
+    file_exists = os.path.isfile(csv_file)
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    rows = []
+    for c in courses:
+        rows.append([
+            ts,
+            c["date"],
+            c["hours"],
+            f"{c['price']:.2f}",
+            str(c.get("seats", "B/D"))
+        ])
 
-    records = []
-    for item in flow_dataset:
-        for s in item.get("segments", []):
-            rev_val = f"{s['revenue']:.2f}" if s.get('revenue') is not None else "0.00"
-            p_val = f"{s['price']:.2f}" if s.get('price') is not None else "0.00"
-            records.append([
-                ts,
-                item["direction"],
-                item["course_name"],
-                item["date"],
-                item["start_time"],
-                s["segment"],
-                s["node_origin"],
-                s["node_target"],
-                s["dep_time"],
-                p_val,
-                s["free_seats"],
-                s["passengers"] if s["passengers"] is not None else 0,
-                s["capacity"],
-                s["delta_str"],
-                rev_val
-            ])
-
-    with open(filename, mode="a", newline="", encoding="utf-8") as f:
+    with open(csv_file, "a", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         if not file_exists:
-            w.writerow([
-                "Timestamp", "Direction", "Course Name", "Date", "Origin Departure",
-                "Segment", "Node Origin", "Node Target", "Departure Time", "Price (PLN)",
-                "Free Seats", "Onboard Passengers", "Vehicle Capacity", "Node Exchange Delta", "Est Revenue (PLN)"
-            ])
-        w.writerows(records)
-    print(f"💾 [{filename}] Zapisano {len(records)} wierszy telemetrycznych.", flush=True)
+            w.writerow(["Data pomiaru", "Data kursu", "Godzina kursu", "Cena (PLN)", "Wolne miejsca"])
+        w.writerows(rows)
+    print(f"💾 [{csv_file}] Zapisano {len(rows)} rekordów.", flush=True)
 
 
-def format_occupancy_bar(seats, total: int = 65) -> str:
+def compute_deltas(current_courses: list, prev_dict: dict) -> list:
+    deltas = []
+    for c in current_courses:
+        key = (c["date"], c["hours"])
+        prev = prev_dict.get(key)
+        if not prev:
+            continue
+
+        curr_seats = c.get("seats") if isinstance(c.get("seats"), int) else None
+        prev_seats = prev.get("seats")
+        curr_price = c["price"]
+        prev_price = prev.get("price", 0.0)
+
+        price_diff = round(curr_price - prev_price, 2)
+        seats_diff = (curr_seats - prev_seats) if (curr_seats is not None and prev_seats is not None) else 0
+
+        if abs(price_diff) >= 0.01 or seats_diff != 0:
+            deltas.append({
+                "route": c["route"],
+                "date": c["date"],
+                "hours": c["hours"],
+                "curr_price": curr_price,
+                "price_diff": price_diff,
+                "curr_seats": curr_seats,
+                "seats_diff": seats_diff
+            })
+    return deltas
+
+
+def render_bar(seats, total: int = 65) -> str:
     if not isinstance(seats, int) or seats < 0:
         return "B/D"
     filled = max(0, min(10, int(round((seats / total) * 10))))
@@ -315,226 +248,167 @@ def format_occupancy_bar(seats, total: int = 65) -> str:
     return f"[{bar}] {seats}/{total}"
 
 
-def generate_observatory_readme(flow_dataset: list, terminus_direct: list):
+def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
     now_ts = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
     md = [
-        f"# 🏛️ {PROJECT_NAME}\n\n",
-        f"> 🕒 **Ostatnia synchronizacja:** `{now_ts}`  \n",
-        "> 📊 **Status magistrali N3 (Sanok ⇄ Wrocław)** | 8 Węzłów | 7 Odcinków Pomiarowych\n\n",
-        "## 🧭 Bezpośrednie kursy magistralne (Terminus ➔ Terminus)\n\n",
-        "| Kierunek | Data | Odjazd | Wolne miejsca | Cena min. |\n",
-        "| :--- | :--- | :---: | :---: | :---: |\n"
+        "# 🚌 Sentinel N3: Sanok ⇄ Wrocław\n\n",
+        f"> 🕒 **Ostatnia aktualizacja:** `{now_ts}` | 📡 **Zakres:** 120+ dni rozkładowych\n\n",
+        "## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)\n\n"
     ]
 
-    for c in terminus_direct[:20]:
-        seats_v = c.get("seats", "B/D")
-        cap = 90 if isinstance(seats_v, int) and seats_v > 65 else 65
-        bar = format_occupancy_bar(seats_v, cap)
-        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_THRESHOLD else f"{c['price']:.2f} zł"
-        md.append(f"| {c['route']} | 📅 **{c['date']}** | ⏰ {c['departure']} | `{bar}` | {p_tag} |\n")
-
-    if flow_dataset:
-        md.extend([
-            "\n---\n\n",
-            "## 📈 Analityka Węzłowa: Potoki, Wymiana Pasażerska (Δ) i Estymacja Obrotów\n\n"
-        ])
-
-        for item in flow_dataset:
-            rev = item.get("total_revenue", 0.0)
-            lf = item.get("avg_load_factor", 0.0)
-
-            md.append(f"### 🚌 {item['direction']}: `{item['course_name']}` | 📅 Data: **{item['date']}**\n")
-            md.append(f"> 💵 **Szacowany obrót kursu:** `{rev:.2f} PLN` | 📊 **Średni Load Factor:** `{lf:.1f}%`\n\n")
-            md.append("| Odcinek | Odjazd | Cena | Wolne | Na pokładzie | Bilans w węźle (Δ) | Obrót odcinka |\n")
-            md.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |\n")
-
-            for s in item["segments"]:
-                cap = s["capacity"]
-                pax = s["passengers"]
-                pax_str = f"**{pax}/{cap}**" if pax is not None else "0"
-                pr_str = f"{s['price']:.2f} zł" if s.get('price') is not None else "B/D"
-                rev_str = f"**{s['revenue']:.2f} zł**" if s.get('revenue') is not None else "0.00 zł"
-                md.append(f"| {s['segment']} | ⏰ {s['dep_time']} | {pr_str} | `{s['free_seats']}` | {pax_str} | {s['delta_str']} | {rev_str} |\n")
-            md.append("\n")
+    if deltas:
+        md.append("| Trasa | Data | Kurs | Aktualna Cena | Zmiana Ceny (Δ) | Wolne Miejsca | Zmiana Miejsc (Δ) |\n")
+        md.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n")
+        for d in deltas:
+            p_delta = f"🟢 `{d['price_diff']:+.2f} zł`" if d['price_diff'] < 0 else (f"🔴 `{d['price_diff']:+.2f} zł`" if d['price_diff'] > 0 else "0.00 zł")
+            s_delta = f"📉 `{d['seats_diff']:+d} miejsc` (Wykupiono)" if d['seats_diff'] < 0 else (f"📈 `{d['seats_diff']:+d} miejsc` (Zwrot)" if d['seats_diff'] > 0 else "Bez zmian")
+            s_str = f"{d['curr_seats']}" if d['curr_seats'] is not None else "B/D"
+            md.append(f"| {d['route']} | 📅 **{d['date']}** | ⏰ {d['hours']} | **{d['curr_price']:.2f} zł** | {p_delta} | `{s_str}` | {s_delta} |\n")
+    else:
+        md.append("> ℹ️ Brak zmian cen i zajętości miejsc od ostatniego cyklu pomiarowego.\n")
 
     md.extend([
         "\n---\n\n",
-        "## 🗺️ Macierz Obłożenia Magistrali N3\n\n",
-        "### 🚌 Trasa Zachodnia (Sanok ➔ Wrocław)\n\n",
-        "![Heatmap Westbound](chronos_westbound.png)\n\n",
-        "### 🚌 Trasa Wschodnia (Wrocław ➔ Sanok)\n\n",
-        "![Heatmap Eastbound](chronos_eastbound.png)\n"
+        "## 🗺️ 2. Mapy Obłożenia i Dostępności Miejsc (Heatmapy)\n\n",
+        "### 🚌 Trasa: Sanok ➔ Wrocław\n\n",
+        "![Heatmapa Sanok -> Wrocław](heatmapa_sanok_wroclaw.png)\n\n",
+        "### 🚌 Trasa: Wrocław ➔ Sanok\n\n",
+        "![Heatmapa Wrocław -> Sanok](heatmapa_wroclaw_sanok.png)\n\n",
+        "---\n\n",
+        "## 📋 3. Pełny Rozkład i Dostępność Kursów\n\n",
+        "### 📍 Sanok ➔ Wrocław\n\n",
+        "| Data | Kurs | Wolne miejsca | Cena | Status |\n",
+        "| :--- | :---: | :---: | :---: | :---: |\n"
     ])
 
-    with open(README_REPORT_FILE, "w", encoding="utf-8") as f:
+    for c in courses_san_wro:
+        s_val = c.get("seats", "B/D")
+        cap = 90 if isinstance(s_val, int) and s_val > 65 else 65
+        bar = render_bar(s_val, cap)
+        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
+        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
+
+    md.extend([
+        "\n### 📍 Wrocław ➔ Sanok\n\n",
+        "| Data | Kurs | Wolne miejsca | Cena | Status |\n",
+        "| :--- | :---: | :---: | :---: | :---: |\n"
+    ])
+
+    for c in courses_wro_san:
+        s_val = c.get("seats", "B/D")
+        cap = 90 if isinstance(s_val, int) and s_val > 65 else 65
+        bar = render_bar(s_val, cap)
+        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
+        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
+
+    with open(README_FILE, "w", encoding="utf-8") as f:
         f.writelines(md)
     print("📄 Zaktualizowano README.md.", flush=True)
 
 
-def check_and_signal_horizon_expansion(active_dates: list):
+def check_and_notify_horizon(active_dates: list):
     if not active_dates:
         return
     dt_dates = sorted([time.strptime(d, "%d.%m.%Y") for d in active_dates])
     furthest = time.strftime("%d.%m.%Y", dt_dates[-1])
     prev = ""
-    if os.path.isfile(HORIZON_STATE_FILE):
-        with open(HORIZON_STATE_FILE, "r", encoding="utf-8") as f:
+    if os.path.isfile(HORIZON_FILE):
+        with open(HORIZON_FILE, "r", encoding="utf-8") as f:
             prev = f.read().strip()
 
     if not prev:
-        with open(HORIZON_STATE_FILE, "w", encoding="utf-8") as f:
+        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
             f.write(furthest)
         return
 
     if time.strptime(furthest, "%d.%m.%Y") > time.strptime(prev, "%d.%m.%Y"):
         msg = (
-            f"📢 **HERMES RADAR: NOWY HORYZONT CZASOWY OTWARTY!** @everyone\n\n"
-            f"📅 Zakres sprzedaży rozszerzony do: **{furthest}** (wcześniej: {prev})\n"
-            f"🚀 Bilety promocyjne w puli!"
+            f"📢 **OTWARTO NOWĄ PULĘ BILETÓW!** @everyone\n\n"
+            f"📅 Sprzedaż wydłużona do: **{furthest}** (wcześniej: {prev})\n"
+            f"🚀 Sprawdź promocyjne bilety na https://neobus.pl/"
         )
         if DISCORD_WEBHOOK_URL:
             try:
-                requests.post(DISCORD_WEBHOOK_URL, json={"username": "Hermes Sentinel", "content": msg}, timeout=8)
+                requests.post(DISCORD_WEBHOOK_URL, json={"username": "Sentinel Radar", "content": msg}, timeout=8)
             except Exception:
                 pass
-        with open(HORIZON_STATE_FILE, "w", encoding="utf-8") as f:
+        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
             f.write(furthest)
 
 
-# =====================================================================
-#                     EXECUTION CONTROL
-# =====================================================================
-
 def main():
-    start_time = time.time()
+    start_t = time.time()
     print("==========================================================", flush=True)
-    print(f"🚀 {PROJECT_NAME} - ROZPOCZĘCIE POMIARU", flush=True)
+    print("🚀 SENTINEL N3: SANOK ⇄ WROCŁAW (120+ DNI)", flush=True)
     print("==========================================================", flush=True)
 
-    horizon = generate_horizon_dates(DAYS_FORWARD_SEARCH)
-    total_days = len(horizon)
-    terminus_direct = []
+    prev_san_wro = load_previous_snapshot(CSV_SANOK_WROCLAW)
+    prev_wro_san = load_previous_snapshot(CSV_WROCLAW_SANOK)
 
-    # ETAP 1: Skan krańcowy Sanok <-> Wrocław
-    print(f"\n📡 [ETAP 1/2] Skanowanie krańcowe relacji bezpośrednich ({total_days} dni)...", flush=True)
-    for idx, d in enumerate(horizon, 1):
-        west = fetch_node_pair(NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], d, 1)
-        east = fetch_node_pair(NODES_CATALOG["wroclaw"]["id"], NODES_CATALOG["wroclaw"]["name"], NODES_CATALOG["sanok"]["id"], NODES_CATALOG["sanok"]["name"], d, 1)
+    dates = generate_dates(DAYS_FORWARD_SEARCH)
+    total_days = len(dates)
 
-        for c in west:
-            terminus_direct.append({"route": "Sanok ➔ Wrocław", "date": d, "departure": c["departure"], "price": c["price"], "seats": "B/D"})
-        for c in east:
-            terminus_direct.append({"route": "Wrocław ➔ Sanok", "date": d, "departure": c["departure"], "price": c["price"], "seats": "B/D"})
+    courses_san_wro = []
+    courses_wro_san = []
 
-        if idx % 15 == 0 or idx == total_days:
-            pct = (idx / total_days) * 100
-            print(f"  [📅 {idx:02d}/{total_days} | {pct:4.1f}%] Skan horyzontu: {d}...", flush=True)
+    print(f"\n📡 [1/2] Skanowanie siatki połączeń ({total_days} dni)...", flush=True)
+    for idx, d in enumerate(dates, 1):
+        found_sw = fetch_courses(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], d, 1)
+        found_ws = fetch_courses(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], d, 1)
 
-    all_dates = sorted(list({c["date"] for c in terminus_direct}), key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
-    check_and_signal_horizon_expansion(all_dates)
-
-    # ETAP 2: Płaska kolejka segmentów potoków
-    flow_dates = all_dates[:ANALYZE_FLOW_DAYS_COUNT] if all_dates else horizon[:ANALYZE_FLOW_DAYS_COUNT]
-    print(f"\n🔬 [ETAP 2/2] Przygotowanie kolejki segmentów potoków ({len(flow_dates)} dni)...", flush=True)
-
-    courses_meta = []
-    flat_segments_queue = []
-
-    for d in flow_dates:
-        d_obj = datetime.strptime(d, "%d.%m.%Y")
-        dow = d_obj.isoweekday()
-
-        active_schedules = [c for c in LINE_N3_WESTBOUND if dow in c["days"]] + \
-                           [c for c in LINE_N3_EASTBOUND if dow in c["days"]]
-
-        for c_def in active_schedules:
-            direction = "Sanok ➔ Wrocław" if "W" in c_def["id"] else "Wrocław ➔ Sanok"
-            nodes_keys = c_def["nodes"]
-            schedule = c_def["schedule"]
-            course_id = f"{c_def['id']}_{d}"
-
-            courses_meta.append({
-                "course_id": course_id,
-                "direction": direction,
-                "course_name": c_def["name"],
-                "date": d,
-                "start_time": schedule[nodes_keys[0]],
-                "num_segments": len(nodes_keys) - 1
+        for c in found_sw:
+            courses_san_wro.append({
+                "route": "Sanok ➔ Wrocław", "date": d, "hours": c["hours"], "departure": c["departure"],
+                "price": c["price"], "from_id": STOPS["sanok"]["id"], "from_name": STOPS["sanok"]["name"],
+                "to_id": STOPS["wroclaw"]["id"], "to_name": STOPS["wroclaw"]["name"], "seats": "B/D"
+            })
+        for c in found_ws:
+            courses_wro_san.append({
+                "route": "Wrocław ➔ Sanok", "date": d, "hours": c["hours"], "departure": c["departure"],
+                "price": c["price"], "from_id": STOPS["wroclaw"]["id"], "from_name": STOPS["wroclaw"]["name"],
+                "to_id": STOPS["sanok"]["id"], "to_name": STOPS["sanok"]["name"], "seats": "B/D"
             })
 
-            for i in range(len(nodes_keys) - 1):
-                flat_segments_queue.append({
-                    "course_id": course_id,
-                    "seg_index": i,
-                    "date": d,
-                    "from_node": NODES_CATALOG[nodes_keys[i]],
-                    "to_node": NODES_CATALOG[nodes_keys[i + 1]],
-                    "segment": f"{NODES_CATALOG[nodes_keys[i]]['short']} ➔ {NODES_CATALOG[nodes_keys[i + 1]]['short']}",
-                    "node_origin": NODES_CATALOG[nodes_keys[i]]["short"],
-                    "node_target": NODES_CATALOG[nodes_keys[i + 1]]["short"],
-                    "dep_time": schedule[nodes_keys[i]]
-                })
+        if idx % 20 == 0 or idx == total_days:
+            pct = (idx / total_days) * 100
+            print(f"  [📅 {idx:03d}/{total_days} | {pct:4.1f}%] Skan: {d}...", flush=True)
 
-    total_queue_len = len(flat_segments_queue)
-    print(f"⚡ Równoległe przetwarzanie {total_queue_len} segmentów ({MAX_CONCURRENT_WORKERS} wątków)...", flush=True)
+    all_courses = courses_san_wro + courses_wro_san
+    total_courses = len(all_courses)
+    print(f"\n✅ Znaleziono {total_courses} aktywnych kursów.", flush=True)
 
-    processed_segments = []
-    done_seg = 0
+    all_dates = sorted(list({c["date"] for c in all_courses}), key=lambda x: datetime.strptime(x, "%d.%m.%Y"))
+    check_and_notify_horizon(all_dates)
 
-    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_WORKERS) as executor:
-        futures = [executor.submit(evaluate_segment_item, item) for item in flat_segments_queue]
+    # Badanie wolnych foteli
+    print(f"\n🔬 [2/2] Równoległe badanie wolnych foteli ({PARALLEL_WORKERS} wątków)...", flush=True)
+    done_count = 0
+    with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
+        futures = {executor.submit(enrich_seats_task, c): c for c in all_courses}
         for fut in as_completed(futures):
+            done_count += 1
             res = fut.result()
-            processed_segments.append(res)
-            done_seg += 1
-            if done_seg % 15 == 0 or done_seg == total_queue_len:
-                pct = (done_seg / total_queue_len) * 100
-                print(f"  [⚡ {done_seg:02d}/{total_queue_len} | {pct:4.1f}%] Zbadano: {res['segment']} ({res['date']} {res['dep_time']}) -> {res.get('free_seats', 'B/D')} wolnych", flush=True)
+            if done_count % 30 == 0 or done_count == total_courses:
+                pct = (done_count / total_courses) * 100
+                print(f"  [💺 {done_count:03d}/{total_courses} | {pct:4.1f}%] Zbadano kurs: {res['date']} {res['hours']} -> {res['seats']} wolnych", flush=True)
 
-    # Rekonstrukcja struktury kursów
-    flow_dataset = []
-    for meta in courses_meta:
-        c_segs = [s for s in processed_segments if s["course_id"] == meta["course_id"]]
-        c_segs.sort(key=lambda x: x["seg_index"])
+    # Sortowanie chronologiczne
+    courses_san_wro.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
+    courses_wro_san.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
 
-        if not any(s.get("price", 0) > 0 for s in c_segs):
-            continue
+    # Wyliczanie zmian względem poprzedniego pomiaru
+    deltas = compute_deltas(courses_san_wro, prev_san_wro) + compute_deltas(courses_wro_san, prev_wro_san)
 
-        for idx, s in enumerate(c_segs):
-            pax = s["passengers"]
-            delta_str = "Start trasy"
-            if idx > 0 and pax is not None and c_segs[idx - 1]["passengers"] is not None:
-                diff = pax - c_segs[idx - 1]["passengers"]
-                delta_str = f"📈 +{diff}" if diff > 0 else (f"📉 {diff}" if diff < 0 else "➡️ 0")
-            s["delta_str"] = delta_str
+    # Zapis danych
+    print("\n💾 Zapisywanie baz CSV i aktualizacja README.md...", flush=True)
+    update_database(courses_san_wro, CSV_SANOK_WROCLAW)
+    update_database(courses_wro_san, CSV_WROCLAW_SANOK)
+    build_readme(courses_san_wro, courses_wro_san, deltas)
 
-        tot_rev = sum(s.get("revenue", 0.0) for s in c_segs)
-        max_c = max(s.get("capacity", 65) for s in c_segs)
-        valid_p = [s["passengers"] for s in c_segs if s["passengers"] is not None]
-        avg_p = sum(valid_p) / len(valid_p) if valid_p else 0
-
-        flow_dataset.append({
-            "direction": meta["direction"],
-            "course_name": meta["course_name"],
-            "date": meta["date"],
-            "start_time": meta["start_time"],
-            "capacity": max_c,
-            "total_revenue": tot_rev,
-            "avg_load_factor": (avg_p / max_c) * 100,
-            "segments": c_segs
-        })
-
-    flow_dataset.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["start_time"]))
-
-    # Zapis bazy i README
-    print("\n💾 Utrwalanie telemetrii w archiwum...", flush=True)
-    save_pulse_archive(flow_dataset, DATA_ARCHIVE_CSV)
-    generate_observatory_readme(flow_dataset, terminus_direct)
-
-    elapsed = time.time() - start_time
+    elapsed = time.time() - start_t
     print("==========================================================", flush=True)
-    print(f"⏱️ CYKL ZAKOŃCZONY POMYŚLNIE W CZASIE: {elapsed:.2f} s", flush=True)
+    print(f"⏱️ ZAKOŃCZONO POMYŚLNIE W CZASIE: {elapsed:.2f} s", flush=True)
     print("==========================================================", flush=True)
 
 
