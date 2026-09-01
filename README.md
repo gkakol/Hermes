@@ -1,6 +1,6 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `01.09.2026 21:16:37` | 📡 **Zakres:** 120+ dni rozkładowych
+> 🕒 **Ostatnia aktualizacja:** `01.09.2026 21:20:26` | 📡 **Zakres:** 120+ dni rozkładowych
 
 ## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
