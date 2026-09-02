@@ -15,7 +15,7 @@ from requests.adapters import HTTPAdapter
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 4
+PARALLEL_WORKERS = 3       # Zredukowano do 3: eliminuje dropy i błędy serwera
 TARGET_PROMO_PRICE = 50.00
 MAX_CAPACITY = 65
 
@@ -47,12 +47,12 @@ _thread_local = threading.local()
 def get_session() -> requests.Session:
     if not hasattr(_thread_local, "session"):
         s = requests.Session()
-        retries = Retry(total=3, backoff_factor=0.4, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=3, backoff_factor=0.6, status_forcelist=[500, 502, 503, 504])
         adapter = HTTPAdapter(max_retries=retries, pool_connections=5, pool_maxsize=10)
         s.mount("https://", adapter)
         s.mount("http://", adapter)
         try:
-            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=8)
+            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=10)
         except Exception:
             pass
         _thread_local.session = s
@@ -79,11 +79,11 @@ def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: 
         "initial_stop_name": from_name,
         "final_stop_name": to_name,
     }
-    for _ in range(2):
+    for attempt in range(3):
         try:
-            r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=7)
+            r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=9)
             if r.status_code != 200:
-                time.sleep(0.15)
+                time.sleep(0.3 * (attempt + 1))
                 continue
 
             raw = r.json() if hasattr(r, "json") else json.loads(r.text)
@@ -103,7 +103,7 @@ def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: 
                         }
             return courses
         except Exception:
-            time.sleep(0.15)
+            time.sleep(0.3 * (attempt + 1))
     return None
 
 
@@ -114,63 +114,65 @@ def query_day_seats_map(from_id: str, from_name: str, to_id: str, to_name: str, 
     return set(data.keys())
 
 
+def resolve_course_seats(from_id, from_name, to_id, to_name, date_str, dep, prev_val):
+    """Niezawodne badanie liczby miejsc z zabezpieczeniem przed fałszywą jedynką."""
+    # 1. Sprawdzenie sufitu 50/65 (dla odległych dat i pustych autokarów)
+    map_50 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 50)
+    if map_50 is not None and dep in map_50:
+        map_65 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, MAX_CAPACITY)
+        if map_65 is not None and dep in map_65:
+            return MAX_CAPACITY
+        return 50
+
+    # 2. Binary search dla zakresu 1..49
+    low, high = 1, 49
+    found_seats = None
+
+    while low <= high:
+        mid = (low + high) // 2
+        day_map = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, mid)
+        if day_map is None:
+            # W razie chwilowego błędu sieciowego nie przekłamujemy wyniku jedynką
+            break
+        if dep in day_map:
+            found_seats = mid
+            low = mid + 1
+        else:
+            high = mid - 1
+        time.sleep(0.02)
+
+    # 3. Zabezpieczenie przed błędem WAF:
+    # Jeśli wynik dałby 1, a w poprzednim pomiarze było np. 45-50 miejsc, weryfikujemy to dodatkowym zapytaniem
+    if found_seats == 1 or found_seats is None:
+        if prev_val and isinstance(prev_val, int) and prev_val > 10:
+            # Sprawdzamy czy kurs faktycznie jest tak zapełniony (test na 10 miejsc)
+            verify_10 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 10)
+            if verify_10 is not None and dep in verify_10:
+                # To był błąd sieciowy - zachowujemy poprzednią wiarygodną wartość!
+                return prev_val
+        if found_seats is None:
+            return prev_val if (prev_val and isinstance(prev_val, int)) else 1
+
+    return found_seats if found_seats is not None else (prev_val if prev_val else 1)
+
+
 def process_day_unified(date_str: str, prev_sw: dict, prev_ws: dict) -> tuple:
-    time.sleep(0.03)
     sw_raw = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 1) or {}
     ws_raw = query_api(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 1) or {}
 
-    sw_50 = query_day_seats_map(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 50)
-    ws_50 = query_day_seats_map(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 50)
-
-    # 1. Sanok -> Wrocław
     res_sw = []
     for dep, data in sw_raw.items():
         prev_val = prev_sw.get((date_str, dep), {}).get("seats")
-        if sw_50 is not None and dep in sw_50:
-            sw_65 = query_day_seats_map(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, MAX_CAPACITY)
-            seats = MAX_CAPACITY if (sw_65 and dep in sw_65) else 50
-        else:
-            low, high = 1, 49
-            seats = prev_val if (prev_val and isinstance(prev_val, int)) else 1
-            while low <= high:
-                mid = (low + high) // 2
-                day_map = query_day_seats_map(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, mid)
-                if day_map is None:
-                    break
-                if dep in day_map:
-                    seats = mid
-                    low = mid + 1
-                else:
-                    high = mid - 1
-                time.sleep(0.02)
-
+        seats = resolve_course_seats(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, dep, prev_val)
         res_sw.append({
             "route": "Sanok ➔ Wrocław", "date": date_str, "departure": dep, "hours": data["hours"],
             "price": data["price"], "seats": seats
         })
 
-    # 2. Wrocław -> Sanok
     res_ws = []
     for dep, data in ws_raw.items():
         prev_val = prev_ws.get((date_str, dep), {}).get("seats")
-        if ws_50 is not None and dep in ws_50:
-            ws_65 = query_day_seats_map(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, MAX_CAPACITY)
-            seats = MAX_CAPACITY if (ws_65 and dep in ws_65) else 50
-        else:
-            low, high = 1, 49
-            seats = prev_val if (prev_val and isinstance(prev_val, int)) else 1
-            while low <= high:
-                mid = (low + high) // 2
-                day_map = query_day_seats_map(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, mid)
-                if day_map is None:
-                    break
-                if dep in day_map:
-                    seats = mid
-                    low = mid + 1
-                else:
-                    high = mid - 1
-                time.sleep(0.02)
-
+        seats = resolve_course_seats(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, dep, prev_val)
         res_ws.append({
             "route": "Wrocław ➔ Sanok", "date": date_str, "departure": dep, "hours": data["hours"],
             "price": data["price"], "seats": seats
@@ -340,7 +342,7 @@ def main():
     start_t = time.time()
     now_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: FAST ENGINE (SANOK ⇄ WROCŁAW)", flush=True)
+    print("🚀 SENTINEL N3: ROBUST TELEMETRY (SANOK ⇄ WROCŁAW)", flush=True)
     print("==========================================================", flush=True)
 
     prev_sw = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -350,7 +352,7 @@ def main():
     total_days = len(dates)
     courses_sw, courses_ws = [], []
 
-    print(f"\n📡 Skanowanie i analiza obłożenia ({total_days} dni)...", flush=True)
+    print(f"\n📡 Niezawodny skan i pomiar miejsc ({total_days} dni | 3 wątki)...", flush=True)
     done_days = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
         futures = [executor.submit(process_day_unified, d, prev_sw, prev_ws) for d in dates]
@@ -373,7 +375,7 @@ def main():
     check_and_notify_horizon(list({c["date"] for c in (courses_sw + courses_ws)}))
 
     print("==========================================================", flush=True)
-    print(f"⏱️ ZAKOŃCZONO W CZASIE: {time.time() - start_t:.2f} s", flush=True)
+    print(f"⏱️ ZAKOŃCZONO POMYŚLNIE W CZASIE: {time.time() - start_t:.2f} s", flush=True)
     print("==========================================================", flush=True)
 
 
