@@ -36,6 +36,6 @@ jobs:
         run: |
           git config --global user.name "hermes-agent"
           git config --global user.email "hermes@sentinel.internal"
-          git add ceny_sanok_wroclaw.csv ceny_wroclaw_sanok.csv README.md chronos_boundary.txt heatmapa_sanok_wroclaw.png heatmapa_wroclaw_sanok.png archive/
+          git add -A
           git commit -m "Telemetry Sync: $(date '+%Y-%m-%d %H:%M:%S')" || exit 0
           git push
