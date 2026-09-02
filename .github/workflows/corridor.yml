@@ -1,0 +1,33 @@
+name: Corridor Radar (7 Days)
+
+on:
+  workflow_dispatch: # Przycisk "Run workflow" w Actions
+  schedule:
+    - cron: '0 6 * * *' # Opcjonalnie: codziennie o 6:00 UTC (8:00 w Polsce)
+
+jobs:
+  corridor-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests urllib3
+
+      - name: Run Corridor Radar
+        run: python -u corridor_radar.py
+
+      - name: Commit and Push corridor report
+        run: |
+          git config --global user.name "corridor-agent"
+          git config --global user.email "corridor@sentinel.internal"
+          git pull --rebase origin main || true
+          git add corridor_segments_7d.csv CORRIDOR.md
+          git commit -m "Corridor Sync: $(date '+%Y-%m-%d %H:%M:%S')" || exit 0
+          git push
