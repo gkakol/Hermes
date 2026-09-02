@@ -17,7 +17,7 @@ from requests.adapters import HTTPAdapter
 DAYS_FORWARD_SEARCH = 120
 PARALLEL_WORKERS = 4
 TARGET_PROMO_PRICE = 50.00
-MAX_CAPACITY = 90
+MAX_CAPACITY = 70  # Zaktualizowano limit do 70 miejsc
 
 CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
 CSV_WROCLAW_SANOK = "ceny_wroclaw_sanok.csv"
@@ -115,32 +115,27 @@ def query_day_seats_map(from_id: str, from_name: str, to_id: str, to_name: str, 
 
 
 def resolve_course_adaptive(from_id, from_name, to_id, to_name, date_str, dep, prev_val: int) -> int:
-    """Ultra-szybkie badanie bazujące na poprzednim stanie (Adaptive Heuristic)."""
-    # 1. Jeśli znamy poprzednią liczbę miejsc (np. 48)
+    # 1. Sprawdzenie zapisanego stanu historycznego
     if prev_val and isinstance(prev_val, int) and 1 < prev_val <= MAX_CAPACITY:
-        # Sprawdzamy czy stan się utrzymał
         map_prev = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, prev_val)
         if map_prev is not None and dep in map_prev:
-            # Stan nienaruszony lub lekki zwrot (+2)
             if prev_val < MAX_CAPACITY:
                 map_plus = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, min(MAX_CAPACITY, prev_val + 2))
                 if map_plus is not None and dep in map_plus:
                     return min(MAX_CAPACITY, prev_val + 2)
             return prev_val
         else:
-            # Ktoś kupił bilety -> szukamy szybko w dół od prev_val
             low, high = 1, prev_val - 1
     else:
-        # Brak historii: szybki check standardowego sufitu (50 / 90)
+        # Brak historii: weryfikacja progów 50 oraz 70
         map_50 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 50)
         if map_50 is not None and dep in map_50:
-            map_90 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 90)
-            if map_90 is not None and dep in map_90:
-                return 90
+            map_max = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, MAX_CAPACITY)
+            if map_max is not None and dep in map_max:
+                return MAX_CAPACITY
             return 50
         low, high = 1, 49
 
-    # Binary search dla wąskiego zakresu
     exact = 1
     while low <= high:
         mid = (low + high) // 2
@@ -250,7 +245,6 @@ def render_bar(seats, total: int = MAX_CAPACITY) -> str:
 def build_readme(all_courses: list, deltas: list, now_ts: str):
     today = date.today()
 
-    # Filtrowanie tylko kursów bieżących i przyszłych
     future_courses = []
     for c in all_courses:
         try:
@@ -260,7 +254,6 @@ def build_readme(all_courses: list, deltas: list, now_ts: str):
         except Exception:
             pass
 
-    # Sortowanie: najmniej wolnych miejsc na samej górze (TOP 50 najbardziej obleganych)
     top_50 = sorted(future_courses, key=lambda x: (x["seats"], x["price"]))[:50]
 
     md = [
@@ -306,7 +299,7 @@ def build_readme(all_courses: list, deltas: list, now_ts: str):
         bar = render_bar(c["seats"])
         r_tag = c["route"].replace("➔", "→")
         p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
-        alert_seats = f"🔴 **{c['seats']} szt.**" if c['seats'] <= 10 else f"**{c['seats']} szt.**"
+        alert_seats = f"🔴 **{c['seats']} szt.**" if c['seats'] <= 6 else f"**{c['seats']} szt.**"
         md.append(f"| {rank:02d} | {r_tag} | 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` ({alert_seats}) | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
 
     md.extend([
@@ -353,7 +346,7 @@ def main():
     start_t = time.time()
     now_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: ADAPTIVE PROBE ENGINE (SANOK ⇄ WROCŁAW)", flush=True)
+    print(f"🚀 SENTINEL N3: ADAPTIVE PROBE ENGINE (CAP: {MAX_CAPACITY})", flush=True)
     print("==========================================================", flush=True)
 
     prev_sw = load_previous_snapshot(CSV_SANOK_WROCLAW)
