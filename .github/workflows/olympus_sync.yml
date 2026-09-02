@@ -1,52 +1,41 @@
-name: Kosmiczny bus
+name: Sentinel N3 Telemetry Sync
 
 on:
   #schedule:
-    #- cron: '*/55 * * * *'
+    # W ciągu dnia (06:00 - 22:00 UTC, czyli 08:00 - 00:00 czasu polskiego) -> co 40 minut
+    #- cron: '*/40 6-22 * * *'
+    # W nocy (22:00 - 06:00 UTC) -> raz na 3 godziny
+    #- cron: '0 1,4 * * *'
   workflow_dispatch:
 
-permissions:
-  contents: write
-
-concurrency:
-  group: olympus-telemetry
-  cancel-in-progress: true
-
 jobs:
-  telemetry-sync:
+  telemetry:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Pobieranie repozytorium
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Konfiguracja środowiska Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Instalacja bibliotek
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install requests matplotlib pandas seaborn
+          pip install requests urllib3 pandas matplotlib seaborn numpy
 
-      - name: Uruchomienie skanera i analizatora zmian
+      - name: Run Sentinel Core
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          python -u hermes_core.py
+        run: python -u hermes_core.py
 
-      - name: Generowanie heatmap obłożenia
-        run: |
-          python -u chronos_chart.py
+      - name: Generate Heatmaps
+        run: python -u chronos_chart.py
 
-      - name: Publikacja wyników w repozytorium
+      - name: Commit and Push telemetry data
         run: |
-          git config --global user.name "Hermes Agent"
-          git config --global user.email "hermes-agent@users.noreply.github.com"
-          git add -A
-          git commit -m "Telemetry Sync: $(date +'%Y-%m-%d %H:%M:%S')" || exit 0
-          git pull --rebase origin main
+          git config --global user.name "hermes-agent"
+          git config --global user.email "hermes@sentinel.internal"
+          git add ceny_sanok_wroclaw.csv ceny_wroclaw_sanok.csv README.md chronos_boundary.txt heatmapa_sanok_wroclaw.png heatmapa_wroclaw_sanok.png archive/
+          git commit -m "Telemetry Sync: $(date '+%Y-%m-%d %H:%M:%S')" || exit 0
           git push
