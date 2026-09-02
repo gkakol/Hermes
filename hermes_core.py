@@ -15,9 +15,9 @@ from requests.adapters import HTTPAdapter
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 3       # Zredukowano do 3: eliminuje dropy i błędy serwera
+PARALLEL_WORKERS = 3
 TARGET_PROMO_PRICE = 50.00
-MAX_CAPACITY = 65
+MAX_CAPACITY = 90  # Zwiększony limit do 90 miejsc (autokary piętrowe)
 
 CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
 CSV_WROCLAW_SANOK = "ceny_wroclaw_sanok.csv"
@@ -115,16 +115,26 @@ def query_day_seats_map(from_id: str, from_name: str, to_id: str, to_name: str, 
 
 
 def resolve_course_seats(from_id, from_name, to_id, to_name, date_str, dep, prev_val):
-    """Niezawodne badanie liczby miejsc z zabezpieczeniem przed fałszywą jedynką."""
-    # 1. Sprawdzenie sufitu 50/65 (dla odległych dat i pustych autokarów)
+    """Precyzyjne badanie wolnych foteli w pełnym zakresie 1..90."""
+    # KROK 1: Sprawdzenie czy kurs ma >= 50 miejsc
     map_50 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 50)
     if map_50 is not None and dep in map_50:
-        map_65 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, MAX_CAPACITY)
+        # Badamy górny zakres 50..90
+        map_90 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 90)
+        if map_90 is not None and dep in map_90:
+            return 90
+
+        map_75 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 75)
+        if map_75 is not None and dep in map_75:
+            return 75
+
+        map_65 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 65)
         if map_65 is not None and dep in map_65:
-            return MAX_CAPACITY
+            return 65
+
         return 50
 
-    # 2. Binary search dla zakresu 1..49
+    # KROK 2: Binary search dla zakresu 1..49
     low, high = 1, 49
     found_seats = None
 
@@ -132,7 +142,6 @@ def resolve_course_seats(from_id, from_name, to_id, to_name, date_str, dep, prev
         mid = (low + high) // 2
         day_map = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, mid)
         if day_map is None:
-            # W razie chwilowego błędu sieciowego nie przekłamujemy wyniku jedynką
             break
         if dep in day_map:
             found_seats = mid
@@ -141,14 +150,11 @@ def resolve_course_seats(from_id, from_name, to_id, to_name, date_str, dep, prev
             high = mid - 1
         time.sleep(0.02)
 
-    # 3. Zabezpieczenie przed błędem WAF:
-    # Jeśli wynik dałby 1, a w poprzednim pomiarze było np. 45-50 miejsc, weryfikujemy to dodatkowym zapytaniem
+    # KROK 3: Ochrona przed fałszywą jedynką wynikającą z timeoutu
     if found_seats == 1 or found_seats is None:
         if prev_val and isinstance(prev_val, int) and prev_val > 10:
-            # Sprawdzamy czy kurs faktycznie jest tak zapełniony (test na 10 miejsc)
             verify_10 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 10)
             if verify_10 is not None and dep in verify_10:
-                # To był błąd sieciowy - zachowujemy poprzednią wiarygodną wartość!
                 return prev_val
         if found_seats is None:
             return prev_val if (prev_val and isinstance(prev_val, int)) else 1
@@ -342,7 +348,7 @@ def main():
     start_t = time.time()
     now_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: ROBUST TELEMETRY (SANOK ⇄ WROCŁAW)", flush=True)
+    print("🚀 SENTINEL N3: 90-SEATS OBSERVER ENGINE (SANOK ⇄ WROCŁAW)", flush=True)
     print("==========================================================", flush=True)
 
     prev_sw = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -352,7 +358,7 @@ def main():
     total_days = len(dates)
     courses_sw, courses_ws = [], []
 
-    print(f"\n📡 Niezawodny skan i pomiar miejsc ({total_days} dni | 3 wątki)...", flush=True)
+    print(f"\n📡 Skanowanie i pomiar miejsc w zakresie do 90 ({total_days} dni)...", flush=True)
     done_days = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
         futures = [executor.submit(process_day_unified, d, prev_sw, prev_ws) for d in dates]
