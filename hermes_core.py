@@ -15,9 +15,9 @@ from requests.adapters import HTTPAdapter
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 3
+PARALLEL_WORKERS = 4
 TARGET_PROMO_PRICE = 50.00
-MAX_CAPACITY = 90  # Zwiększony limit do 90 miejsc (autokary piętrowe)
+MAX_CAPACITY = 90
 
 CSV_SANOK_WROCLAW = "ceny_sanok_wroclaw.csv"
 CSV_WROCLAW_SANOK = "ceny_wroclaw_sanok.csv"
@@ -47,12 +47,12 @@ _thread_local = threading.local()
 def get_session() -> requests.Session:
     if not hasattr(_thread_local, "session"):
         s = requests.Session()
-        retries = Retry(total=3, backoff_factor=0.6, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=3, backoff_factor=0.4, status_forcelist=[500, 502, 503, 504])
         adapter = HTTPAdapter(max_retries=retries, pool_connections=5, pool_maxsize=10)
         s.mount("https://", adapter)
         s.mount("http://", adapter)
         try:
-            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=10)
+            s.get(GATEWAY_ENDPOINT, headers=HEADERS, timeout=8)
         except Exception:
             pass
         _thread_local.session = s
@@ -79,11 +79,11 @@ def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: 
         "initial_stop_name": from_name,
         "final_stop_name": to_name,
     }
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=9)
+            r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=7)
             if r.status_code != 200:
-                time.sleep(0.3 * (attempt + 1))
+                time.sleep(0.15)
                 continue
 
             raw = r.json() if hasattr(r, "json") else json.loads(r.text)
@@ -103,7 +103,7 @@ def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: 
                         }
             return courses
         except Exception:
-            time.sleep(0.3 * (attempt + 1))
+            time.sleep(0.15)
     return None
 
 
@@ -114,62 +114,58 @@ def query_day_seats_map(from_id: str, from_name: str, to_id: str, to_name: str, 
     return set(data.keys())
 
 
-def resolve_course_seats(from_id, from_name, to_id, to_name, date_str, dep, prev_val):
-    """Precyzyjne badanie wolnych foteli w pełnym zakresie 1..90."""
-    # KROK 1: Sprawdzenie czy kurs ma >= 50 miejsc
-    map_50 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 50)
-    if map_50 is not None and dep in map_50:
-        # Badamy górny zakres 50..90
-        map_90 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 90)
-        if map_90 is not None and dep in map_90:
-            return 90
+def resolve_course_adaptive(from_id, from_name, to_id, to_name, date_str, dep, prev_val: int) -> int:
+    """Ultra-szybkie badanie bazujące na poprzednim stanie (Adaptive Heuristic)."""
+    # 1. Jeśli znamy poprzednią liczbę miejsc (np. 48)
+    if prev_val and isinstance(prev_val, int) and 1 < prev_val <= MAX_CAPACITY:
+        # Sprawdzamy czy stan się utrzymał
+        map_prev = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, prev_val)
+        if map_prev is not None and dep in map_prev:
+            # Stan nienaruszony lub lekki zwrot (+2)
+            if prev_val < MAX_CAPACITY:
+                map_plus = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, min(MAX_CAPACITY, prev_val + 2))
+                if map_plus is not None and dep in map_plus:
+                    return min(MAX_CAPACITY, prev_val + 2)
+            return prev_val
+        else:
+            # Ktoś kupił bilety -> szukamy szybko w dół od prev_val
+            low, high = 1, prev_val - 1
+    else:
+        # Brak historii: szybki check standardowego sufitu (50 / 90)
+        map_50 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 50)
+        if map_50 is not None and dep in map_50:
+            map_90 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 90)
+            if map_90 is not None and dep in map_90:
+                return 90
+            return 50
+        low, high = 1, 49
 
-        map_75 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 75)
-        if map_75 is not None and dep in map_75:
-            return 75
-
-        map_65 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 65)
-        if map_65 is not None and dep in map_65:
-            return 65
-
-        return 50
-
-    # KROK 2: Binary search dla zakresu 1..49
-    low, high = 1, 49
-    found_seats = None
-
+    # Binary search dla wąskiego zakresu
+    exact = 1
     while low <= high:
         mid = (low + high) // 2
         day_map = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, mid)
         if day_map is None:
-            break
+            return prev_val if (prev_val and isinstance(prev_val, int)) else 1
         if dep in day_map:
-            found_seats = mid
+            exact = mid
             low = mid + 1
         else:
             high = mid - 1
-        time.sleep(0.02)
+        time.sleep(0.01)
 
-    # KROK 3: Ochrona przed fałszywą jedynką wynikającą z timeoutu
-    if found_seats == 1 or found_seats is None:
-        if prev_val and isinstance(prev_val, int) and prev_val > 10:
-            verify_10 = query_day_seats_map(from_id, from_name, to_id, to_name, date_str, 10)
-            if verify_10 is not None and dep in verify_10:
-                return prev_val
-        if found_seats is None:
-            return prev_val if (prev_val and isinstance(prev_val, int)) else 1
-
-    return found_seats if found_seats is not None else (prev_val if prev_val else 1)
+    return exact
 
 
 def process_day_unified(date_str: str, prev_sw: dict, prev_ws: dict) -> tuple:
+    time.sleep(0.02)
     sw_raw = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, 1) or {}
     ws_raw = query_api(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, 1) or {}
 
     res_sw = []
     for dep, data in sw_raw.items():
-        prev_val = prev_sw.get((date_str, dep), {}).get("seats")
-        seats = resolve_course_seats(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, dep, prev_val)
+        prev_s = prev_sw.get((date_str, dep), {}).get("seats")
+        seats = resolve_course_adaptive(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], date_str, dep, prev_s)
         res_sw.append({
             "route": "Sanok ➔ Wrocław", "date": date_str, "departure": dep, "hours": data["hours"],
             "price": data["price"], "seats": seats
@@ -177,8 +173,8 @@ def process_day_unified(date_str: str, prev_sw: dict, prev_ws: dict) -> tuple:
 
     res_ws = []
     for dep, data in ws_raw.items():
-        prev_val = prev_ws.get((date_str, dep), {}).get("seats")
-        seats = resolve_course_seats(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, dep, prev_val)
+        prev_s = prev_ws.get((date_str, dep), {}).get("seats")
+        seats = resolve_course_adaptive(STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], STOPS["sanok"]["id"], STOPS["sanok"]["name"], date_str, dep, prev_s)
         res_ws.append({
             "route": "Wrocław ➔ Sanok", "date": date_str, "departure": dep, "hours": data["hours"],
             "price": data["price"], "seats": seats
@@ -251,7 +247,22 @@ def render_bar(seats, total: int = MAX_CAPACITY) -> str:
     return f"[{'█' * filled}{'░' * (10 - filled)}] {seats}/{total}"
 
 
-def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list, now_ts: str):
+def build_readme(all_courses: list, deltas: list, now_ts: str):
+    today = date.today()
+
+    # Filtrowanie tylko kursów bieżących i przyszłych
+    future_courses = []
+    for c in all_courses:
+        try:
+            d_dt = datetime.strptime(c["date"], "%d.%m.%Y").date()
+            if d_dt >= today and isinstance(c.get("seats"), int):
+                future_courses.append(c)
+        except Exception:
+            pass
+
+    # Sortowanie: najmniej wolnych miejsc na samej górze (TOP 50 najbardziej obleganych)
+    top_50 = sorted(future_courses, key=lambda x: (x["seats"], x["price"]))[:50]
+
     md = [
         "# 🚌 Sentinel N3: Sanok ⇄ Wrocław\n\n",
         f"> 🕒 **Ostatnia aktualizacja:** `{now_ts}` | 📡 **Horyzont:** 120+ dni\n\n",
@@ -285,33 +296,27 @@ def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list, now
 
     md.extend([
         "\n---\n\n",
-        "## 🗺️ 2. Mapy Obłożenia (Heatmapy)\n\n",
+        "## 🔥 2. TOP 50 Najbardziej Obleganych Kursów (Końcówki biletów)\n\n",
+        "> Zestawienie aktualnych kursów o najmniejszej liczbie wolnych miejsc siedzących.\n\n",
+        "| Poz. | Trasa | Data | Godzina | Wolne miejsca | Cena | Status |\n",
+        "| :---: | :--- | :--- | :---: | :---: | :---: | :---: |\n"
+    ])
+
+    for rank, c in enumerate(top_50, 1):
+        bar = render_bar(c["seats"])
+        r_tag = c["route"].replace("➔", "→")
+        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
+        alert_seats = f"🔴 **{c['seats']} szt.**" if c['seats'] <= 10 else f"**{c['seats']} szt.**"
+        md.append(f"| {rank:02d} | {r_tag} | 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` ({alert_seats}) | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
+
+    md.extend([
+        "\n---\n\n",
+        "## 🗺️ 3. Mapy Obłożenia (Heatmapy)\n\n",
         "### 🚌 Trasa: Sanok ➔ Wrocław\n\n",
         '<p align="center"><img src="heatmapa_sanok_wroclaw.png" alt="Heatmapa Sanok -> Wrocław" width="520"></p>\n\n',
         "### 🚌 Trasa: Wrocław ➔ Sanok\n\n",
-        '<p align="center"><img src="heatmapa_wroclaw_sanok.png" alt="Heatmapa Wrocław -> Sanok" width="520"></p>\n\n',
-        "---\n\n",
-        "## 📋 3. Pełny Wykaz Kursów\n\n",
-        "### 📍 Sanok ➔ Wrocław\n\n",
-        "| Data | Kurs | Wolne miejsca | Cena | Status |\n",
-        "| :--- | :---: | :---: | :---: | :---: |\n"
+        '<p align="center"><img src="heatmapa_wroclaw_sanok.png" alt="Heatmapa Wrocław -> Sanok" width="520"></p>\n\n'
     ])
-
-    for c in courses_san_wro:
-        bar = render_bar(c.get("seats"))
-        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
-        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
-
-    md.extend([
-        "\n### 📍 Wrocław ➔ Sanok\n\n",
-        "| Data | Kurs | Wolne miejsca | Cena | Status |\n",
-        "| :--- | :---: | :---: | :---: | :---: |\n"
-    ])
-
-    for c in courses_wro_san:
-        bar = render_bar(c.get("seats"))
-        p_tag = f"🔥 **{c['price']:.2f} zł**" if c['price'] <= TARGET_PROMO_PRICE else f"{c['price']:.2f} zł"
-        md.append(f"| 📅 **{c['date']}** | ⏰ {c['hours']} | `{bar}` | {p_tag} | [Kup bilet](https://neobus.pl/) |\n")
 
     with open(README_FILE, "w", encoding="utf-8") as f:
         f.writelines(md)
@@ -348,7 +353,7 @@ def main():
     start_t = time.time()
     now_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: 90-SEATS OBSERVER ENGINE (SANOK ⇄ WROCŁAW)", flush=True)
+    print("🚀 SENTINEL N3: ADAPTIVE PROBE ENGINE (SANOK ⇄ WROCŁAW)", flush=True)
     print("==========================================================", flush=True)
 
     prev_sw = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -358,7 +363,7 @@ def main():
     total_days = len(dates)
     courses_sw, courses_ws = [], []
 
-    print(f"\n📡 Skanowanie i pomiar miejsc w zakresie do 90 ({total_days} dni)...", flush=True)
+    print(f"\n📡 Skanowanie i adaptacyjny pomiar foteli ({total_days} dni)...", flush=True)
     done_days = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
         futures = [executor.submit(process_day_unified, d, prev_sw, prev_ws) for d in dates]
@@ -373,12 +378,13 @@ def main():
     courses_sw.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
     courses_ws.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
 
+    all_active = courses_sw + courses_ws
     deltas = compute_deltas(courses_sw, prev_sw, now_ts) + compute_deltas(courses_ws, prev_ws, now_ts)
 
     update_database(courses_sw, CSV_SANOK_WROCLAW)
     update_database(courses_ws, CSV_WROCLAW_SANOK)
-    build_readme(courses_sw, courses_ws, deltas, now_ts)
-    check_and_notify_horizon(list({c["date"] for c in (courses_sw + courses_ws)}))
+    build_readme(all_active, deltas, now_ts)
+    check_and_notify_horizon(list({c["date"] for c in all_active}))
 
     print("==========================================================", flush=True)
     print(f"⏱️ ZAKOŃCZONO POMYŚLNIE W CZASIE: {time.time() - start_t:.2f} s", flush=True)
