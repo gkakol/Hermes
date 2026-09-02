@@ -15,7 +15,7 @@ from requests.adapters import HTTPAdapter
 # =====================================================================
 
 DAYS_FORWARD_SEARCH = 120
-PARALLEL_WORKERS = 4  # Zredukowano do 4 dla pełnej stabilności połączeń z Neobusem
+PARALLEL_WORKERS = 4
 TARGET_PROMO_PRICE = 50.00
 MAX_CAPACITY = 65
 
@@ -79,7 +79,7 @@ def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: 
         "initial_stop_name": from_name,
         "final_stop_name": to_name,
     }
-    for attempt in range(2):
+    for _ in range(2):
         try:
             r = session.post(GATEWAY_ENDPOINT, data=payload, headers=HEADERS, timeout=7)
             if r.status_code != 200:
@@ -124,19 +124,16 @@ def scan_day(date_str: str) -> tuple:
 
 
 def resolve_seats_binary(c: dict) -> dict:
-    """Dokładne badanie binarne z szybkim wyjściem dla pustych kursów."""
     f_id, f_name, t_id, t_name = c["from_id"], c["from_name"], c["to_id"], c["to_name"]
     d, dep = c["date"], c["departure"]
 
     time.sleep(0.03)
 
-    # Krok 1: Sprawdzenie pełnej puli (65 miejsc)
     r65 = query_api(f_id, f_name, t_id, t_name, d, passengers=MAX_CAPACITY)
     if r65 is not None and dep in r65:
         c["seats"] = MAX_CAPACITY
         return c
 
-    # Krok 2: Binary search dla zakresu 1..64
     low, high = 1, MAX_CAPACITY - 1
     exact = 1
 
@@ -144,7 +141,6 @@ def resolve_seats_binary(c: dict) -> dict:
         mid = (low + high) // 2
         res = query_api(f_id, f_name, t_id, t_name, d, passengers=mid)
         if res is None:
-            # W razie błędu sieciowego nie przekłamujemy wyniku
             break
         if dep in res:
             exact = mid
@@ -189,8 +185,12 @@ def update_database(courses: list, csv_file: str):
         w.writerows(rows)
 
 
-def compute_deltas(current_courses: list, prev_dict: dict) -> list:
+def compute_deltas(current_courses: list, prev_dict: dict, check_ts: str) -> list:
     deltas = []
+    parts = check_ts.split(" ")
+    date_part = parts[0] if len(parts) > 0 else check_ts
+    time_part = parts[1] if len(parts) > 1 else ""
+
     for c in current_courses:
         prev = prev_dict.get((c["date"], c["departure"]))
         if not prev:
@@ -203,11 +203,14 @@ def compute_deltas(current_courses: list, prev_dict: dict) -> list:
 
         if abs(price_diff) >= 0.01 or seats_diff != 0:
             deltas.append({
-                "route": c["route"],
+                "check_date": date_part,
+                "check_time": time_part,
+                "route": c["route"].replace("➔", "→"),
                 "date": c["date"],
-                "time": c["departure"],
+                "hours": c["hours"],
                 "curr_price": c["price"],
                 "price_diff": price_diff,
+                "prev_seats": prev_seats,
                 "curr_seats": curr_seats,
                 "seats_diff": seats_diff
             })
@@ -221,27 +224,40 @@ def render_bar(seats, total: int = MAX_CAPACITY) -> str:
     return f"[{'█' * filled}{'░' * (10 - filled)}] {seats}/{total}"
 
 
-def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list):
-    now_ts = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-
+def build_readme(courses_san_wro: list, courses_wro_san: list, deltas: list, now_ts: str):
     md = [
         "# 🚌 Sentinel N3: Sanok ⇄ Wrocław\n\n",
         f"> 🕒 **Ostatnia aktualizacja:** `{now_ts}` | 📡 **Horyzont:** 120+ dni\n\n",
-        "## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)\n\n"
+        "## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)\n\n",
+        "> Poniżej prezentowane są różnice względem poprzedniego sprawdzenia (np. ubytek foteli lub obniżka ceny).\n\n"
     ]
 
     if deltas:
-        md.append("| Trasa | Data | Godzina | Aktualna Cena | Zmiana Ceny (Δ) | Wolne Miejsca | Zmiana Miejsc (Δ) |\n")
-        md.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |\n")
+        md.append("| Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |\n")
+        md.append("| :--- | :--- | :--- | :---: | :---: |\n")
         for d in deltas:
-            p_delta = f"🟢 `{d['price_diff']:+.2f} zł`" if d['price_diff'] < 0 else (f"🔴 `{d['price_diff']:+.2f} zł`" if d['price_diff'] > 0 else "0.00 zł")
-            s_delta = f"📉 `{d['seats_diff']:+d}`" if d['seats_diff'] < 0 else (f"📈 `+{d['seats_diff']}`" if d['seats_diff'] > 0 else "0")
-            s_str = f"{d['curr_seats']}" if d['curr_seats'] is not None else "B/D"
-            md.append(f"| {d['route']} | 📅 **{d['date']}** | ⏰ **{d['time']}** | **{d['curr_price']:.2f} zł** | {p_delta} | `{s_str}` | {s_delta} |\n")
+            col_ts = f"`{d['check_date']}`<br>`{d['check_time']}`" if d['check_time'] else f"`{d['check_date']}`"
+            
+            from_to = d['route'].split("→")
+            col_route = f"{from_to[0].strip()} →<br>{from_to[1].strip()}" if len(from_to) == 2 else d['route']
+            
+            col_course = f"📅 {d['date']} ({d['hours']})"
+            
+            if abs(d['price_diff']) >= 0.01:
+                p_delta = f"🟢 `{d['price_diff']:+.2f} zł`" if d['price_diff'] < 0 else f"🔴 `{d['price_diff']:+.2f} zł`"
+                col_price = f"**{d['curr_price']:.2f} zł**<br>({p_delta})"
+            else:
+                col_price = f"{d['curr_price']:.2f} zł"
+
+            p_s = d['prev_seats'] if d['prev_seats'] is not None else "?"
+            c_s = d['curr_seats'] if d['curr_seats'] is not None else "?"
+            diff_s = f"({d['seats_diff']:+d})" if d['seats_diff'] != 0 else "(0)"
+            col_seats = f"{p_s} → **{c_s} szt.**<br>`{diff_s}`"
+
+            md.append(f"| {col_ts} | {col_route} | {col_course} | {col_price} | {col_seats} |\n")
     else:
         md.append("> ℹ️ Brak zmian cen i dostępności miejsc od ostatniego cyklu pomiarowego.\n")
 
-    # Bezpieczne osadzanie grafik za pomocą tagów HTML
     md.extend([
         "\n---\n\n",
         "## 🗺️ 2. Mapy Obłożenia (Heatmapy)\n\n",
@@ -305,8 +321,9 @@ def check_and_notify_horizon(active_dates: list):
 
 def main():
     start_t = time.time()
+    now_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("==========================================================", flush=True)
-    print("🚀 SENTINEL N3: CALIBRATED OBSERVERS ENGINE", flush=True)
+    print("🚀 SENTINEL N3: TELEMETRY ENGINE (SANOK ⇄ WROCŁAW)", flush=True)
     print("==========================================================", flush=True)
 
     prev_sw = load_previous_snapshot(CSV_SANOK_WROCLAW)
@@ -316,7 +333,7 @@ def main():
     total_days = len(dates)
     all_raw = []
 
-    print(f"\n📡 [1/2] Skanowanie kalendarza połączeń ({total_days} dni)...", flush=True)
+    print(f"\n📡 [1/2] Skanowanie siatki połączeń ({total_days} dni)...", flush=True)
     done_scan = 0
     with ThreadPoolExecutor(max_workers=PARALLEL_WORKERS) as executor:
         futures = [executor.submit(scan_day, d) for d in dates]
@@ -331,7 +348,7 @@ def main():
     print(f"\n✅ Znaleziono {total_courses} aktywnych kursów.", flush=True)
     check_and_notify_horizon(list({c["date"] for c in all_raw}))
 
-    print(f"\n🔬 [2/2] Precyzyjna weryfikacja miejsc ({total_courses} zadań)...", flush=True)
+    print(f"\n🔬 [2/2] Pomiar wolnych miejsc ({total_courses} zadań)...", flush=True)
     done_eval = 0
     courses_sw, courses_ws = [], []
 
@@ -347,11 +364,11 @@ def main():
     courses_sw.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
     courses_ws.sort(key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["departure"]))
 
-    deltas = compute_deltas(courses_sw, prev_sw) + compute_deltas(courses_ws, prev_ws)
+    deltas = compute_deltas(courses_sw, prev_sw, now_ts) + compute_deltas(courses_ws, prev_ws, now_ts)
 
     update_database(courses_sw, CSV_SANOK_WROCLAW)
     update_database(courses_ws, CSV_WROCLAW_SANOK)
-    build_readme(courses_sw, courses_ws, deltas)
+    build_readme(courses_sw, courses_ws, deltas, now_ts)
 
     print("==========================================================", flush=True)
     print(f"⏱️ ZAKOŃCZONO W CZASIE: {time.time() - start_t:.2f} s", flush=True)
