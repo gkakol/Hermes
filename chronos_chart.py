@@ -13,6 +13,30 @@ MAX_CAPACITY = 70
 DNI_TYG = {0: "Pn", 1: "Wt", 2: "Śr", 3: "Cz", 4: "Pt", 5: "Sb", 6: "Nd"}
 
 
+def get_smooth_neobus_cmap():
+    """Tworzy płynny, ciągły gradient z węzłami odpowiadającymi zadanym progom."""
+    # Punkty odcięcia znormalizowane od 0.0 do 1.0 (dzielone przez MAX_CAPACITY = 70):
+    # 0 -> Czarny
+    # ~3.5 (5%) -> Czerwony
+    # ~12 (17%) -> Pomarańczowy
+    # ~24 (35%) -> Żółty
+    # ~42 (60%) -> Zielony
+    # ~60 (85%) -> Niebieski
+    # 70 (100%) -> Głęboki błękit
+    stops = [
+        (0.00, "#111111"),  # 0 miejsc (czarny)
+        (0.05, "#d92b2b"),  # 1-10% (czerwony)
+        (0.18, "#f28500"),  # 10-25% (pomarańczowy)
+        (0.35, "#f5c518"),  # 25-45% (żółty)
+        (0.60, "#2ea44f"),  # 45-75% (zielony)
+        (0.85, "#1e70bf"),  # 75-100% (błękit)
+        (1.00, "#0b4d8c")   # Pełne 70 (głęboki niebieski)
+    ]
+    cmap = mcolors.LinearSegmentedColormap.from_list("smooth_neobus", stops, N=512)
+    cmap.set_bad(color="white")
+    return cmap
+
+
 def generate_vertical_heatmap(csv_path: str, output_img: str, title: str):
     if not os.path.isfile(csv_path):
         return
@@ -43,28 +67,19 @@ def generate_vertical_heatmap(csv_path: str, output_img: str, title: str):
         fig_h = max(8, n_rows * 0.35)
         fig, ax = plt.subplots(figsize=(6.5, fig_h), dpi=180)
 
-        # Progi procentowe dla MAX_CAPACITY = 70:
-        # 0: Czarny
-        # 1 - 6 (1-10%): Czerwony
-        # 7 - 17 (10-25%): Pomarańczowy
-        # 18 - 31 (25-45%): Żółty
-        # 32 - 52 (45-75%): Zielony
-        # 53 - 70 (75-100%): Niebieski
-        boundaries = [-0.5, 0.5, 6.5, 17.5, 31.5, 52.5, 70.5]
-        palette = ["#1a1a1a", "#d92b2b", "#f28500", "#f5c518", "#2ea44f", "#1e70bf"]
-
-        cmap = mcolors.ListedColormap(palette)
-        norm = mcolors.BoundaryNorm(boundaries, cmap.N)
-
+        cmap = get_smooth_neobus_cmap()
         mat = np.ma.masked_invalid(pivot.values)
-        im = ax.imshow(mat, cmap=cmap, norm=norm, aspect="auto")
+
+        # Ciągła skala vmin=0 do vmax=70
+        im = ax.imshow(mat, cmap=cmap, vmin=0, vmax=MAX_CAPACITY, aspect="auto")
 
         for r in range(pivot.shape[0]):
             for c in range(pivot.shape[1]):
                 val = pivot.iloc[r, c]
                 if not np.isnan(val):
                     val_int = int(val)
-                    txt_color = "white" if (val_int <= 6 or val_int >= 53) else "#111111"
+                    # Kontrast tekstu: biały na bardzo ciemnym (czerwień/czerń) oraz bardzo jasnym/ciemnoniebieskim
+                    txt_color = "white" if (val_int <= 6 or val_int >= 54) else "#111111"
                     ax.text(c, r, str(val_int), ha="center", va="center", fontsize=8.5, fontweight="bold", color=txt_color)
 
         ax.set_yticks(np.arange(len(pivot.index)))
@@ -75,8 +90,10 @@ def generate_vertical_heatmap(csv_path: str, output_img: str, title: str):
             spine.set_visible(False)
         ax.tick_params(left=False, bottom=False)
 
-        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.08, shrink=0.4, ticks=[0, 3.5, 12, 24.5, 42, 61.5])
-        cbar.ax.set_yticklabels(['0 (brak)', '1-10%', '10-25%', '25-45%', '45-75%', '75-100%'], fontsize=8)
+        cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.08, shrink=0.4)
+        cbar.set_ticks([0, 5, 15, 28, 45, 65])
+        cbar.set_ticklabels(['0 (brak)', '1-10%', '10-25%', '25-45%', '45-75%', '75-100%'])
+        cbar.ax.tick_params(labelsize=8)
         cbar.outline.set_visible(False)
 
         clean_title = title.replace("➔", "->")
@@ -85,13 +102,13 @@ def generate_vertical_heatmap(csv_path: str, output_img: str, title: str):
         plt.tight_layout()
         plt.savefig(output_img, dpi=180, bbox_inches="tight")
         plt.close()
-        print(f"Wygenerowano heatmapę: {output_img}")
+        print(f"Wygenerowano płynną heatmapę: {output_img}")
     except Exception as e:
         print(f"[!] Błąd generowania heatmapy: {e}")
 
 
 def main():
-    print(f"=== GENEROWANIE PIONOWYCH HEATMAP (1..{MAX_CAPACITY}) ===")
+    print(f"=== GENEROWANIE PŁYNNYCH HEATMAP GRADIENTOWYCH (0..{MAX_CAPACITY}) ===")
     generate_vertical_heatmap(CSV_SAN_WRO, IMG_SAN_WRO, "Wolne miejsca: Sanok -> Wroclaw")
     generate_vertical_heatmap(CSV_WRO_SAN, IMG_WRO_SAN, "Wolne miejsca: Wroclaw -> Sanok")
 
