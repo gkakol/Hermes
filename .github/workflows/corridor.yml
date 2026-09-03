@@ -23,7 +23,7 @@ jobs:
       - name: Run Corridor Radar
         run: python -u corridor_radar.py
 
-     - name: Commit and Push corridor report
+      - name: Commit and Push corridor report
         run: |
           git config --global user.name "corridor-agent"
           git config --global user.email "corridor@sentinel.internal"
