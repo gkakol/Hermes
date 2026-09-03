@@ -23,11 +23,11 @@ jobs:
       - name: Run Corridor Radar
         run: python -u corridor_radar.py
 
-      - name: Commit and Push corridor report
+     - name: Commit and Push corridor report
         run: |
           git config --global user.name "corridor-agent"
           git config --global user.email "corridor@sentinel.internal"
-          git pull --rebase origin main || true
           git add corridor_segments_7d.csv CORRIDOR.md
           git commit -m "Corridor Sync: $(date '+%Y-%m-%d %H:%M:%S')" || exit 0
+          git pull --rebase --autostash origin main
           git push
