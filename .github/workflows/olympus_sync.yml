@@ -1,8 +1,11 @@
 name: Kosmiczny bus
 
 on:
-  #schedule:
-    #- cron: '*/55 * * * *'
+  schedule:
+    # W ciągu dnia (06:00 - 22:00 UTC, czyli 08:00 - 00:00 czasu polskiego) -> co 40 minut
+    - cron: '*/40 6-22 * * *'
+    # W nocy (22:00 - 06:00 UTC) -> raz na 3 godziny
+    - cron: '0 1,4 * * *'
   workflow_dispatch:
 
 permissions:
