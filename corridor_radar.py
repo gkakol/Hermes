@@ -32,6 +32,25 @@ STOPS = {
     "WROCLAW": {"id": "77", "name": "WROCŁAW PKS Polbus"}
 }
 
+# Macierz godzin odjazdów z poszczególnych węzłów (zgodnie z oficjalnym rozkładem jazdy N3)
+# Kierunek: SANOK -> WROCŁAW
+TIMETABLE_EAST_WEST = {
+    "23:50": {"SANOK": "23:50", "NIEBYLEC": "00:50", "RZESZOW": "01:30", "KRAKOW_MDA": "03:35", "KRAKOW_AIRPORT": "04:00", "KATOWICE": "04:55", "GLIWICE": "05:22"},
+    "03:00": {"SANOK": "03:00", "NIEBYLEC": "04:00", "RZESZOW": "04:40", "KRAKOW_MDA": "06:55", "KRAKOW_AIRPORT": "07:20", "KATOWICE": "08:30", "GLIWICE": "09:00"},
+    "06:35": {"SANOK": "06:35", "NIEBYLEC": "07:40", "RZESZOW": "08:40", "KRAKOW_MDA": "10:55", "KRAKOW_AIRPORT": "11:30", "KATOWICE": "12:30", "GLIWICE": "13:00"},
+    "10:10": {"SANOK": "10:10", "NIEBYLEC": "11:25", "RZESZOW": "12:20", "KRAKOW_MDA": "14:40", "KRAKOW_AIRPORT": "15:15", "KATOWICE": "16:25", "GLIWICE": "16:55"},
+    "16:20": {"SANOK": "16:20", "NIEBYLEC": "17:30", "RZESZOW": "18:20", "KRAKOW_MDA": "20:35", "KRAKOW_AIRPORT": "21:00", "KATOWICE": "22:00", "GLIWICE": "22:27"}
+}
+
+# Kierunek: WROCŁAW -> SANOK
+TIMETABLE_WEST_EAST = {
+    "03:40": {"WROCLAW": "03:40", "GLIWICE": "05:40", "KATOWICE": "06:10", "KRAKOW_AIRPORT": "07:00", "KRAKOW_MDA": "07:40", "RZESZOW": "09:55", "NIEBYLEC": "10:34"},
+    "07:45": {"WROCLAW": "07:45", "GLIWICE": "09:45", "KATOWICE": "10:15", "KRAKOW_AIRPORT": "11:05", "KRAKOW_MDA": "11:45", "RZESZOW": "13:50", "NIEBYLEC": "14:35"},
+    "12:00": {"WROCLAW": "12:00", "GLIWICE": "14:00", "KATOWICE": "14:30", "KRAKOW_AIRPORT": "15:20", "KRAKOW_MDA": "16:15", "RZESZOW": "18:40", "NIEBYLEC": "19:20"},
+    "15:35": {"WROCLAW": "15:35", "GLIWICE": "17:40", "KATOWICE": "18:15", "KRAKOW_AIRPORT": "19:05", "KRAKOW_MDA": "19:45", "RZESZOW": "21:55", "NIEBYLEC": "22:30"},
+    "22:25": {"WROCLAW": "22:25", "GLIWICE": "00:20", "KATOWICE": "00:50", "KRAKOW_AIRPORT": "01:50", "KRAKOW_MDA": "02:20", "RZESZOW": "04:30", "NIEBYLEC": "05:00"}
+}
+
 SEGMENTS_EAST_WEST = [
     ("SANOK", "NIEBYLEC", "Sanok -> Niebylec"),
     ("NIEBYLEC", "RZESZOW", "Niebylec -> Rzeszow"),
@@ -69,7 +88,7 @@ _thread_local = threading.local()
 def get_session() -> requests.Session:
     if not hasattr(_thread_local, "session"):
         s = requests.Session()
-        retries = Retry(total=3, backoff_factor=0.5, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=3, backoff_factor=0.4, status_forcelist=[500, 502, 503, 504])
         adapter = HTTPAdapter(max_retries=retries, pool_connections=5, pool_maxsize=10)
         s.mount("https://", adapter)
         s.mount("http://", adapter)
@@ -124,33 +143,60 @@ def query_api(from_id: str, from_name: str, to_id: str, to_name: str, date_str: 
                             "price": price
                         }
             return courses
-        except Exception as e:
+        except Exception:
             time.sleep(0.15)
     return None
 
 
-def query_segment_day_map(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, passengers: int):
-    data = query_api(from_id, from_name, to_id, to_name, date_str, passengers=passengers)
-    if data is None:
+def match_departure(available_deps: list, target_dep: str) -> str:
+    """Dopasowuje najbliższą godzinę odjazdu (w tolerancji do 25 min)."""
+    if not available_deps or not target_dep:
         return None
-    return set(data.keys())
+    if target_dep in available_deps:
+        return target_dep
+
+    t_target = datetime.strptime(target_dep, "%H:%M")
+    best_dep = None
+    min_diff = 999999
+
+    for d in available_deps:
+        try:
+            t_curr = datetime.strptime(d, "%H:%M")
+            diff = abs((t_curr - t_target).total_seconds())
+            if diff < min_diff and diff <= 25 * 60:
+                min_diff = diff
+                best_dep = d
+        except Exception:
+            pass
+    return best_dep
 
 
-def probe_seats_fast(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, dep: str) -> int:
-    """Szybkie badanie miejsc na segmencie: najpierw próg 50, potem 70, a w dół binary search."""
-    r50 = query_api(from_id, from_name, to_id, to_name, date_str, passengers=50)
-    if r50 and (dep in r50 or len(r50) > 0):
-        r70 = query_api(from_id, from_name, to_id, to_name, date_str, passengers=MAX_CAPACITY)
-        return MAX_CAPACITY if (r70 and (dep in r70 or len(r70) > 0)) else 50
+def probe_seats_accurate(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, target_dep: str) -> int:
+    """Precyzyjny pomiar wolnych foteli dla konkretnego kursu węzłowego."""
+    day_courses = query_api(from_id, from_name, to_id, to_name, date_str, passengers=1)
+    if not day_courses:
+        return 0
 
+    matched = match_departure(list(day_courses.keys()), target_dep)
+    if not matched:
+        return 0
+
+    # 1. Sprawdzamy czy kurs ma >= 50 miejsc
+    res_50 = query_api(from_id, from_name, to_id, to_name, date_str, passengers=50)
+    if res_50 and matched in res_50:
+        res_70 = query_api(from_id, from_name, to_id, to_name, date_str, passengers=MAX_CAPACITY)
+        return MAX_CAPACITY if (res_70 and matched in res_70) else 50
+
+    # 2. Rzetelny binary search w zakresie 1..49
     low, high = 1, 49
     exact = 1
+
     while low <= high:
         mid = (low + high) // 2
         res = query_api(from_id, from_name, to_id, to_name, date_str, passengers=mid)
         if res is None:
             break
-        if dep in res or len(res) > 0:
+        if matched in res:
             exact = mid
             low = mid + 1
         else:
@@ -161,22 +207,25 @@ def probe_seats_fast(from_id: str, from_name: str, to_id: str, to_name: str, dat
 
 
 def scan_day_corridor(date_str: str) -> list:
-    print(f"\n📅 [DZIEŃ {date_str}] Rozpoczęcie analizy korytarza...", flush=True)
+    print(f"\n📅 [DZIEŃ {date_str}] Analiza odcinków...", flush=True)
     day_start = time.time()
     results = []
 
-    # 1. Kursy Sanok -> Wrocław
+    # 1. Sanok -> Wrocław
     sw_main = query_api(STOPS["SANOK"]["id"], STOPS["SANOK"]["name"], STOPS["WROCLAW"]["id"], STOPS["WROCLAW"]["name"], date_str, 1) or {}
-    print(f"  ↳ Sanok ➔ Wrocław: wykryto {len(sw_main)} kursów {list(sw_main.keys())}", flush=True)
+    print(f"  ↳ Sanok ➔ Wrocław: {len(sw_main)} kursów {list(sw_main.keys())}", flush=True)
 
     for dep, data in sw_main.items():
+        sched = TIMETABLE_EAST_WEST.get(dep, {})
         seg_results = {}
         min_seats = 999
         bottleneck = ""
 
         for f_key, t_key, label in SEGMENTS_EAST_WEST:
+            expected_node_dep = sched.get(f_key, dep)
             f_info, t_info = STOPS[f_key], STOPS[t_key]
-            seats = probe_seats_fast(f_info["id"], f_info["name"], t_info["id"], t_info["name"], date_str, dep)
+            
+            seats = probe_seats_accurate(f_info["id"], f_info["name"], t_info["id"], t_info["name"], date_str, expected_node_dep)
             seg_results[label] = seats
             if seats < min_seats:
                 min_seats = seats
@@ -191,20 +240,23 @@ def scan_day_corridor(date_str: str) -> list:
             "bottleneck_seg": bottleneck,
             "bottleneck_seats": min_seats
         })
-        print(f"    🔎 [{date_str} {dep}] Wąskie gardło: {bottleneck} (wolne: {min_seats} szt.)", flush=True)
+        print(f"    🔎 [{date_str} {dep}] Wąskie gardło: {bottleneck} ({min_seats} wolnych)", flush=True)
 
-    # 2. Kursy Wrocław -> Sanok
+    # 2. Wrocław -> Sanok
     ws_main = query_api(STOPS["WROCLAW"]["id"], STOPS["WROCLAW"]["name"], STOPS["SANOK"]["id"], STOPS["SANOK"]["name"], date_str, 1) or {}
-    print(f"  ↳ Wrocław ➔ Sanok: wykryto {len(ws_main)} kursów {list(ws_main.keys())}", flush=True)
+    print(f"  ↳ Wrocław ➔ Sanok: {len(ws_main)} kursów {list(ws_main.keys())}", flush=True)
 
     for dep, data in ws_main.items():
+        sched = TIMETABLE_WEST_EAST.get(dep, {})
         seg_results = {}
         min_seats = 999
         bottleneck = ""
 
         for f_key, t_key, label in SEGMENTS_WEST_EAST:
+            expected_node_dep = sched.get(f_key, dep)
             f_info, t_info = STOPS[f_key], STOPS[t_key]
-            seats = probe_seats_fast(f_info["id"], f_info["name"], t_info["id"], t_info["name"], date_str, dep)
+            
+            seats = probe_seats_accurate(f_info["id"], f_info["name"], t_info["id"], t_info["name"], date_str, expected_node_dep)
             seg_results[label] = seats
             if seats < min_seats:
                 min_seats = seats
@@ -219,21 +271,18 @@ def scan_day_corridor(date_str: str) -> list:
             "bottleneck_seg": bottleneck,
             "bottleneck_seats": min_seats
         })
-        print(f"    🔎 [{date_str} {dep}] Wąskie gardło: {bottleneck} (wolne: {min_seats} szt.)", flush=True)
+        print(f"    🔎 [{date_str} {dep}] Wąskie gardło: {bottleneck} ({min_seats} wolnych)", flush=True)
 
     print(f"  ⏱️ Zakończono {date_str} w {time.time() - day_start:.1f} s", flush=True)
     return results
 
 
 def save_corridor_csv(records: list):
-    """Zapis do CSV z pełną, bezpieczną unią wszystkich nagłówków z obu kierunków."""
     if not records:
-        print("[WARN] Brak rekordów do zapisania w CSV!", flush=True)
+        print("[WARN] Brak rekordów do zapisu!", flush=True)
         return
 
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
-
-    # Zbuduj pełną listę kolumn ze wszystkich wierszy (unika błędu KeyError / ValueError)
     base_headers = ["Data pomiaru", "Kierunek", "Data kursu", "Godzina", "Wąskie gardło (odcinek)", "Wolne miejsca (min)"]
     segment_headers = set()
 
@@ -254,13 +303,12 @@ def save_corridor_csv(records: list):
 
     all_fieldnames = base_headers + sorted(list(segment_headers))
 
-    file_exists = os.path.isfile(CSV_CORRIDOR)
     with open(CSV_CORRIDOR, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=all_fieldnames, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"💾 Pomyślnie zapisano {len(rows)} wierszy w {CSV_CORRIDOR} z kolumnami: {all_fieldnames}", flush=True)
+    print(f"💾 Zapisano {len(rows)} wierszy w {CSV_CORRIDOR}", flush=True)
 
 
 def build_corridor_report(records: list):
@@ -269,16 +317,16 @@ def build_corridor_report(records: list):
         "# 🛣️ Sentinel N3: Radar Węzłów i Odcinków (Horyzont 7 Dni)\n\n",
         f"> 🕒 **Ostatnia aktualizacja:** `{now_ts}` | 🎯 **Zakres:** Kolejne 7 dni\n\n",
         "> Raport identyfikuje **wąskie gardła** na trasie N3. ",
-        "Oznacza to, że kurs może być zablokowany na pełnej trasie (Sanok ⇄ Wrocław) z powodu wyprzedania jednego krytycznego odcinka pośredniego.\n\n",
+        "Wskazuje odcinek pośredni z najmniejszą liczbą dostępnych foteli, który blokuje możliwość zakupu biletu na całej trasie.\n\n",
         "## 🔍 1. Wykaz Wąskich Gardeł Kursów\n\n",
-        "| Data | Kierunek | Odjazd | Wąskie gardło (Odcinek krytyczny) | Wolne fotele | Status |\n",
+        "| Data | Kierunek | Odjazd | Wąskie gardło (Odcinek krytyczny) | Dostępne fotele | Status |\n",
         "| :--- | :--- | :---: | :--- | :---: | :---: |\n"
     ]
 
     for r in sorted(records, key=lambda x: (datetime.strptime(x["date"], "%d.%m.%Y"), x["main_dep"])):
         b_seats = r["bottleneck_seats"]
         b_seg = r["bottleneck_seg"]
-        
+
         if b_seats <= 6:
             badge = f"🔴 **{b_seats} szt.**"
             status = "⚠️ Krytyczny korek"
@@ -296,12 +344,12 @@ def build_corridor_report(records: list):
 
     md.extend([
         "\n---\n\n",
-        "## 📊 2. Szczegółowe obłożenie poszczególnych segmentów\n\n"
+        "## 📊 2. Szczegółowe obłożenie segmentów trasy\n\n"
     ])
 
     for r in records:
         md.append(f"### 🚌 {r['direction']} | 📅 {r['date']} {r['main_hours']}\n")
-        md.append(f"> 🚨 Odcinek krytyczny: **{r['bottleneck_seg']}** ({r['bottleneck_seats']} wolnych miejsc)\n\n")
+        md.append(f"> 🚨 Odcinek blokujący: **{r['bottleneck_seg']}** ({r['bottleneck_seats']} wolnych miejsc)\n\n")
         md.append("| Segment trasy | Wolne miejsca |\n| :--- | :---: |\n")
         for seg_name, s_val in r["segments"].items():
             bar_color = "🔴" if s_val <= 6 else ("🟠" if s_val <= 17 else ("🟡" if s_val <= 31 else "🟢"))
@@ -317,7 +365,7 @@ def build_corridor_report(records: list):
 def main():
     start_t = time.time()
     print("==========================================================", flush=True)
-    print("🛣️ SENTINEL CORRIDOR RADAR (7-DAYS SEGMENT ENGINE)", flush=True)
+    print("🛣️ SENTINEL CORRIDOR RADAR (7-DAYS ENGINE)", flush=True)
     print("==========================================================", flush=True)
 
     today = date.today()
@@ -329,18 +377,16 @@ def main():
         futures = [executor.submit(scan_day_corridor, d) for d in dates]
         for fut in as_completed(futures):
             try:
-                day_res = fut.result()
-                all_records.extend(day_res)
+                all_records.extend(fut.result())
             except Exception as e:
-                print(f"[ERROR] Błąd przetwarzania wątku dnia: {e}", flush=True)
+                print(f"[ERROR] Błąd w wątku dnia: {e}", flush=True)
 
-    print(f"\n📊 Łącznie zebrano dane dla {len(all_records)} kursów. Rozpoczynanie zapisu...", flush=True)
+    print(f"\n📊 Zebrano dane dla {len(all_records)} kursów. Zapisywanie...", flush=True)
     save_corridor_csv(all_records)
     build_corridor_report(all_records)
 
     print("==========================================================", flush=True)
     print(f"⏱️ CAŁKOWITY CZAS WYKONANIA: {time.time() - start_t:.2f} s", flush=True)
-    print(f"📁 Wyniki: {CSV_CORRIDOR} | Raport: {REPORT_MD}", flush=True)
     print("==========================================================", flush=True)
 
 
