@@ -1,6 +1,6 @@
 # 🛣️ Sentinel N3: Radar Węzłów i Odcinków (Horyzont 7 Dni)
 
-> 🕒 **Ostatnia aktualizacja:** `2026-09-03 06:18:03` | 🎯 **Zakres:** Kolejne 7 dni
+> 🕒 **Ostatnia aktualizacja:** `2026-09-03 16:41:40` | 🎯 **Zakres:** Kolejne 7 dni
 
 > Raport identyfikuje **wąskie gardła** na trasie N3. Oznacza to, że kurs może być zablokowany na pełnej trasie (Sanok ⇄ Wrocław) z powodu wyprzedania jednego krytycznego odcinka pośredniego.
 
@@ -8,26 +8,23 @@
 
 | Data | Kierunek | Odjazd | Wąskie gardło (Odcinek krytyczny) | Wolne fotele | Status |
 | :--- | :--- | :---: | :--- | :---: | :---: |
-| 📅 **03.09.2026** | Sanok ➔ Wrocław | ⏰ **10:10** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **03.09.2026** | Wrocław ➔ Sanok | ⏰ **12:00** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **03.09.2026** | Wrocław ➔ Sanok | ⏰ **15:35** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **03.09.2026** | Wrocław ➔ Sanok | ⏰ **22:25** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **03.09.2026** | Sanok ➔ Wrocław | ⏰ **23:50** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
+| 📅 **03.09.2026** | Wrocław ➔ Sanok | ⏰ **22:25** | **Gliwice -> Katowice** | 🔴 **1 szt.** | ⚠️ Krytyczny korek |
+| 📅 **03.09.2026** | Sanok ➔ Wrocław | ⏰ **23:50** | **Niebylec -> Rzeszow** | 🔴 **1 szt.** | ⚠️ Krytyczny korek |
 | 📅 **04.09.2026** | Sanok ➔ Wrocław | ⏰ **03:00** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **04.09.2026** | Sanok ➔ Wrocław | ⏰ **06:35** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **04.09.2026** | Wrocław ➔ Sanok | ⏰ **07:45** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **04.09.2026** | Sanok ➔ Wrocław | ⏰ **10:10** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **04.09.2026** | Wrocław ➔ Sanok | ⏰ **12:00** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **04.09.2026** | Wrocław ➔ Sanok | ⏰ **15:35** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **04.09.2026** | Wrocław ➔ Sanok | ⏰ **22:25** | **Balice -> Krakow** | 🟢 `50 szt.` | Duża dostępność |
+| 📅 **04.09.2026** | Wrocław ➔ Sanok | ⏰ **22:25** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **04.09.2026** | Sanok ➔ Wrocław | ⏰ **23:50** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **05.09.2026** | Sanok ➔ Wrocław | ⏰ **03:00** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **05.09.2026** | Sanok ➔ Wrocław | ⏰ **06:35** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **07:45** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
+| 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **07:45** | **Balice -> Krakow** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **05.09.2026** | Sanok ➔ Wrocław | ⏰ **10:10** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **12:00** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
+| 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **12:00** | **Balice -> Krakow** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **15:35** | **Balice -> Krakow** | 🟢 `50 szt.` | Duża dostępność |
-| 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **22:25** | **Rzeszow -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
+| 📅 **05.09.2026** | Wrocław ➔ Sanok | ⏰ **22:25** | **Balice -> Krakow** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **05.09.2026** | Sanok ➔ Wrocław | ⏰ **23:50** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **06.09.2026** | Sanok ➔ Wrocław | ⏰ **03:00** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
 | 📅 **06.09.2026** | Sanok ➔ Wrocław | ⏰ **06:35** | **Sanok -> Niebylec** | 🟢 `50 szt.` | Duża dostępność |
@@ -68,70 +65,31 @@
 
 ## 📊 2. Szczegółowe obłożenie poszczególnych segmentów
 
-### 🚌 Sanok ➔ Wrocław | 📅 03.09.2026 10:10 -> 18:50
-> 🚨 Odcinek krytyczny: **Sanok -> Niebylec** (50 wolnych miejsc)
-
-| Segment trasy | Wolne miejsca |
-| :--- | :---: |
-| Sanok -> Niebylec | 🟢 **50** / 70 |
-| Niebylec -> Rzeszow | 🟢 **50** / 70 |
-| Rzeszow -> Krakow | 🟢 **50** / 70 |
-| Krakow -> Balice | 🟢 **70** / 70 |
-| Balice -> Katowice | 🟢 **70** / 70 |
-| Katowice -> Gliwice | 🟢 **70** / 70 |
-| Gliwice -> Wroclaw | 🟢 **70** / 70 |
-
 ### 🚌 Sanok ➔ Wrocław | 📅 03.09.2026 23:50 -> 07:25
-> 🚨 Odcinek krytyczny: **Sanok -> Niebylec** (50 wolnych miejsc)
+> 🚨 Odcinek krytyczny: **Niebylec -> Rzeszow** (1 wolnych miejsc)
 
 | Segment trasy | Wolne miejsca |
 | :--- | :---: |
-| Sanok -> Niebylec | 🟢 **50** / 70 |
-| Niebylec -> Rzeszow | 🟢 **50** / 70 |
-| Rzeszow -> Krakow | 🟢 **50** / 70 |
-| Krakow -> Balice | 🟢 **70** / 70 |
-| Balice -> Katowice | 🟢 **70** / 70 |
-| Katowice -> Gliwice | 🟢 **70** / 70 |
-| Gliwice -> Wroclaw | 🟢 **70** / 70 |
-
-### 🚌 Wrocław ➔ Sanok | 📅 03.09.2026 12:00 -> 20:14
-> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
-
-| Segment trasy | Wolne miejsca |
-| :--- | :---: |
-| Wroclaw -> Gliwice | 🟢 **70** / 70 |
-| Gliwice -> Katowice | 🟢 **70** / 70 |
-| Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **70** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
-| Rzeszow -> Niebylec | 🟢 **50** / 70 |
-| Niebylec -> Sanok | 🟢 **50** / 70 |
-
-### 🚌 Wrocław ➔ Sanok | 📅 03.09.2026 15:35 -> 23:36
-> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
-
-| Segment trasy | Wolne miejsca |
-| :--- | :---: |
-| Wroclaw -> Gliwice | 🟢 **70** / 70 |
-| Gliwice -> Katowice | 🟢 **70** / 70 |
-| Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **70** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
-| Rzeszow -> Niebylec | 🟢 **50** / 70 |
-| Niebylec -> Sanok | 🟢 **50** / 70 |
+| Sanok -> Niebylec | 🟢 **35** / 70 |
+| Niebylec -> Rzeszow | 🔴 **1** / 70 |
+| Rzeszow -> Krakow | 🔴 **1** / 70 |
+| Krakow -> Balice | 🔴 **1** / 70 |
+| Balice -> Katowice | 🔴 **1** / 70 |
+| Katowice -> Gliwice | 🔴 **1** / 70 |
+| Gliwice -> Wroclaw | 🔴 **1** / 70 |
 
 ### 🚌 Wrocław ➔ Sanok | 📅 03.09.2026 22:25 -> 06:12
-> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
+> 🚨 Odcinek krytyczny: **Gliwice -> Katowice** (1 wolnych miejsc)
 
 | Segment trasy | Wolne miejsca |
 | :--- | :---: |
 | Wroclaw -> Gliwice | 🟢 **70** / 70 |
-| Gliwice -> Katowice | 🟢 **70** / 70 |
-| Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **70** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
+| Gliwice -> Katowice | 🔴 **1** / 70 |
+| Katowice -> Balice | 🔴 **1** / 70 |
+| Balice -> Krakow | 🟢 **50** / 70 |
+| Krakow -> Rzeszow | 🟢 **37** / 70 |
 | Rzeszow -> Niebylec | 🟢 **50** / 70 |
-| Niebylec -> Sanok | 🟢 **50** / 70 |
+| Niebylec -> Sanok | 🟢 **44** / 70 |
 
 ### 🚌 Sanok ➔ Wrocław | 📅 04.09.2026 03:00 -> 10:55
 > 🚨 Odcinek krytyczny: **Sanok -> Niebylec** (50 wolnych miejsc)
@@ -225,14 +183,14 @@
 | Niebylec -> Sanok | 🟢 **50** / 70 |
 
 ### 🚌 Wrocław ➔ Sanok | 📅 04.09.2026 22:25 -> 06:12
-> 🚨 Odcinek krytyczny: **Balice -> Krakow** (50 wolnych miejsc)
+> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
 
 | Segment trasy | Wolne miejsca |
 | :--- | :---: |
 | Wroclaw -> Gliwice | 🟢 **70** / 70 |
 | Gliwice -> Katowice | 🟢 **70** / 70 |
 | Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **50** / 70 |
+| Balice -> Krakow | 🟢 **70** / 70 |
 | Krakow -> Rzeszow | 🟢 **70** / 70 |
 | Rzeszow -> Niebylec | 🟢 **50** / 70 |
 | Niebylec -> Sanok | 🟢 **50** / 70 |
@@ -290,28 +248,28 @@
 | Gliwice -> Wroclaw | 🟢 **70** / 70 |
 
 ### 🚌 Wrocław ➔ Sanok | 📅 05.09.2026 07:45 -> 15:47
-> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
+> 🚨 Odcinek krytyczny: **Balice -> Krakow** (50 wolnych miejsc)
 
 | Segment trasy | Wolne miejsca |
 | :--- | :---: |
 | Wroclaw -> Gliwice | 🟢 **70** / 70 |
 | Gliwice -> Katowice | 🟢 **70** / 70 |
 | Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **70** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
+| Balice -> Krakow | 🟢 **50** / 70 |
+| Krakow -> Rzeszow | 🟢 **50** / 70 |
 | Rzeszow -> Niebylec | 🟢 **50** / 70 |
 | Niebylec -> Sanok | 🟢 **50** / 70 |
 
 ### 🚌 Wrocław ➔ Sanok | 📅 05.09.2026 12:00 -> 20:14
-> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
+> 🚨 Odcinek krytyczny: **Balice -> Krakow** (50 wolnych miejsc)
 
 | Segment trasy | Wolne miejsca |
 | :--- | :---: |
 | Wroclaw -> Gliwice | 🟢 **70** / 70 |
 | Gliwice -> Katowice | 🟢 **70** / 70 |
 | Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **70** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
+| Balice -> Krakow | 🟢 **50** / 70 |
+| Krakow -> Rzeszow | 🟢 **50** / 70 |
 | Rzeszow -> Niebylec | 🟢 **50** / 70 |
 | Niebylec -> Sanok | 🟢 **50** / 70 |
 
@@ -324,20 +282,20 @@
 | Gliwice -> Katowice | 🟢 **70** / 70 |
 | Katowice -> Balice | 🟢 **70** / 70 |
 | Balice -> Krakow | 🟢 **50** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
+| Krakow -> Rzeszow | 🟢 **50** / 70 |
 | Rzeszow -> Niebylec | 🟢 **50** / 70 |
 | Niebylec -> Sanok | 🟢 **50** / 70 |
 
 ### 🚌 Wrocław ➔ Sanok | 📅 05.09.2026 22:25 -> 06:12
-> 🚨 Odcinek krytyczny: **Rzeszow -> Niebylec** (50 wolnych miejsc)
+> 🚨 Odcinek krytyczny: **Balice -> Krakow** (50 wolnych miejsc)
 
 | Segment trasy | Wolne miejsca |
 | :--- | :---: |
 | Wroclaw -> Gliwice | 🟢 **70** / 70 |
 | Gliwice -> Katowice | 🟢 **70** / 70 |
 | Katowice -> Balice | 🟢 **70** / 70 |
-| Balice -> Krakow | 🟢 **70** / 70 |
-| Krakow -> Rzeszow | 🟢 **70** / 70 |
+| Balice -> Krakow | 🟢 **50** / 70 |
+| Krakow -> Rzeszow | 🟢 **50** / 70 |
 | Rzeszow -> Niebylec | 🟢 **50** / 70 |
 | Niebylec -> Sanok | 🟢 **50** / 70 |
 
@@ -374,7 +332,7 @@
 | :--- | :---: |
 | Sanok -> Niebylec | 🟢 **50** / 70 |
 | Niebylec -> Rzeszow | 🟢 **50** / 70 |
-| Rzeszow -> Krakow | 🟢 **50** / 70 |
+| Rzeszow -> Krakow | 🟢 **70** / 70 |
 | Krakow -> Balice | 🟢 **70** / 70 |
 | Balice -> Katowice | 🟢 **70** / 70 |
 | Katowice -> Gliwice | 🟢 **70** / 70 |
