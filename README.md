@@ -1,12 +1,15 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `2026-09-05 21:15:18` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (79 dni)
+> 🕒 **Ostatnia aktualizacja:** `2026-09-05 21:48:46` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (79 dni)
 
 ## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
 > Poniżej prezentowane są różnice względem poprzedniego sprawdzenia (ubytek foteli lub obniżka ceny).
 
-> ℹ️ Brak zmian cen i dostępności miejsc od ostatniego cyklu pomiarowego.
+| Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |
+| :--- | :--- | :--- | :---: | :---: |
+| `2026-09-05`<br>`21:48:46` | Sanok →<br>Wrocław | 📅 06.09.2026 (16:20 -> 00:20) | 120.65 zł | 27 → **26 szt.**<br>`(-1)` |
+| `2026-09-05`<br>`21:48:46` | Wrocław →<br>Sanok | 📅 06.09.2026 (22:25 -> 06:12) | 120.65 zł | 58 → **55 szt.**<br>`(-3)` |
 
 ---
 
@@ -18,7 +21,7 @@
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 01 | Wrocław → Sanok | 📅 **15.09.2026** | ⏰ 22:25 -> 06:12 | `[███░░░░░░░] 21/70` (**21 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 02 | Sanok → Wrocław | 📅 **15.09.2026** | ⏰ 10:10 -> 18:50 | `[███░░░░░░░] 22/70` (**22 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 03 | Sanok → Wrocław | 📅 **06.09.2026** | ⏰ 16:20 -> 00:20 | `[████░░░░░░] 27/70` (**27 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 03 | Sanok → Wrocław | 📅 **06.09.2026** | ⏰ 16:20 -> 00:20 | `[████░░░░░░] 26/70` (**26 szt.**) | 🔥 `92 os./24h` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 04 | Sanok → Wrocław | 📅 **16.09.2026** | ⏰ 10:10 -> 18:50 | `[████░░░░░░] 27/70` (**27 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 05 | Sanok → Wrocław | 📅 **26.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 31/70` (**31 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 06 | Wrocław → Sanok | 📅 **25.10.2026** | ⏰ 15:35 -> 23:36 | `[████░░░░░░] 31/70` (**31 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
