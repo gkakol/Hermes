@@ -1,6 +1,6 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `2026-09-05 01:11:12` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (79 dni)
+> 🕒 **Ostatnia aktualizacja:** `2026-09-05 04:12:34` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (79 dni)
 
 ## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
@@ -8,7 +8,7 @@
 
 | Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |
 | :--- | :--- | :--- | :---: | :---: |
-| `2026-09-05`<br>`01:11:12` | Wrocław →<br>Sanok | 📅 05.09.2026 (07:45 -> 15:47) | 120.65 zł | 50 → **49 szt.**<br>`(-1)` |
+| `2026-09-05`<br>`04:12:34` | Wrocław →<br>Sanok | 📅 05.09.2026 (12:00 -> 20:14) | 120.65 zł | 50 → **49 szt.**<br>`(-1)` |
 
 ---
 
