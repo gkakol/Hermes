@@ -1,6 +1,6 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `2026-09-07 19:50:13` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (77 dni)
+> 🕒 **Ostatnia aktualizacja:** `2026-09-07 20:17:27` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (77 dni)
 
 ## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
@@ -8,13 +8,9 @@
 
 | Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |
 | :--- | :--- | :--- | :---: | :---: |
-| `2026-09-07`<br>`19:50:13` | Sanok →<br>Wrocław | 📅 07.09.2026 (23:50 -> 07:25) | 120.65 zł | 31 → **29 szt.**<br>`(-2)` |
-| `2026-09-07`<br>`19:50:13` | Sanok →<br>Wrocław | 📅 08.09.2026 (06:35 -> 15:05) | 120.65 zł | 30 → **29 szt.**<br>`(-1)` |
-| `2026-09-07`<br>`19:50:13` | Sanok →<br>Wrocław | 📅 08.09.2026 (10:10 -> 18:50) | 120.65 zł | 56 → **55 szt.**<br>`(-1)` |
-| `2026-09-07`<br>`19:50:13` | Sanok →<br>Wrocław | 📅 08.09.2026 (23:50 -> 07:25) | 120.65 zł | 60 → **58 szt.**<br>`(-2)` |
-| `2026-09-07`<br>`19:50:13` | Sanok →<br>Wrocław | 📅 12.09.2026 (23:50 -> 07:25) | 120.65 zł | 53 → **52 szt.**<br>`(-1)` |
-| `2026-09-07`<br>`19:50:13` | Wrocław →<br>Sanok | 📅 09.09.2026 (12:00 -> 20:14) | 120.65 zł | 52 → **51 szt.**<br>`(-1)` |
-| `2026-09-07`<br>`19:50:13` | Wrocław →<br>Sanok | 📅 16.09.2026 (07:45 -> 15:47) | 120.65 zł | 39 → **38 szt.**<br>`(-1)` |
+| `2026-09-07`<br>`20:17:27` | Sanok →<br>Wrocław | 📅 07.09.2026 (23:50 -> 07:25) | 120.65 zł | 29 → **25 szt.**<br>`(-4)` |
+| `2026-09-07`<br>`20:17:27` | Sanok →<br>Wrocław | 📅 08.09.2026 (23:50 -> 07:25) | 120.65 zł | 58 → **55 szt.**<br>`(-3)` |
+| `2026-09-07`<br>`20:17:27` | Wrocław →<br>Sanok | 📅 14.09.2026 (03:40 -> 11:33) | 120.65 zł | 61 → **60 szt.**<br>`(-1)` |
 
 ---
 
@@ -26,10 +22,10 @@
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | 01 | Wrocław → Sanok | 📅 **15.09.2026** | ⏰ 22:25 -> 06:12 | `[███░░░░░░░] 19/70` (**19 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 02 | Sanok → Wrocław | 📅 **15.09.2026** | ⏰ 10:10 -> 18:50 | `[███░░░░░░░] 20/70` (**20 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 03 | Sanok → Wrocław | 📅 **15.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 27/70` (**27 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 04 | Sanok → Wrocław | 📅 **16.09.2026** | ⏰ 10:10 -> 18:50 | `[████░░░░░░] 27/70` (**27 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 05 | Sanok → Wrocław | 📅 **07.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 29/70` (**29 szt.**) | 🔥 `166 os./24h` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 06 | Sanok → Wrocław | 📅 **08.09.2026** | ⏰ 06:35 -> 15:05 | `[████░░░░░░] 29/70` (**29 szt.**) | 🔥 `83 os./24h` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 03 | Sanok → Wrocław | 📅 **07.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 25/70` (**25 szt.**) | 🔥 `586 os./24h` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 04 | Sanok → Wrocław | 📅 **15.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 27/70` (**27 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 05 | Sanok → Wrocław | 📅 **16.09.2026** | ⏰ 10:10 -> 18:50 | `[████░░░░░░] 27/70` (**27 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 06 | Sanok → Wrocław | 📅 **08.09.2026** | ⏰ 06:35 -> 15:05 | `[████░░░░░░] 29/70` (**29 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 07 | Sanok → Wrocław | 📅 **13.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 29/70` (**29 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 08 | Sanok → Wrocław | 📅 **26.09.2026** | ⏰ 23:50 -> 07:25 | `[████░░░░░░] 31/70` (**31 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 09 | Wrocław → Sanok | 📅 **14.09.2026** | ⏰ 22:25 -> 06:12 | `[████░░░░░░] 31/70` (**31 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
@@ -41,7 +37,7 @@
 | 15 | Sanok → Wrocław | 📅 **19.10.2026** | ⏰ 10:10 -> 18:50 | `[█████░░░░░] 35/70` (**35 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 16 | Wrocław → Sanok | 📅 **26.09.2026** | ⏰ 22:25 -> 06:12 | `[█████░░░░░] 35/70` (**35 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 17 | Wrocław → Sanok | 📅 **07.09.2026** | ⏰ 22:25 -> 06:12 | `[█████░░░░░] 38/70` (**38 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 18 | Wrocław → Sanok | 📅 **16.09.2026** | ⏰ 07:45 -> 15:47 | `[█████░░░░░] 38/70` (**38 szt.**) | 🔥 `83 os./24h` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 18 | Wrocław → Sanok | 📅 **16.09.2026** | ⏰ 07:45 -> 15:47 | `[█████░░░░░] 38/70` (**38 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 19 | Sanok → Wrocław | 📅 **19.09.2026** | ⏰ 23:50 -> 07:25 | `[██████░░░░] 39/70` (**39 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 20 | Sanok → Wrocław | 📅 **20.09.2026** | ⏰ 16:20 -> 00:20 | `[██████░░░░] 39/70` (**39 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 21 | Sanok → Wrocław | 📅 **26.09.2026** | ⏰ 10:10 -> 18:50 | `[██████░░░░] 39/70` (**39 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
