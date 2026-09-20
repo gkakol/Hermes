@@ -1,6 +1,6 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `2026-09-20 21:49:16` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (64 dni)
+> 🕒 **Ostatnia aktualizacja:** `2026-09-20 22:15:48` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (64 dni)
 
 ## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
