@@ -1,6 +1,6 @@
 # 🚌 Sentinel N3: Sanok ⇄ Wrocław
 
-> 🕒 **Ostatnia aktualizacja:** `2026-09-22 21:50:53` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (62 dni)
+> 🕒 **Ostatnia aktualizacja:** `2026-09-22 22:16:24` | 📡 **Aktywny horyzont sprzedaży:** **`22.11.2026`** (62 dni)
 
 ## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)
 
@@ -8,7 +8,7 @@
 
 | Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |
 | :--- | :--- | :--- | :---: | :---: |
-| `2026-09-22`<br>`21:50:53` | Sanok →<br>Wrocław | 📅 23.09.2026 (06:35 -> 15:05) | 120.65 zł | 44 → **42 szt.**<br>`(-2)` |
+| `2026-09-22`<br>`22:16:24` | Sanok →<br>Wrocław | 📅 23.09.2026 (03:00 -> 10:55) | 120.65 zł | 55 → **57 szt.**<br>`(+2)` |
 
 ---
 
@@ -48,7 +48,7 @@
 | 28 | Sanok → Wrocław | 📅 **05.10.2026** | ⏰ 10:10 -> 18:50 | `[██████░░░░] 41/70` (**41 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 29 | Wrocław → Sanok | 📅 **01.10.2026** | ⏰ 22:25 -> 06:12 | `[██████░░░░] 41/70` (**41 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 30 | Wrocław → Sanok | 📅 **07.10.2026** | ⏰ 22:25 -> 06:12 | `[██████░░░░] 41/70` (**41 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
-| 31 | Sanok → Wrocław | 📅 **23.09.2026** | ⏰ 06:35 -> 15:05 | `[██████░░░░] 42/70` (**42 szt.**) | 🔥 `132 os./24h` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
+| 31 | Sanok → Wrocław | 📅 **23.09.2026** | ⏰ 06:35 -> 15:05 | `[██████░░░░] 42/70` (**42 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 32 | Sanok → Wrocław | 📅 **07.10.2026** | ⏰ 06:35 -> 15:05 | `[██████░░░░] 42/70` (**42 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 33 | Sanok → Wrocław | 📅 **08.10.2026** | ⏰ 10:10 -> 18:50 | `[██████░░░░] 42/70` (**42 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
 | 34 | Sanok → Wrocław | 📅 **10.10.2026** | ⏰ 10:10 -> 18:50 | `[██████░░░░] 42/70` (**42 szt.**) | 🟢 `Stabilnie` | 120.65 zł | [Kup bilet](https://neobus.pl/) |
