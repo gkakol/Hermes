@@ -44,38 +44,61 @@ def send_discord_alert(title, description, color, fields=None):
         print(f"[!] Błąd wysyłania na Discord: {e}")
 
 
-def fetch_neobus_courses(from_id, to_id, date_str):
-    url = f"https://bilety.neobus.pl/paneldtp/rezerwacja_kurs.phtml?p_odjazd={from_id}&p_przyjazd={to_id}&data={date_str}"
+def fetch_neobus_courses(from_id, to_id, date_dmy, from_name="", to_name=""):
+    """
+    Wysyła dokładnie takie żądanie AJAX POST, jakie zarejestrowała przeglądarka.
+    """
+    url = "https://bilety.neobus.pl/"
+    payload = {
+        "ajax": "true",
+        "dataType": "json",
+        "module": "neotickets",
+        "step": "1",
+        "ticket_type": "normal",
+        "initial_stop": str(from_id),
+        "final_stop": str(to_id),
+        "passengers": "1",
+        "date_there": date_dmy,  # format DD.MM.YYYY
+        "date_return": "",
+        "initial_stop_name": from_name,
+        "final_stop_name": to_name
+    }
+
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp = requests.post(url, data=payload, headers=HEADERS, timeout=15)
         if resp.status_code != 200:
             return {}
-        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # Neobus zwraca strukturę z kursami
+        data = resp.json()
         courses = {}
+        
+        # Parsowanie obiektów schedules zwróconych przez system Neotickets
+        schedules = data.get("schedules", {})
+        if isinstance(schedules, list):
+            items = schedules
+        elif isinstance(schedules, dict):
+            items = schedules.values()
+        else:
+            items = []
 
-        # Parsowanie wierszy rozkładu jazdy Neobusa
-        for row in soup.select("tr.wiersz_kurs, tr[class*='kurs']"):
-            hour_match = re.search(r"(\d{2}:\d{2})", row.get_text())
-            if not hour_match:
+        for sch in items:
+            t1 = sch.get("time1", "") # np. "2026-09-08 17:40:00"
+            if not t1:
                 continue
-            hour = hour_match.group(1)
-
-            price_match = re.search(r"(\d+[\.,]\d{2})\s*zł", row.get_text())
-            price = float(price_match.group(1).replace(",", ".")) if price_match else 0.0
-
-            seats_match = re.search(r"(?:wolnych|miejsc|pozostało)[:\s]*(\d+)", row.get_text(), re.IGNORECASE)
-            seats = int(seats_match.group(1)) if seats_match else None
-
-            sold_out = "wyprzedan" in row.get_text().lower() or (seats is not None and seats <= 0)
-
+            hour = t1.split(" ")[1][:5] # "17:40"
+            price = float(sch.get("price", 0.0))
+            seats = int(sch.get("seats", 70))
+            
             courses[hour] = {
                 "price": price,
-                "seats": seats if seats is not None else (-1 if not sold_out else 0),
-                "sold_out": sold_out
+                "seats": seats,
+                "sold_out": (seats <= 0)
             }
+
         return courses
     except Exception as e:
-        print(f"[!] Błąd pobierania trasy {from_id} -> {to_id} na dzień {date_str}: {e}")
+        print(f"[!] Błąd zapytania POST do Neobusa ({from_id} -> {to_id}, {date_dmy}): {e}")
         return {}
 
 
