@@ -29,17 +29,20 @@ def process_all_data():
     os.makedirs(DOCS_DIR, exist_ok=True)
     today = date.today()
 
-    # Zbieramy pliki archiwalne oraz bieżące
-    all_files = glob.glob(os.path.join(ARCHIVE_DIR, "arch_*.csv")) + [
-        "ceny_sanok_wroclaw.csv",
-        "ceny_wroclaw_sanok.csv"
-    ]
+    # 1. Zbieramy WSZYSTKIE źródła: historyczne z archive/ oraz bieżące pliki aktywne
+    all_files = []
+    
+    # Pliki archiwalne (przeszłe kursy)
+    all_files.extend(glob.glob(os.path.join(ARCHIVE_DIR, "arch_*.csv")))
+    
+    # Aktywne pliki z głównego katalogu (nadchodzące kursy)
+    for active_file in ["ceny_sanok_wroclaw.csv", "ceny_wroclaw_sanok.csv"]:
+        if os.path.isfile(active_file):
+            all_files.append(active_file)
 
     courses_map = {}
 
     for path in all_files:
-        if not os.path.isfile(path):
-            continue
         route_name = "Sanok ➔ Wrocław" if "sanok_wroclaw" in path else "Wrocław ➔ Sanok"
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -52,7 +55,12 @@ def process_all_data():
 
                     key = (route_name, d_kurs, godz)
                     meas_dt = parse_datetime_safe(row.get("Data pomiaru", ""))
-                    price = float(row.get("Cena (PLN)", 0.0) or 0.0)
+                    
+                    try:
+                        price = float(row.get("Cena (PLN)", 0.0) or 0.0)
+                    except ValueError:
+                        price = 0.0
+
                     seats_raw = row.get("Wolne miejsca", "")
                     seats = int(seats_raw) if str(seats_raw).isdigit() else None
 
@@ -72,13 +80,14 @@ def process_all_data():
                             c["min_price"] = price
                         if price > c["max_price"]:
                             c["max_price"] = price
-                        # Najświeższy pomiar
+                        
+                        # Zachowujemy stan z najświeższego pomiaru
                         if meas_dt and (c["last_meas_dt"] is None or meas_dt > c["last_meas_dt"]):
                             c["last_meas_dt"] = meas_dt
                             c["current_price"] = price
                             c["current_seats"] = seats
         except Exception as e:
-            print(f"[!] Błąd w {path}: {e}")
+            print(f"[!] Błąd w pliku {path}: {e}")
 
     records = []
     weekday_stats = {d: {"total": 0, "sold_out": 0} for d in DNI_TYGODNIA}
@@ -99,6 +108,7 @@ def process_all_data():
                 weekday_stats[day_name]["sold_out"] += 1
 
         min_p = data["min_price"] if data["min_price"] < 900 else data["current_price"]
+        max_p = data["max_price"] if data["max_price"] > 0 else data["current_price"]
 
         records.append({
             "route": route,
@@ -107,13 +117,13 @@ def process_all_data():
             "hour": godz,
             "price": data["current_price"],
             "min_price": min_p,
-            "max_price": data["max_price"],
+            "max_price": max_p,
             "seats": seats if seats is not None else -1,
             "is_past": is_past,
             "sold_out": is_sold_out
         })
 
-    # Sortowanie: najpierw po dacie rosnąco/malejąco
+    # Sortowanie chronologiczne: najnowsze daty na górze
     records.sort(
         key=lambda r: (datetime.strptime(r["date"], "%d.%m.%Y"), r["hour"]),
         reverse=True
@@ -122,7 +132,7 @@ def process_all_data():
     total_courses = len(records)
     past_courses = sum(1 for r in records if r["is_past"])
     future_courses = total_courses - past_courses
-    sold_out_cnt = sum(1 for r in records if r["is_past"] and r["sold_out"])
+    sold_out_cnt = sum(1 for r in records if r["sold_out"])
 
     payload = {
         "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -144,7 +154,10 @@ def process_all_data():
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ Zapisano {OUTPUT_JSON} (Łącznie kursów: {total_courses}, w tym {future_courses} aktywnych).")
+    print(f"✅ Wygenerowano {OUTPUT_JSON}:")
+    print(f"   - Łącznie kursów w bazie: {total_courses}")
+    print(f"   - Kursów aktywnych (w sprzedaży): {future_courses}")
+    print(f"   - Kursów zarchiwizowanych: {past_courses}")
 
 
 if __name__ == "__main__":
