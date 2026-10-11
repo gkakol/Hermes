@@ -14,7 +14,6 @@ from requests.adapters import HTTPAdapter
 #                        KONFIGURACJA
 # =====================================================================
 
-MAX_LOOKAHEAD_DAYS = 120
 PARALLEL_WORKERS = 4
 MAX_CAPACITY = 70
 TARGET_PROMO_PRICE = 50.00
@@ -117,46 +116,105 @@ def query_day_seats_map(from_id: str, from_name: str, to_id: str, to_name: str, 
 
 
 def detect_sales_horizon(prev_furthest: str) -> tuple:
-    """Dynamiczny horyzont: sprawdza kiedy faktycznie kończy się sprzedaż + bada sondy nowej puli."""
+    """W pełni dynamiczny horyzont bez sztywnego limitu dni.
+    Używa sond wykładniczych do wyznaczenia przedziału, a następnie binary search.
+    """
     today = date.today()
     if prev_furthest:
         try:
             anchor = datetime.strptime(prev_furthest, "%d.%m.%Y").date()
+            if anchor < today:
+                anchor = today + timedelta(days=30)
         except ValueError:
-            anchor = today + timedelta(days=60)
+            anchor = today + timedelta(days=30)
     else:
-        anchor = today + timedelta(days=60)
+        anchor = today + timedelta(days=30)
 
-    # Sondy sprawdzające otwarcie nowej puli poza granicą (+1, +7, +14, +28 dni)
-    detected_frontier = anchor
-    for jump in [1, 7, 14, 28]:
-        probe_d = anchor + timedelta(days=jump)
-        if (probe_d - today).days > MAX_LOOKAHEAD_DAYS:
-            break
-        probe_str = probe_d.strftime("%d.%m.%Y")
-        res = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], probe_str, 1)
-        if res and len(res) > 0:
-            detected_frontier = probe_d
+    # 1. Sprawdzenie czy punkt bazowy zwraca kursy
+    res_anchor = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"],
+                           STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"],
+                           anchor.strftime("%d.%m.%Y"), 1)
 
-    # Uściślenie brzegu sprzedaży (binary search)
-    low = max(1, (anchor - today).days - 10)
-    high = min(MAX_LOOKAHEAD_DAYS, (detected_frontier - today).days + 10)
-    last_valid = anchor
+    if not res_anchor:
+        low_days = 1
+        high_days = max(1, (anchor - today).days)
+    else:
+        # 2. Wykładnicze poszukiwanie sufitu (+7, +14, +28, +56...)
+        low_days = (anchor - today).days
+        step = 7
+        curr_probe = anchor
+        while True:
+            probe_d = curr_probe + timedelta(days=step)
+            res = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"],
+                            STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"],
+                            probe_d.strftime("%d.%m.%Y"), 1)
+            time.sleep(0.02)
+            if res and len(res) > 0:
+                curr_probe = probe_d
+                low_days = (curr_probe - today).days
+                step *= 2
+            else:
+                high_days = (probe_d - today).days
+                break
+
+    # 3. Precyzyjne ustalenie granicy sprzedaży (Binary Search)
+    last_valid_day = today + timedelta(days=low_days)
+    low = low_days
+    high = high_days
 
     while low <= high:
         mid = (low + high) // 2
         d_mid = today + timedelta(days=mid)
-        d_str = d_mid.strftime("%d.%m.%Y")
-        res = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"], STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"], d_str, 1)
+        res = query_api(STOPS["sanok"]["id"], STOPS["sanok"]["name"],
+                        STOPS["wroclaw"]["id"], STOPS["wroclaw"]["name"],
+                        d_mid.strftime("%d.%m.%Y"), 1)
+        time.sleep(0.01)
         if res and len(res) > 0:
-            last_valid = d_mid
+            last_valid_day = d_mid
             low = mid + 1
         else:
             high = mid - 1
-        time.sleep(0.01)
 
-    total_days = max(1, (last_valid - today).days + 1)
-    return last_valid.strftime("%d.%m.%Y"), total_days
+    total_days = max(1, (last_valid_day - today).days + 1)
+    return last_valid_day.strftime("%d.%m.%Y"), total_days
+
+
+def check_and_notify_horizon(new_furthest: str):
+    """Wysyła powiadomienie tylko wtedy, gdy kalendarz wydłużył się o >= 3 dni."""
+    if not new_furthest:
+        return
+    prev = ""
+    if os.path.isfile(HORIZON_FILE):
+        try:
+            with open(HORIZON_FILE, "r", encoding="utf-8") as f:
+                prev = f.read().strip()
+        except Exception:
+            pass
+
+    if not prev:
+        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
+            f.write(new_furthest)
+        return
+
+    try:
+        d_new = datetime.strptime(new_furthest, "%d.%m.%Y").date()
+        d_prev = datetime.strptime(prev, "%d.%m.%Y").date()
+
+        if (d_new - d_prev).days >= 3:
+            msg = (
+                f"📢 **OTWARTO NOWĄ PULĘ BILETÓW!** @everyone\n\n"
+                f"📅 Sprzedaż wydłużona do: **{new_furthest}** (wcześniej: {prev}, +{(d_new - d_prev).days} dni)\n"
+                f"🔗 Sprawdź promocje na: https://neobus.pl/"
+            )
+            send_discord_alerts([msg])
+            with open(HORIZON_FILE, "w", encoding="utf-8") as f:
+                f.write(new_furthest)
+        elif d_new > d_prev:
+            # Drobne przesunięcia zapisujemy bez wysyłania alertu
+            with open(HORIZON_FILE, "w", encoding="utf-8") as f:
+                f.write(new_furthest)
+    except Exception as e:
+        print(f"[WARN] Błąd sprawdzania horyzontu: {e}")
 
 
 def resolve_course_adaptive(from_id, from_name, to_id, to_name, date_str, dep, prev_val: int) -> int:
@@ -242,13 +300,12 @@ def load_previous_snapshot(csv_file: str) -> dict:
 
 
 def rotate_and_clean_database(csv_file: str, current_courses: list):
-    """Rotacja bazy: przeszłe daty trafiają do folderu archive/, główny plik trzyma tylko przyszłe dane."""
+    """Rotacja bazy: przeszłe daty trafiają do archive/, w głównym pliku pozostają tylko aktualne."""
     if not current_courses:
         return
     today = date.today()
     ts = time.strftime("%Y-%m-%d %H:%M:%S")
 
-    # Wczytujemy istniejące wiersze, jeśli plik istnieje
     all_rows = []
     if os.path.isfile(csv_file):
         try:
@@ -257,7 +314,6 @@ def rotate_and_clean_database(csv_file: str, current_courses: list):
         except Exception:
             all_rows = []
 
-    # Nowe rekordy z bieżącego pomiaru
     new_rows = [{
         "Data pomiaru": ts,
         "Data kursu": c["date"],
@@ -281,7 +337,6 @@ def rotate_and_clean_database(csv_file: str, current_courses: list):
         except Exception:
             active_rows.append(r)
 
-    # Zapis do archiwum, jeśli są przeszłe rekordy
     if archive_rows:
         os.makedirs(ARCHIVE_DIR, exist_ok=True)
         archive_file = os.path.join(ARCHIVE_DIR, f"arch_{os.path.basename(csv_file)}")
@@ -292,7 +347,6 @@ def rotate_and_clean_database(csv_file: str, current_courses: list):
                 writer.writeheader()
             writer.writerows(archive_rows)
 
-    # Nadpisanie głównego pliku czystymi, aktualnymi danymi
     with open(csv_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["Data pomiaru", "Data kursu", "Godzina", "Cena (PLN)", "Wolne miejsca"])
         writer.writeheader()
@@ -300,7 +354,6 @@ def rotate_and_clean_database(csv_file: str, current_courses: list):
 
 
 def compute_deltas_and_velocity(current_courses: list, prev_dict: dict, check_ts: str) -> tuple:
-    """Wylicza zmiany (deltas) oraz tempo sprzedaży (velocity)."""
     deltas = []
     alerts = []
     parts = check_ts.split(" ")
@@ -313,7 +366,6 @@ def compute_deltas_and_velocity(current_courses: list, prev_dict: dict, check_ts
         curr_seats = c.get("seats") if isinstance(c.get("seats"), int) else None
         curr_price = c["price"]
 
-        # Wyliczanie tempa (velocity)
         velocity_str = "—"
         if prev and curr_seats is not None and prev.get("seats") is not None:
             prev_seats = prev.get("seats")
@@ -342,18 +394,17 @@ def compute_deltas_and_velocity(current_courses: list, prev_dict: dict, check_ts
         price_diff = round(curr_price - prev.get("price", 0.0), 2)
         seats_diff = (curr_seats - prev_seats) if (curr_seats is not None and prev_seats is not None) else 0
 
-        # Weryfikacja zdarzeń do alertu Discord
-        # 1. Super Promo
+        # Alerty Discord
         if curr_price <= SUPER_PROMO_PRICE and (prev.get("price", 999) > SUPER_PROMO_PRICE):
             alerts.append(f"🔥 **SUPER PROMO!** {c['route']} | {c['date']} {c['hours']} -> **{curr_price:.2f} zł**!")
-        # 2. Spadek liczby miejsc na weekend poniżej 5
+
         try:
             d_weekday = datetime.strptime(c["date"], "%d.%m.%Y").weekday()
             if d_weekday in [4, 6] and curr_seats is not None and curr_seats <= 5 and (prev_seats or 99) > 5:
                 alerts.append(f"⚠️ **KOŃCÓWKA NA WEEKEND!** {c['route']} | {c['date']} ({c['departure']}) -> Zostało tylko **{curr_seats} miejsc**!")
         except Exception:
             pass
-        # 3. Zwrot biletów w pełnym kursie (Seat Drop)
+
         if prev_seats is not None and prev_seats <= 3 and curr_seats is not None and curr_seats > prev_seats:
             alerts.append(f"🎟️ **ZWROT BILETÓW!** Ktoś oddał bilet na {c['route']} | {c['date']} {c['departure']} (+{seats_diff} szt.)")
 
@@ -459,39 +510,22 @@ def build_readme(all_courses: list, deltas: list, now_ts: str, horizon_str: str,
         f.writelines(md)
 
 
-def check_and_notify_horizon(new_furthest: str):
-    if not new_furthest:
-        return
-    prev = ""
-    if os.path.isfile(HORIZON_FILE):
-        with open(HORIZON_FILE, "r", encoding="utf-8") as f:
-            prev = f.read().strip()
-
-    if not prev:
-        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
-            f.write(new_furthest)
-        return
-
-    if datetime.strptime(new_furthest, "%d.%m.%Y") > datetime.strptime(prev, "%d.%m.%Y"):
-        msg = f"📢 **OTWARTO NOWĄ PULĘ BILETÓW!** @everyone\n\n📅 Sprzedaż wydłużona do: **{new_furthest}** (wcześniej: {prev})\n🔗 Sprawdź promocje na: https://neobus.pl/"
-        send_discord_alerts([msg])
-        with open(HORIZON_FILE, "w", encoding="utf-8") as f:
-            f.write(new_furthest)
-
-
 def main():
     start_t = time.time()
     now_ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print("==========================================================", flush=True)
-    print(f"🚀 SENTINEL N3: VELOCITY ENGINE & SMART RADAR (CAP: {MAX_CAPACITY})", flush=True)
+    print(f"🚀 SENTINEL N3: EXPONENTIAL DYNAMIC RADAR (CAP: {MAX_CAPACITY})", flush=True)
     print("==========================================================", flush=True)
 
     prev_horizon = ""
     if os.path.isfile(HORIZON_FILE):
-        with open(HORIZON_FILE, "r", encoding="utf-8") as f:
-            prev_horizon = f.read().strip()
+        try:
+            with open(HORIZON_FILE, "r", encoding="utf-8") as f:
+                prev_horizon = f.read().strip()
+        except Exception:
+            pass
 
-    # Dynamiczne ustalenie horyzontu (bada sondami nową pulę)
+    # Dynamiczne ustalenie horyzontu bez sztywnego limitu
     print("🔍 [1/3] Ustalanie aktywnego horyzontu sprzedaży...", flush=True)
     horizon_str, active_days = detect_sales_horizon(prev_horizon)
     print(f"✅ Horyzont: {horizon_str} ({active_days} dni do sprawdzenia)", flush=True)
@@ -525,7 +559,6 @@ def main():
     all_deltas = deltas_sw + deltas_ws
     all_alerts = alerts_sw + alerts_ws
 
-    # Wysłanie powiadomień Discord
     if all_alerts:
         send_discord_alerts(all_alerts)
         print(f"📢 Wysłano {len(all_alerts)} alertów na Discorda.", flush=True)
