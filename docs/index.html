@@ -143,7 +143,7 @@
         <tr>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('date')">Termin ⇕</th>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('hour')">Godzina ⇕</th>
-          <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('route')">Relacja ⇕</th>
+          <th class="p-3.5 md:p-4 font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:text-red-500 select-none" onclick="sortTable('route')">Relacja ⇕</th>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('price')">Widełki Cenowe (MIN ⇄ MAX) ⇕</th>
           <th class="p-3.5 md:p-4 font-bold">Dostępność Foteli</th>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('status')">Stan Kursu ⇕</th>
@@ -214,28 +214,30 @@
 
     initTheme();
 
-    // Odporne ładowanie bazy danych z auto-normalizacją formatów
+    // Ładowanie bazy danych dopasowane do struktury records i sumarycznych pól
     async function loadData() {
       try {
         const resp = await fetch('./data.json?v=' + Date.now());
         if (!resp.ok) throw new Error("Błąd pobierania data.json");
         const json = await resp.json();
 
+        // Data ostatniego skanu
         document.getElementById('last-updated').innerText = 
-          json.meta?.last_scan || json.last_updated || 'Dzisiaj';
+          json.updated_at || json.meta?.last_scan || 'Dzisiaj';
 
-        let rawList = [];
-        if (Array.isArray(json)) {
-          rawList = json;
-        } else if (Array.isArray(json.courses)) {
-          rawList = json.courses;
-        } else if (Array.isArray(json.data)) {
-          rawList = json.data;
-        } else if (Array.isArray(json.items)) {
-          rawList = json.items;
+        // Pobranie kursów z tablicy "records"
+        const rawList = Array.isArray(json.records) ? json.records : (Array.isArray(json) ? json : []);
+
+        // Użycie gotowych statystyk z JSON-a
+        if (json.total_courses !== undefined) {
+          document.getElementById('stat-total').innerText = json.total_courses;
+          document.getElementById('stat-total-sub').innerText = `${json.future_courses} aktywnych + ${json.past_courses} archiwum`;
+          document.getElementById('stat-active').innerText = json.future_courses;
+          document.getElementById('stat-archived').innerText = json.past_courses;
+          document.getElementById('stat-soldout').innerText = json.sold_out_cnt;
         }
 
-        // Normalizacja właściwości na wypadek alternatywnych kluczy w Pythonie
+        // Mapowanie pól do struktury dashboardu
         allRecords = rawList.map(r => ({
           date: r.date || r.course_date || '',
           hour: r.hour || r.departure_time || r.time || '',
@@ -248,7 +250,10 @@
           day_tag: r.day_tag || ''
         }));
 
-        updateKPIs();
+        if (json.total_courses === undefined) {
+          updateKPIs();
+        }
+
         applyAllFilters();
       } catch (err) {
         console.error(err);
