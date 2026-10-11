@@ -45,7 +45,7 @@
       
       <div>
         <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Skąd (Odjazd)</label>
-        <select id="selFrom" onchange="renderHourSlots()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <select id="selFrom" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
           <option value="">-- Wybierz przystanek początkowy --</option>
         </select>
       </div>
@@ -56,25 +56,26 @@
 
       <div>
         <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Dokąd (Przyjazd)</label>
-        <select id="selTo" onchange="renderHourSlots()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <select id="selTo" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
           <option value="">-- Wybierz przystanek docelowy --</option>
         </select>
       </div>
 
       <div>
         <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Data kursu</label>
-        <input type="date" id="selDate" onchange="renderHourSlots()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <input type="date" id="selDate" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
-      <!-- Szybki wybór godzin kursu -->
+      <!-- Kafelki Godzin z Oficjalnego Rozkładu -->
       <div>
         <div class="flex justify-between items-center mb-1">
-          <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Wybierz godziny odjazdu</label>
-          <span class="text-[10px] text-slate-400">kliknij aby zaznaczyć</span>
+          <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Godziny odjazdu (z rozkładu)</label>
+          <span class="text-[10px] text-slate-400">kliknij, aby wybrać</span>
         </div>
-        <div id="slotsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-1.5 items-center justify-start">
-          <!-- Kafelki godzin wstrzykiwane przez JS -->
+        <div id="slotsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-1.5 items-center justify-start min-h-[50px]">
+          <span class="text-[11px] text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>
         </div>
+        
         <div class="mt-2 flex items-center gap-2">
           <input type="text" id="customHour" placeholder="Inna godzina (np. 14:15)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs font-mono">
           <button onclick="addCustomHour()" class="px-3 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-xs font-bold rounded-lg shrink-0">Dodaj</button>
@@ -117,8 +118,54 @@
     let watchlistData = { targets: [], archived_targets: [] };
     let selectedHours = new Set();
 
-    // Typowe godziny Neobusa na linii N3 / N1
-    const DEFAULT_HOURS = ["03:00", "04:20", "06:35", "07:45", "10:10", "12:00", "15:35", "17:40", "22:25", "23:10", "23:50"];
+    // Pełna matryca przystanków N3 z oficjalnego rozkładu Neobusa
+    const TIMETABLE_TO_WROCLAW = {
+      "62": ["--", "--", "--", "09:00", "--"],     // Polańczyk
+      "64": ["--", "--", "--", "09:10", "--"],     // Solina
+      "66": ["--", "--", "--", "09:30", "--"],     // Lesko
+      "68": ["--", "--", "--", "09:40", "--"],     // Zagórz
+      "17": ["23:50", "03:00", "06:35", "10:10", "16:20"], // Sanok
+      "38": ["00:10", "03:20", "07:00", "10:35", "16:45"], // Grabownica
+      "43": ["00:14", "03:24", "07:05", "10:40", "16:50"], // Humniska
+      "44": ["00:20", "03:32", "07:10", "10:50", "17:00"], // Brzozów
+      "39": ["00:26", "03:36", "07:13", "10:55", "17:06"], // Stara Wieś
+      "46": ["00:31", "03:41", "07:15", "11:00", "17:11"], // Blizne
+      "47": ["00:38", "03:48", "07:21", "11:08", "17:18"], // Domaradz
+      "48": ["00:44", "03:54", "07:28", "11:15", "17:24"], // Lutcza
+      "19": ["00:50", "04:00", "07:40", "11:25", "17:30"], // Niebylec
+      "49": ["01:00", "04:10", "07:55", "11:45", "17:40"], // Babica
+      "36": ["01:10", "04:20", "08:00", "11:55", "17:50"], // Boguchwała
+      "76": ["01:30", "04:40", "08:40", "12:20", "18:20"], // Rzeszów
+      "71": ["03:35", "06:55", "10:55", "14:40", "20:35"], // Kraków MDA
+      "72": ["04:00", "07:20", "11:30", "15:15", "21:00"], // Kraków Balice
+      "73": ["04:55", "08:30", "12:30", "16:25", "22:00"], // Katowice
+      "123": ["05:22", "09:00", "13:00", "16:55", "22:27"], // Gliwice
+      "77": ["07:25", "10:55", "15:05", "18:50", "00:20"]  // Wrocław
+    };
+
+    const TIMETABLE_FROM_WROCLAW = {
+      "77": ["03:40", "07:45", "12:00", "15:35", "22:25"], // Wrocław
+      "123": ["05:40", "09:45", "14:00", "17:40", "00:20"], // Gliwice
+      "73": ["06:10", "10:15", "14:30", "18:15", "00:50"], // Katowice
+      "72": ["07:00", "11:05", "15:20", "19:05", "01:50"], // Kraków Balice
+      "71": ["07:40", "11:45", "16:15", "19:45", "02:20"], // Kraków MDA
+      "76": ["09:55", "13:50", "18:40", "21:55", "04:30"], // Rzeszów
+      "36": ["10:11", "14:00", "18:48", "22:10", "04:37"], // Boguchwała
+      "49": ["10:21", "14:10", "18:58", "22:20", "04:45"], // Babica
+      "19": ["10:34", "14:35", "19:20", "22:30", "05:00"], // Niebylec
+      "48": ["10:40", "14:40", "19:25", "22:38", "05:05"], // Lutcza
+      "47": ["10:46", "14:36", "19:26", "22:48", "05:22"], // Domaradz
+      "46": ["10:53", "14:43", "19:33", "22:55", "05:29"], // Blizne
+      "39": ["10:58", "15:08", "19:38", "23:00", "05:34"], // Stara Wieś
+      "44": ["11:05", "14:48", "19:42", "23:04", "05:42"], // Brzozów
+      "43": ["11:13", "14:55", "19:50", "23:12", "05:50"], // Humniska
+      "38": ["11:17", "15:03", "19:54", "23:16", "05:58"], // Grabownica
+      "17": ["11:37", "15:27", "20:14", "23:36", "06:11"], // Sanok
+      "68": ["--", "--", "--", "--", "06:44"],             // Zagórz
+      "66": ["--", "--", "--", "--", "07:14"],             // Lesko
+      "64": ["--", "--", "--", "--", "07:32"],             // Solina
+      "62": ["--", "--", "--", "--", "07:49"]              // Polańczyk
+    };
 
     const STATIONS = [
       { id: "49", name: "BABICA Kolonia" },
@@ -185,21 +232,52 @@
         sFrom.add(new Option(st.name, st.id));
         sTo.add(new Option(st.name, st.id));
       });
-      renderHourSlots();
     }
 
-    function renderHourSlots() {
-      const container = document.getElementById('slotsContainer');
-      container.innerHTML = '';
+    function swapStations() {
+      const f = document.getElementById('selFrom').value;
+      const t = document.getElementById('selTo').value;
+      document.getElementById('selFrom').value = t;
+      document.getElementById('selTo').value = f;
+      updateSchedule();
+    }
 
-      DEFAULT_HOURS.forEach(h => {
+    // Dynamiczne pobieranie godzin z rozkładu N3
+    function updateSchedule() {
+      const f = document.getElementById('selFrom').value;
+      const t = document.getElementById('selTo').value;
+      const container = document.getElementById('slotsContainer');
+      selectedHours.clear();
+
+      if (!f || !t) {
+        container.innerHTML = `<span class="text-[11px] text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>`;
+        return;
+      }
+
+      // Sprawdzamy kierunek: czy to kierunek na zachód (Wrocław), czy na wschód (Sanok)
+      let hoursList = [];
+      const orderWest = ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "71", "72", "73", "123", "77"];
+      const idxF = orderWest.indexOf(f);
+      const idxT = orderWest.indexOf(t);
+
+      if (idxF !== -1 && idxT !== -1) {
+        if (idxF < idxT && TIMETABLE_TO_WROCLAW[f]) {
+          hoursList = TIMETABLE_TO_WROCLAW[f].filter(h => h !== "--");
+        } else if (idxF > idxT && TIMETABLE_FROM_WROCLAW[f]) {
+          hoursList = TIMETABLE_FROM_WROCLAW[f].filter(h => h !== "--");
+        }
+      }
+
+      // Jeśli przystanki są spoza linii N3 (np. Warszawa), dajemy bazowe godziny Neobusa
+      if (!hoursList.length) {
+        hoursList = ["04:20", "07:45", "11:00", "15:35", "17:40", "22:25", "23:10"];
+      }
+
+      container.innerHTML = '';
+      hoursList.forEach(h => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = `slot-pill px-2.5 py-1 rounded-lg border text-xs font-mono font-bold transition cursor-pointer ${
-          selectedHours.has(h)
-            ? 'active bg-[#c01427] text-white border-red-800'
-            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-red-500'
-        }`;
+        btn.className = `slot-pill px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition cursor-pointer bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-red-500`;
         btn.innerText = h;
         btn.onclick = () => {
           if (selectedHours.has(h)) {
@@ -218,29 +296,23 @@
       const input = document.getElementById('customHour');
       const val = input.value.trim();
       if (!/^\d{2}:\d{2}$/.test(val)) {
-        alert("Podaj godzinę w formacie GG:MM (np. 18:30)!");
+        alert("Podaj godzinę w formacie GG:MM (np. 14:15)!");
         return;
       }
       selectedHours.add(val);
-      if (!DEFAULT_HOURS.includes(val)) {
-        DEFAULT_HOURS.push(val);
-        DEFAULT_HOURS.sort();
-      }
-      input.value = '';
-      renderHourSlots();
-    }
 
-    function swapStations() {
-      const f = document.getElementById('selFrom').value;
-      const t = document.getElementById('selTo').value;
-      document.getElementById('selFrom').value = t;
-      document.getElementById('selTo').value = f;
-      renderHourSlots();
+      const container = document.getElementById('slotsContainer');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `slot-pill active px-3 py-1.5 rounded-lg border text-xs font-mono font-bold bg-[#c01427] text-white border-red-800`;
+      btn.innerText = val;
+      container.appendChild(btn);
+      input.value = '';
     }
 
     function configureToken() {
       const current = localStorage.getItem('sentinel_gh_token') || '';
-      const token = prompt("Podaj GitHub Personal Access Token (uprawnienia: Contents: Read & Write):", current);
+      const token = prompt("Podaj GitHub Personal Access Token:", current);
       if (token !== null) {
         localStorage.setItem('sentinel_gh_token', token.trim());
         alert("Token zapisany w przeglądarce!");
@@ -292,7 +364,7 @@
     async function saveWatchlist(commitMsg) {
       const token = localStorage.getItem('sentinel_gh_token');
       if (!token) {
-        alert("Podaj najpierw GitHub Token (przycisk w prawym górnym rogu).");
+        alert("Podaj najpierw GitHub Token.");
         return false;
       }
 
@@ -356,7 +428,7 @@
       if (ok) {
         alert("Pomyślnie dodano do obserwowanych!");
         selectedHours.clear();
-        renderHourSlots();
+        updateSchedule();
       }
     }
 
