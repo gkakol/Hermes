@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sentinel & Neobus Radar // N3 Sanok ⇄ Wrocław</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -22,29 +22,64 @@
     body {
       transition: background-color 0.25s ease, color 0.25s ease;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
     .neobus-header-bg {
       background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%);
     }
 
-    /* Style wspólne DataTables */
-    .dataTables_wrapper { font-size: 0.88rem; }
+    /* Style DataTables */
+    .dataTables_wrapper { font-size: 0.82rem; }
+    @media (min-width: 640px) {
+      .dataTables_wrapper { font-size: 0.88rem; }
+    }
+
+    .dataTables_wrapper .dataTables_filter {
+      float: none !important;
+      text-align: left !important;
+      margin-bottom: 12px;
+    }
+    
     .dataTables_wrapper .dataTables_filter input {
+      width: 100% !important;
+      max-width: 320px;
       border-radius: 9999px;
       padding: 6px 16px;
       outline: none;
       transition: all 0.2s;
+      margin-left: 0 !important;
     }
+
     .dataTables_paginate .paginate_button {
       border-radius: 8px !important;
       border: none !important;
       font-weight: 600;
+      padding: 4px 10px !important;
+      margin: 0 2px !important;
     }
     .dataTables_paginate .paginate_button.current {
       background: var(--neobus-red) !important;
       color: #ffffff !important;
     }
+
+    /* Dopasowanie tabeli do mobile (Horizontal scroll & border-none) */
+    .table-responsive-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table.dataTable { 
+      border-collapse: separate; 
+      border-spacing: 0; 
+      width: 100% !important; 
+      border-radius: 12px; 
+      overflow: hidden;
+      margin: 0 !important;
+    }
+    table.dataTable thead th { font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; padding: 10px 8px sm:padding: 12px 14px; }
+    table.dataTable tbody td { padding: 10px 8px sm:padding: 11px 14px; vertical-align: middle; }
 
     /* Tryb Jasny */
     body.light {
@@ -60,22 +95,10 @@
       border-color: var(--neobus-red);
       box-shadow: 0 0 0 3px rgba(192, 20, 39, 0.15);
     }
-    body.light table.dataTable {
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-    }
-    body.light table.dataTable thead th {
-      background-color: #f8fafc;
-      color: #475569;
-      border-bottom: 2px solid #e2e8f0 !important;
-    }
-    body.light table.dataTable tbody td {
-      border-bottom: 1px solid #f1f5f9;
-      color: #334155;
-    }
-    body.light table.dataTable tbody tr:hover {
-      background-color: #fff1f2 !important;
-    }
+    body.light table.dataTable { border: 1px solid #e2e8f0; background: #ffffff; }
+    body.light table.dataTable thead th { background-color: #f8fafc; color: #475569; border-bottom: 2px solid #e2e8f0 !important; }
+    body.light table.dataTable tbody td { border-bottom: 1px solid #f1f5f9; color: #334155; }
+    body.light table.dataTable tbody tr:hover { background-color: #fff1f2 !important; }
     body.light .dataTables_info, body.light .dataTables_length { color: #64748b !important; }
     body.light .dataTables_paginate .paginate_button { color: #475569 !important; }
 
@@ -93,133 +116,120 @@
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
     }
-    body.dark table.dataTable {
-      border: 1px solid #1e293b;
-      background: #0d1424;
-    }
-    body.dark table.dataTable thead th {
-      background-color: #131c2e;
-      color: #94a3b8;
-      border-bottom: 2px solid #1e293b !important;
-    }
-    body.dark table.dataTable tbody td {
-      border-bottom: 1px solid #1e293b;
-      color: #cbd5e1;
-    }
-    body.dark table.dataTable tbody tr:hover {
-      background-color: #17233a !important;
-    }
+    body.dark table.dataTable { border: 1px solid #1e293b; background: #0d1424; }
+    body.dark table.dataTable thead th { background-color: #131c2e; color: #94a3b8; border-bottom: 2px solid #1e293b !important; }
+    body.dark table.dataTable tbody td { border-bottom: 1px solid #1e293b; color: #cbd5e1; }
+    body.dark table.dataTable tbody tr:hover { background-color: #17233a !important; }
     body.dark .dataTables_info, body.dark .dataTables_length { color: #64748b !important; }
     body.dark .dataTables_paginate .paginate_button { color: #94a3b8 !important; }
-
-    table.dataTable { border-collapse: separate; border-spacing: 0; width: 100% !important; border-radius: 12px; overflow: hidden; }
-    table.dataTable thead th { font-weight: 700; text-transform: uppercase; font-size: 0.73rem; letter-spacing: 0.05em; padding: 12px 14px; }
-    table.dataTable tbody td { padding: 11px 14px; vertical-align: middle; }
   </style>
 </head>
-<body class="light p-3 md:p-6 max-w-7xl mx-auto">
+<body class="light p-2 md:p-6 max-w-7xl mx-auto select-none">
 
-  <!-- Główny Nagłówek -->
-  <header class="mb-6 rounded-2xl shadow-xl overflow-hidden border border-red-900/20">
-    <div class="neobus-header-bg px-6 py-5 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="flex items-center gap-4">
-        <!-- Logo NEO (czarne) BUS (czerwone) w białej ramce -->
-        <div class="bg-white px-4 py-1.5 rounded-xl shadow-md flex items-center select-none">
-          <span class="text-2xl font-black tracking-tight text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
+  <!-- Główny Nagłówek (Mobile-First) -->
+  <header class="mb-4 md:mb-6 rounded-2xl shadow-lg overflow-hidden border border-red-900/10">
+    <div class="neobus-header-bg px-4 py-4 md:px-6 md:py-5 text-white flex flex-col gap-3">
+      <div class="flex flex-row justify-between items-center w-full">
+        <!-- Logo -->
+        <div class="bg-white px-3 py-1 md:px-4 md:py-1.5 rounded-xl shadow-md flex items-center select-none shrink-0">
+          <span class="text-lg md:text-2xl font-black tracking-tight text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
         </div>
-        <div>
-          <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
-            SENTINEL // RADAR CEN & OBŁOŻENIA
-          </h1>
-          <p class="text-red-100 text-xs font-medium mt-0.5">Korytarz N3: Sanok ⇄ Krosno ⇄ Rzeszów ⇄ Kraków ⇄ Katowice ⇄ Wrocław</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-3">
+        
         <!-- Przycisk Przełącznika Motywu -->
-        <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm">
+        <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/30 text-white px-2.5 py-1.5 md:px-3 md:py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shrink-0">
           <span id="theme-icon">🌙</span>
           <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
         </button>
+      </div>
 
-        <!-- Status Radaru -->
-        <div class="bg-red-950/40 border border-red-400/30 px-3.5 py-2 rounded-xl text-right">
-          <div class="text-[10px] text-red-200 uppercase font-semibold">Ostatni cykl radaru</div>
-          <div class="text-xs font-mono font-bold text-white flex items-center gap-2 justify-end mt-0.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span id="last-updated">Synchronizacja...</span>
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-2 mt-1">
+        <div>
+          <h1 class="text-md md:text-xl font-black tracking-tight flex items-center gap-2">
+            SENTINEL // RADAR CEN & OBŁOŻENIA
+          </h1>
+          <p class="text-red-100 text-[10px] md:text-xs font-medium">Korytarz N3: Sanok ⇄ Krosno ⇄ Rzeszów ⇄ Kraków ⇄ Katowice ⇄ Wrocław</p>
+        </div>
+
+        <div class="bg-red-950/30 border border-red-400/20 px-2.5 py-1 md:px-3.5 md:py-1.5 rounded-lg self-start md:self-auto shrink-0">
+          <div class="text-[9px] md:text-[10px] text-red-200 uppercase font-semibold">Ostatni cykl radaru</div>
+          <div class="text-[10px] md:text-xs font-mono font-bold text-white flex items-center gap-1.5 justify-start md:justify-end mt-0.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="last-updated">Ładowanie...</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Pasek zakładek biletowych -->
-    <div class="bg-slate-900 px-6 py-2.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300 border-t border-red-800">
-      <span class="text-slate-400 mr-2">Widok:</span>
-      <button onclick="setTabFilter('all')" id="tab-all" class="px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition">Wszystkie kursy</button>
-      <button onclick="setTabFilter('future')" id="tab-future" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 🟢 W sprzedaży (Przyszłe)
+    <div class="bg-slate-900 px-3 py-2 md:px-6 md:py-2.5 flex flex-row flex-wrap gap-1.5 text-[11px] font-semibold text-slate-300 border-t border-red-800">
+      <span class="text-slate-400 mr-1 self-center hidden xs:inline">Widok:</span>
+      <button onclick="setTabFilter('all')" id="tab-all" class="px-2.5 py-1 rounded-md bg-[#c01427] text-white shadow-sm transition">Wszystkie</button>
+      <button onclick="setTabFilter('future')" id="tab-future" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> W sprzedaży
       </button>
-      <button onclick="setTabFilter('past')" id="tab-past" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-slate-400"></span> ⚪ Odbyte (Historia / Archiwum)
+      <button onclick="setTabFilter('past')" id="tab-past" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Odbyte
       </button>
-      <button onclick="setTabFilter('sold_out')" id="tab-sold-out" class="px-4 py-1.5 rounded-lg bg-purple-900/60 text-purple-200 hover:bg-purple-800 transition ml-auto">
-        🔴 Tylko Wyprzedane
+      <button onclick="setTabFilter('sold_out')" id="tab-sold-out" class="px-2.5 py-1 rounded-md bg-purple-950 text-purple-300 border border-purple-800/60 hover:bg-purple-800/40 transition">
+        🔴 Brak miejsc
       </button>
     </div>
   </header>
 
-  <!-- Paski KPI (Wsparcie motywów) -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
-    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm transition">
-      <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Wszystkie monitorowane</div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white mt-1" id="kpi-total">—</div>
-      <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5" id="kpi-sub-total">Pomiary w bazie</div>
+  <!-- Paski KPI -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3.5 mb-4 md:mb-6">
+    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-3 md:p-4 shadow-sm transition">
+      <div class="text-[9px] md:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Wszystkie monitorowane</div>
+      <div class="text-lg md:text-2xl font-black text-slate-900 dark:text-white mt-0.5 md:mt-1" id="kpi-total">—</div>
+      <div class="text-[9px] md:text-[11px] text-slate-400 dark:text-slate-500" id="kpi-sub-total">Pomiary w bazie</div>
     </div>
-    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-l-emerald-500 transition">
-      <div class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">Aktywne w sprzedaży</div>
-      <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1" id="kpi-future">—</div>
-      <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Nadchodzące dni</div>
+    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-3 md:p-4 shadow-sm border-l-4 border-l-emerald-500 transition">
+      <div class="text-[9px] md:text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Aktywne w sprzedaży</div>
+      <div class="text-lg md:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 md:mt-1" id="kpi-future">—</div>
+      <div class="text-[9px] md:text-[11px] text-slate-400 dark:text-slate-500">Nadchodzące dni</div>
     </div>
-    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-l-slate-400 transition">
-      <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Zarchiwizowane (Odbyte)</div>
-      <div class="text-2xl font-black text-slate-700 dark:text-slate-300 mt-1" id="kpi-past">—</div>
-      <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Przeszłe wyjazdy</div>
+    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-3 md:p-4 shadow-sm border-l-4 border-l-slate-400 transition">
+      <div class="text-[9px] md:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Zarchiwizowane (Odbyte)</div>
+      <div class="text-lg md:text-2xl font-black text-slate-700 dark:text-slate-300 mt-0.5 md:mt-1" id="kpi-past">—</div>
+      <div class="text-[9px] md:text-[11px] text-slate-400 dark:text-slate-500">Przeszłe wyjazdy</div>
     </div>
-    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm border-l-4 border-l-[#c01427] transition">
-      <div class="text-[11px] font-bold text-[#c01427] dark:text-rose-400 uppercase">Kursy wyprzedane (100%)</div>
-      <div class="text-2xl font-black text-[#c01427] dark:text-rose-400 mt-1" id="kpi-sold-out">—</div>
-      <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Brak wolnych miejsc</div>
+    <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-3 md:p-4 shadow-sm border-l-4 border-l-[#c01427] transition">
+      <div class="text-[9px] md:text-[11px] font-bold text-[#c01427] dark:text-rose-400 uppercase tracking-wide">Kursy wyprzedane</div>
+      <div class="text-lg md:text-2xl font-black text-[#c01427] dark:text-rose-400 mt-0.5 md:mt-1" id="kpi-sold-out">—</div>
+      <div class="text-[9px] md:text-[11px] text-slate-400 dark:text-slate-500">Brak wolnych miejsc</div>
     </div>
   </div>
 
   <!-- Główna Tabela Kursów -->
-  <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm transition">
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-      <div>
-        <h2 class="text-base font-bold text-slate-800 dark:text-slate-100">Rozkład Jazdy, Ceny Min / Max oraz Obłożenie</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Dynamiczne porównanie aktualnej stawki względem historycznych minimów i maksimów.</p>
+  <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-3 md:p-5 shadow-sm transition">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800 w-full">
+      <div class="max-w-md">
+        <h2 class="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">Rozkład Jazdy, Ceny Min / Max oraz Obłożenie</h2>
+        <p class="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 mt-0.5">Dynamiczne porównanie aktualnej stawki względem historycznych minimów i maksimów.</p>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="setRouteFilter('Sanok ➔ Wrocław')" class="text-xs px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Sanok ➔ Wrocław</button>
-        <button onclick="setRouteFilter('Wrocław ➔ Sanok')" class="text-xs px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Wrocław ➔ Sanok</button>
+      <div class="flex flex-row items-center gap-1.5">
+        <button onclick="setRouteFilter('Sanok')" class="text-[10px] md:text-xs px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">z Sanoka</button>
+        <button onclick="setRouteFilter('Wrocław')" class="text-[10px] md:text-xs px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">z Wrocławia</button>
       </div>
     </div>
 
-    <table id="mainTable" class="display compact w-full">
-      <thead>
-        <tr>
-          <th>Termin</th>
-          <th>Godzina</th>
-          <th>Relacja</th>
-          <th>Widełki Cenowe (Min ⇄ Max)</th>
-          <th>Cena Rezerwacji</th>
-          <th style="min-width: 130px;">Dostępność foteli</th>
-          <th>Stan kursu</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- Container dający płynny poziomy scroll tabeli na mobile -->
+    <div class="table-responsive-container">
+      <table id="mainTable" class="display compact w-full">
+        <thead>
+          <tr>
+            <th>Termin</th>
+            <th>Godz.</th>
+            <th>Trasa</th>
+            <th>Ceny Min ⇄ Max</th>
+            <th>Cena Rezerwacji</th>
+            <th style="min-width: 105px;">Dostępność</th>
+            <th>Stan</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script>
@@ -277,16 +287,16 @@
       });
 
       if (type === 'all') {
-        document.getElementById('tab-all').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition";
+        document.getElementById('tab-all').className = "px-2.5 py-1 rounded-md bg-[#c01427] text-white shadow-sm transition";
         $.fn.dataTable.ext.search = [];
       } else if (type === 'future') {
-        document.getElementById('tab-future').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-1.5";
+        document.getElementById('tab-future').className = "px-2.5 py-1 rounded-md bg-[#c01427] text-white shadow-sm transition flex items-center gap-1";
         $.fn.dataTable.ext.search = [(settings, data, dataIndex) => !rawRecords[dataIndex].is_past];
       } else if (type === 'past') {
-        document.getElementById('tab-past').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-1.5";
+        document.getElementById('tab-past').className = "px-2.5 py-1 rounded-md bg-[#c01427] text-white shadow-sm transition flex items-center gap-1";
         $.fn.dataTable.ext.search = [(settings, data, dataIndex) => rawRecords[dataIndex].is_past];
       } else if (type === 'sold_out') {
-        document.getElementById('tab-sold-out').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition ml-auto";
+        document.getElementById('tab-sold-out').className = "px-2.5 py-1 rounded-md bg-[#c01427] text-white shadow-sm transition";
         $.fn.dataTable.ext.search = [(settings, data, dataIndex) => rawRecords[dataIndex].sold_out];
       }
       table.draw();
@@ -324,34 +334,38 @@
 
         document.getElementById('last-updated').innerText = d.updated_at || 'Teraz';
         document.getElementById('kpi-total').innerText = totalCnt;
-        document.getElementById('kpi-sub-total').innerText = `${futureCnt} aktywnych + ${pastCnt} archiwum`;
+        document.getElementById('kpi-sub-total').innerText = `${futureCnt} akt. + ${pastCnt} hist.`;
         document.getElementById('kpi-future').innerText = futureCnt;
         document.getElementById('kpi-past').innerText = pastCnt;
         document.getElementById('kpi-sold-out').innerText = soldOutCnt;
 
         const rows = rawRecords.map(r => {
-          const isDark = document.body.classList.contains('dark');
-          
+          // Kompaktowa data mobile-first
           const dateBadge = r.is_past
-            ? `<span class="hidden">${r.isoDate}</span><span class="text-slate-400 dark:text-slate-500 font-medium">${r.date}</span> <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`
-            : `<span class="hidden">${r.isoDate}</span><span class="text-slate-900 dark:text-white font-bold">${r.date}</span> <span class="text-[10px] bg-red-100 dark:bg-red-950/80 text-[#c01427] dark:text-red-400 px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`;
+            ? `<span class="hidden">${r.isoDate}</span><span class="text-slate-400 dark:text-slate-500 font-medium block xs:inline">${r.date}</span> <span class="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-1 py-0.5 rounded font-bold ml-0.5 xs:ml-1">${r.day}</span>`
+            : `<span class="hidden">${r.isoDate}</span><span class="text-slate-900 dark:text-white font-bold block xs:inline">${r.date}</span> <span class="text-[9px] bg-red-100 dark:bg-red-950/85 text-[#c01427] dark:text-red-400 px-1 py-0.5 rounded font-bold ml-0.5 xs:ml-1">${r.day}</span>`;
 
           const minMaxHtml = `
-            <div class="text-xs font-mono">
-              <span class="text-emerald-700 dark:text-emerald-400 font-bold">${r.min_price.toFixed(2)} zł</span>
-              <span class="text-slate-400 dark:text-slate-600 mx-1">➔</span>
-              <span class="text-slate-600 dark:text-slate-400 font-semibold">${r.max_price.toFixed(2)} zł</span>
+            <div class="text-[10px] md:text-xs font-mono">
+              <span class="text-emerald-700 dark:text-emerald-400 font-semibold">${Math.round(r.min_price)} zł</span>
+              <span class="text-slate-300 dark:text-slate-700">⇄</span>
+              <span class="text-slate-600 dark:text-slate-400 font-semibold">${Math.round(r.max_price)} zł</span>
             </div>
           `;
 
-          let priceBadge = `<span class="font-mono font-bold text-slate-800 dark:text-slate-200 text-sm">${r.price.toFixed(2)} zł</span>`;
+          // Kompaktowy kierunek
+          const routeShort = r.route.includes("Sanok ➔ Wrocław") 
+            ? `<span class="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs font-semibold">Sanok➔Wroc</span>`
+            : `<span class="text-slate-500 dark:text-slate-400 text-[10px] md:text-xs font-semibold">Wroc➔Sanok</span>`;
+
+          let priceBadge = `<span class="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs md:text-sm">${r.price.toFixed(2)} zł</span>`;
           if (r.price <= r.min_price && r.price < r.max_price) {
-            priceBadge = `<span class="font-mono font-black text-[#c01427] dark:text-rose-400 text-sm bg-red-50 dark:bg-rose-950/50 border border-red-200 dark:border-rose-900 px-2 py-0.5 rounded-lg">🔥 ${r.price.toFixed(2)} zł</span>`;
+            priceBadge = `<span class="font-mono font-black text-[#c01427] dark:text-rose-400 text-[10px] md:text-sm bg-red-50 dark:bg-rose-950/50 border border-red-200 dark:border-rose-900 px-1.5 py-0.5 rounded-lg">🔥 ${r.price.toFixed(0)} zł</span>`;
           }
 
           let seatHtml = '';
           if (r.seats === -1 || r.seats === null) {
-            seatHtml = '<span class="text-slate-400 dark:text-slate-600 text-xs font-mono">Brak danych</span>';
+            seatHtml = '<span class="text-slate-400 dark:text-slate-600 text-[10px] md:text-xs font-mono">B/D</span>';
           } else {
             const pct = Math.min(100, Math.round((r.seats / 70) * 100));
             let color = 'bg-emerald-500';
@@ -359,11 +373,11 @@
             else if (r.seats <= 15) color = 'bg-amber-500';
 
             seatHtml = `
-              <div class="flex items-center gap-2">
-                <div class="w-16 h-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden">
+              <div class="flex items-center gap-1 md:gap-2">
+                <div class="w-10 xs:w-16 h-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shrink-0">
                   <div class="h-full ${color}" style="width: ${pct}%"></div>
                 </div>
-                <span class="font-mono text-xs font-bold ${r.seats <= 3 ? 'text-[#c01427] dark:text-rose-400' : 'text-slate-700 dark:text-slate-300'}">${r.seats} os.</span>
+                <span class="font-mono text-[10px] md:text-xs font-bold ${r.seats <= 3 ? 'text-[#c01427] dark:text-rose-400' : 'text-slate-700 dark:text-slate-300'}">${r.seats} os.</span>
               </div>
             `;
           }
@@ -371,18 +385,18 @@
           let statusBadge = '';
           if (r.is_past) {
             statusBadge = r.sold_out 
-              ? '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-red-700 dark:text-rose-400 border border-red-200 dark:border-rose-900">Odbyty (Wyprzedany)</span>' 
-              : '<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">Odbyty</span>';
+              ? '<span class="px-1.5 py-0.5 rounded text-[9px] md:text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-red-700 dark:text-rose-400 border border-red-200 dark:border-rose-900 shrink-0">Odbyty (Płn)</span>' 
+              : '<span class="px-1.5 py-0.5 rounded text-[9px] md:text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 shrink-0">Odbyty</span>';
           } else {
             statusBadge = r.sold_out
-              ? '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-100 dark:bg-rose-950 text-[#c01427] dark:text-rose-400 border border-red-300 dark:border-rose-800 animate-pulse">Brak miejsc</span>'
-              : '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">W sprzedaży</span>';
+              ? '<span class="px-1.5 py-0.5 rounded text-[9px] md:text-[11px] font-bold bg-red-100 dark:bg-rose-950 text-[#c01427] dark:text-rose-400 border border-red-300 dark:border-rose-800 animate-pulse shrink-0">Brak m.</span>'
+              : '<span class="px-1.5 py-0.5 rounded text-[9px] md:text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 shrink-0">W sprzed.</span>';
           }
 
           return [
             dateBadge,
             `<span class="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">${r.hour}</span>`,
-            `<span class="text-xs font-semibold ${r.is_past ? 'text-slate-500 dark:text-slate-400' : 'text-slate-700 dark:text-slate-300'}">${r.route.replace('➔', '→')}</span>`,
+            routeShort,
             minMaxHtml,
             priceBadge,
             seatHtml,
@@ -396,10 +410,10 @@
           order: [[0, 'desc']],
           language: {
             search: "",
-            searchPlaceholder: "Szukaj kursu, dnia, godziny...",
-            lengthMenu: "Pokaż _MENU_ pozycji",
-            info: "Wyniki _START_–_END_ z _TOTAL_",
-            paginate: { next: "Dalej", previous: "Wstecz" }
+            searchPlaceholder: "Szukaj...",
+            lengthMenu: "Pokaż _MENU_",
+            info: "_START_–_END_ z _TOTAL_",
+            paginate: { next: "→", previous: "←" }
           }
         });
       });
