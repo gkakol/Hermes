@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentinel Watchlist // Sniper Neobus</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .neobus-header { background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%); }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen">
+
+  <!-- Header -->
+  <header class="neobus-header rounded-2xl p-5 mb-6 text-white shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex items-center gap-3">
+      <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md">
+        <span class="text-xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
+      </div>
+      <div>
+        <h1 class="text-xl font-black">SENTINEL // CENTRUM OBSERWACJI</h1>
+        <p class="text-red-100 text-xs">Snajper cenowy & alerty wolnych foteli na Discord</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="configureToken()" class="px-3 py-1.5 rounded-lg bg-black/30 hover:bg-black/50 border border-white/20 text-xs font-semibold">🔑 Konfiguruj Token GitHub</button>
+      <a href="./index.html" class="px-3 py-1.5 rounded-lg bg-white text-[#c01427] text-xs font-bold shadow hover:bg-slate-100">← Wróć do Radaru</a>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Lewa Kolumna: Konfigurator połączenia -->
+    <div class="lg:col-span-1 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">1. Wybierz trasę</h2>
+      
+      <div>
+        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Skąd (Odjazd)</label>
+        <select id="selFrom" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+          <option value="47">DOMARADZ</option>
+          <option value="123">GLIWICE Centrum Przesiadkowe</option>
+          <option value="17">SANOK D.A. Lipińskiego</option>
+          <option value="22">KROSNO D.A.st. 4</option>
+          <option value="76">RZESZÓW D.A. PKS</option>
+          <option value="71">KRAKÓW MDA</option>
+          <option value="73">KATOWICE D.A. ul. Sądowa 5</option>
+          <option value="77">WROCŁAW PKS Polbus</option>
+          <option value="75">WARSZAWA Dw. Zach. st.7</option>
+          <option value="28">WARSZAWA Lotn. Chopina</option>
+          <!-- Pełna lista stacji Neobus -->
+          <option value="49">BABICA Kolonia</option>
+          <option value="46">BLIZNE</option>
+          <option value="36">BOGUCHWAŁA ODR</option>
+          <option value="44">BRZOZÓW Dworzec PKS</option>
+          <option value="84">BUSKO- ZDRÓJ MDA</option>
+          <option value="38">GRABOWNICA</option>
+          <option value="43">HUMNISKA</option>
+          <option value="21">IWONICZ Zdrój</option>
+          <option value="124">IŁŻA D.A.</option>
+          <option value="94">JAROSŁAW Centr. Przes. PKP</option>
+          <option value="85">KIELCE DA</option>
+          <option value="23">KOLBUSZOWA Dw. PKS</option>
+          <option value="72">KRAKÓW Lotnisko Balice</option>
+          <option value="66">LESKO D.A.</option>
+          <option value="48">LUTCZA skrz.</option>
+          <option value="96">MEDYKA Granica</option>
+          <option value="37">MIEJSCE PIASTOWE</option>
+          <option value="81">MIELEC D.A.</option>
+          <option value="19">NIEBYLEC</option>
+          <option value="25">NOWA DĘBA</option>
+          <option value="35">OPATÓW D.A.</option>
+          <option value="78">OSTROWIEC Św. D.A.</option>
+          <option value="92">PIOTRKÓW TRYB. DA</option>
+          <option value="62">POLAŃCZYK</option>
+          <option value="82">POŁANIEC D.A.</option>
+          <option value="95">PRZEMYŚL Dw.PKS</option>
+          <option value="54">RADOM Słowackiego/Idalińska</option>
+          <option value="24">RYMANÓW Rynek</option>
+          <option value="64">SOLINA</option>
+          <option value="39">STARA WIEŚ</option>
+          <option value="83">STASZÓW Rynek</option>
+          <option value="79">TARNOBRZEG D.A.</option>
+          <option value="68">ZAGÓRZ osiedle</option>
+          <option value="115">ŻARNÓW Pl.Piłsudskiego</option>
+          <option value="93">ŁÓDŹ FABRYCZNA WPA</option>
+          <option value="88">ŁÓDŹ KALISKA</option>
+          <option value="53">ŁONIÓW</option>
+        </select>
+      </div>
+
+      <div class="flex justify-center">
+        <button onclick="swapStations()" class="p-2 rounded-full border border-slate-300 dark:border-slate-700 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition font-bold">⇄ Odwróć kierunek</button>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Dokąd (Przyjazd)</label>
+        <select id="selTo" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+          <option value="123">GLIWICE Centrum Przesiadkowe</option>
+          <option value="47">DOMARADZ</option>
+          <option value="17">SANOK D.A. Lipińskiego</option>
+          <option value="22">KROSNO D.A.st. 4</option>
+          <option value="76">RZESZÓW D.A. PKS</option>
+          <option value="71">KRAKÓW MDA</option>
+          <option value="73">KATOWICE D.A. ul. Sądowa 5</option>
+          <option value="77">WROCŁAW PKS Polbus</option>
+          <option value="75">WARSZAWA Dw. Zach. st.7</option>
+          <option value="28">WARSZAWA Lotn. Chopina</option>
+          <!-- Pełna lista stacji Neobus -->
+          <option value="49">BABICA Kolonia</option>
+          <option value="46">BLIZNE</option>
+          <option value="36">BOGUCHWAŁA ODR</option>
+          <option value="44">BRZOZÓW Dworzec PKS</option>
+          <option value="84">BUSKO- ZDRÓJ MDA</option>
+          <option value="38">GRABOWNICA</option>
+          <option value="43">HUMNISKA</option>
+          <option value="21">IWONICZ Zdrój</option>
+          <option value="124">IŁŻA D.A.</option>
+          <option value="94">JAROSŁAW Centr. Przes. PKP</option>
+          <option value="85">KIELCE DA</option>
+          <option value="23">KOLBUSZOWA Dw. PKS</option>
+          <option value="72">KRAKÓW Lotnisko Balice</option>
+          <option value="66">LESKO D.A.</option>
+          <option value="48">LUTCZA skrz.</option>
+          <option value="96">MEDYKA Granica</option>
+          <option value="37">MIEJSCE PIASTOWE</option>
+          <option value="81">MIELEC D.A.</option>
+          <option value="19">NIEBYLEC</option>
+          <option value="25">NOWA DĘBA</option>
+          <option value="35">OPATÓW D.A.</option>
+          <option value="78">OSTROWIEC Św. D.A.</option>
+          <option value="92">PIOTRKÓW TRYB. DA</option>
+          <option value="62">POLAŃCZYK</option>
+          <option value="82">POŁANIEC D.A.</option>
+          <option value="95">PRZEMYŚL Dw.PKS</option>
+          <option value="54">RADOM Słowackiego/Idalińska</option>
+          <option value="24">RYMANÓW Rynek</option>
+          <option value="64">SOLINA</option>
+          <option value="39">STARA WIEŚ</option>
+          <option value="83">STASZÓW Rynek</option>
+          <option value="79">TARNOBRZEG D.A.</option>
+          <option value="68">ZAGÓRZ osiedle</option>
+          <option value="115">ŻARNÓW Pl.Piłsudskiego</option>
+          <option value="93">ŁÓDŹ FABRYCZNA WPA</option>
+          <option value="88">ŁÓDŹ KALISKA</option>
+          <option value="53">ŁONIÓW</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Data kursu</label>
+        <input type="date" id="selDate" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Godziny (oddzielone przecinkiem)</label>
+        <input type="text" id="selHours" placeholder="np. 04:20, 23:10" value="23:10" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Próg alertu miejsc (fotele &le;)</label>
+        <input type="number" id="selThreshold" value="5" min="1" max="30" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <button onclick="addTarget()" class="w-full py-3 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-2">
+        <span>🎯 Dodaj do obserwowanych</span>
+      </button>
+    </div>
+
+    <!-- Prawa Kolumna: Lista Obserwowanych -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Aktywnie obserwowane kursy</h2>
+            <p class="text-xs text-slate-400">Po minięciu terminu kurs trafia automatycznie do archiwum.</p>
+          </div>
+          <span id="targetCount" class="text-xs font-bold px-2.5 py-1 rounded-md bg-red-100 dark:bg-red-950 text-[#c01427] dark:text-red-400">0 zadań</span>
+        </div>
+
+        <div id="targetsList" class="space-y-2.5">
+          <div class="text-xs text-slate-400 py-6 text-center">Wczytywanie listy z repozytorium...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const REPO_OWNER = "gkakol";
+    const REPO_NAME = "Hermes";
+    let fileSha = null;
+    let watchlistData = { targets: [], archived_targets: [] };
+
+    function swapStations() {
+      const f = document.getElementById('selFrom').value;
+      const t = document.getElementById('selTo').value;
+      document.getElementById('selFrom').value = t;
+      document.getElementById('selTo').value = f;
+    }
+
+    function configureToken() {
+      const current = localStorage.getItem('sentinel_gh_token') || '';
+      const token = prompt("Podaj GitHub Fine-Grained Personal Access Token (uprawnienia: Contents: Read & Write):", current);
+      if (token !== null) {
+        localStorage.setItem('sentinel_gh_token', token.trim());
+        alert("Token zapisany pomyślnie w przeglądarce!");
+        loadWatchlist();
+      }
+    }
+
+    async function loadWatchlist() {
+      const listEl = document.getElementById('targetsList');
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/watchlist.json?ref=main`, {
+          headers: localStorage.getItem('sentinel_gh_token') ? { 'Authorization': `token ${localStorage.getItem('sentinel_gh_token')}` } : {}
+        });
+        if (!res.ok) throw new Error("Błąd odczytu watchlist.json");
+        const jsonRes = await res.json();
+        fileSha = jsonRes.sha;
+        watchlistData = JSON.parse(decodeURIComponent(escape(atob(jsonRes.content))));
+        renderTargets();
+      } catch (e) {
+        listEl.innerHTML = `<div class="text-xs text-amber-500 py-4 text-center">Nie udało się pobrać pliku z GitHub API. Sprawdź token lub uprawnienia.</div>`;
+      }
+    }
+
+    function renderTargets() {
+      const listEl = document.getElementById('targetsList');
+      document.getElementById('targetCount').innerText = `${watchlistData.targets.length} zadań`;
+
+      if (!watchlistData.targets.length) {
+        listEl.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">Brak aktywnych obserwacji. Skonfiguruj kurs po lewej stronie.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = watchlistData.targets.map((t, idx) => `
+        <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+          <div>
+            <div class="text-xs font-bold text-slate-800 dark:text-slate-200">${t.from_name} ➔ ${t.to_name}</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              📅 <span class="font-bold text-slate-700 dark:text-slate-300">${t.date}</span> o <span class="font-mono font-bold">${t.hour}</span> • Alert miejsc: &le;${t.seat_threshold}
+            </div>
+            <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">
+              Ostatnia cena: ${t.current_price ? t.current_price.toFixed(2) + ' zł' : 'Oczekuje na skan'}
+            </div>
+          </div>
+          <button onclick="removeTarget(${idx})" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900">Usuń</button>
+        </div>
+      `).join('');
+    }
+
+    async function saveWatchlist(commitMsg) {
+      const token = localStorage.getItem('sentinel_gh_token');
+      if (!token) {
+        alert("Aby zapisać zmiany w repozytorium, musisz podać GitHub Token (przycisk u góry).");
+        return false;
+      }
+
+      const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(watchlistData, null, 2))));
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/watchlist.json`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: commitMsg,
+          content: contentBase64,
+          sha: fileSha,
+          branch: "main"
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert(`Błąd zapisu na GitHubie: ${err.message}`);
+        return false;
+      }
+      const data = await res.json();
+      fileSha = data.content.sha;
+      renderTargets();
+      return true;
+    }
+
+    async function addTarget() {
+      const fSel = document.getElementById('selFrom');
+      const tSel = document.getElementById('selTo');
+      const dateVal = document.getElementById('selDate').value;
+      const hoursVal = document.getElementById('selHours').value;
+      const thresholdVal = parseInt(document.getElementById('selThreshold').value, 10);
+
+      if (!dateVal) { alert("Wybierz datę!"); return; }
+      const [yr, mo, da] = dateVal.split('-');
+      const dPl = `${da}.${mo}.${yr}`;
+
+      const hours = hoursVal.split(',').map(h => h.trim()).filter(Boolean);
+      if (!hours.length) { alert("Podaj przynajmniej jedną godzinę!"); return; }
+
+      hours.forEach(h => {
+        watchlistData.targets.push({
+          id: `${fSel.value}-${tSel.value}-${dateVal}-${h.replace(':', '')}`,
+          from_id: fSel.value,
+          from_name: fSel.options[fSel.selectedIndex].text,
+          to_id: tSel.value,
+          to_name: tSel.options[tSel.selectedIndex].text,
+          date: dPl,
+          hour: h,
+          seat_threshold: thresholdVal || 5,
+          baseline_price: 0.0,
+          lowest_seen_price: 999.0,
+          current_price: 0.0,
+          last_seats: 70
+        });
+      });
+
+      const ok = await saveWatchlist(`Watchlist: Dodano ${fSel.options[fSel.selectedIndex].text} -> ${tSel.options[tSel.selectedIndex].text} (${dPl})`);
+      if (ok) alert("Pomyślnie dodano do obserwowanych!");
+    }
+
+    async function removeTarget(idx) {
+      if (!confirm("Czy na pewno usunąć tę obserwację?")) return;
+      watchlistData.targets.splice(idx, 1);
+      await saveWatchlist("Watchlist: Usunięto zadanie monitorowania");
+    }
+
+    // Ustaw dzisiejszą datę domyślnie
+    document.getElementById('selDate').value = new Date().toISOString().split('T')[0];
+    loadWatchlist();
+  </script>
+</body>
+</html>
