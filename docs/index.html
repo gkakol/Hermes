@@ -47,7 +47,6 @@
       color: #ffffff !important;
     }
 
-    /* Kontener tabeli zapobiegający rozjeżdżaniu na mobile */
     .table-responsive-container {
       width: 100%;
       overflow-x: auto;
@@ -118,11 +117,11 @@
 </head>
 <body class="light p-3 md:p-6 max-w-7xl mx-auto select-none">
 
-  <!-- Główny Nagłówek (Oryginalny Styl Pulpitu Desktopowego) -->
+  <!-- Główny Nagłówek -->
   <header class="mb-6 rounded-2xl shadow-xl overflow-hidden border border-red-900/20">
     <div class="neobus-header-bg px-5 py-4 md:px-6 md:py-5 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       
-      <!-- Lewa strona: Logo + Tytuł w jednej linii -->
+      <!-- Logo + Tytuł -->
       <div class="flex items-center gap-3.5 md:gap-4 flex-wrap sm:flex-nowrap">
         <div class="bg-white px-3.5 py-1.5 md:px-4 md:py-1.5 rounded-xl shadow-md flex items-center select-none shrink-0">
           <span class="text-xl md:text-2xl font-black tracking-tight text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
@@ -135,7 +134,7 @@
         </div>
       </div>
 
-      <!-- Prawa strona: Przełącznik Motywu + Cykl Radaru w jednej linii -->
+      <!-- Przełącznik Motywu + Cykl Radaru -->
       <div class="flex items-center gap-2.5 sm:gap-3 self-stretch md:self-auto justify-between md:justify-end">
         <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3 py-1.5 md:py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-sm shrink-0">
           <span id="theme-icon">🌙</span>
@@ -156,19 +155,19 @@
     <div class="bg-slate-900 px-4 py-2.5 md:px-6 md:py-2.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300 border-t border-red-800">
       <span class="text-slate-400 mr-2">Widok:</span>
       <button onclick="setTabFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition">Wszystkie kursy</button>
-      <button onclick="setTabFilter('future')" id="tab-future" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 🟢 W sprzedaży (Przyszłe)
+      <button onclick="setTabFilter('future')" id="tab-future" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> W sprzedaży (Przyszłe)
       </button>
-      <button onclick="setTabFilter('past')" id="tab-past" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-slate-400"></span> ⚪ Odbyte (Historia / Archiwum)
+      <button onclick="setTabFilter('past')" id="tab-past" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Odbyte (Historia / Archiwum)
       </button>
-      <button onclick="setTabFilter('sold_out')" id="tab-sold-out" class="px-3.5 py-1.5 rounded-lg bg-purple-900/60 text-purple-200 hover:bg-purple-800 transition ml-auto">
-        🔴 Tylko Wyprzedane
+      <button onclick="setTabFilter('sold_out')" id="tab-sold-out" class="px-3.5 py-1.5 rounded-lg bg-purple-900/60 text-purple-200 hover:bg-purple-800 transition ml-auto flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Tylko Wyprzedane
       </button>
     </div>
   </header>
 
-  <!-- Paski KPI (Klasyczne duże kafelki) -->
+  <!-- Paski KPI -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
     <div class="card-kpi bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm transition">
       <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Wszystkie monitorowane</div>
@@ -272,22 +271,22 @@
 
     // --- Filtry Zakładek ---
     function setTabFilter(type) {
-      ['tab-all', 'tab-future', 'tab-past', 'tab-sold-out'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.className = el.className.replace('bg-[#c01427] text-white', 'bg-slate-800 text-slate-300');
-      });
+      document.getElementById('tab-all').className = "px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+      document.getElementById('tab-future').className = "px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-2";
+      document.getElementById('tab-past').className = "px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-2";
+      document.getElementById('tab-sold-out').className = "px-3.5 py-1.5 rounded-lg bg-purple-900/60 text-purple-200 hover:bg-purple-800 transition ml-auto flex items-center gap-2";
 
       if (type === 'all') {
         document.getElementById('tab-all').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition";
         $.fn.dataTable.ext.search = [];
       } else if (type === 'future') {
-        document.getElementById('tab-future').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-1.5";
+        document.getElementById('tab-future').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-2";
         $.fn.dataTable.ext.search = [(settings, data, dataIndex) => !rawRecords[dataIndex].is_past];
       } else if (type === 'past') {
-        document.getElementById('tab-past').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-1.5";
+        document.getElementById('tab-past').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-2";
         $.fn.dataTable.ext.search = [(settings, data, dataIndex) => rawRecords[dataIndex].is_past];
       } else if (type === 'sold_out') {
-        document.getElementById('tab-sold-out').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition ml-auto";
+        document.getElementById('tab-sold-out').className = "px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition ml-auto flex items-center gap-2";
         $.fn.dataTable.ext.search = [(settings, data, dataIndex) => rawRecords[dataIndex].sold_out];
       }
       table.draw();
@@ -323,28 +322,27 @@
         const futureCnt = d.future_courses !== undefined ? d.future_courses : (totalCnt - pastCnt);
         const soldOutCnt = d.sold_out_cnt !== undefined ? d.sold_out_cnt : (d.total_sold_out || rawRecords.filter(r => r.sold_out).length);
 
-        
         if (d.updated_at) {
-      // Parsujemy datę z JSON i wymuszamy polską strefę czasową (Europe/Warsaw)
-      const utcDate = new Date(d.updated_at.replace(' ', 'T') + 'Z');
-      if (!isNaN(utcDate.getTime())) {
-        const formattedWarsaw = new Intl.DateTimeFormat('pl-PL', {
-          timeZone: 'Europe/Warsaw',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        }).format(utcDate).replace(',', '');
-        document.getElementById('last-updated').innerText = formattedWarsaw;
-      } else {
-        document.getElementById('last-updated').innerText = d.updated_at;
-      }
-      } else {
-      document.getElementById('last-updated').innerText = 'Teraz';
-      }
+          const utcDate = new Date(d.updated_at.replace(' ', 'T') + 'Z');
+          if (!isNaN(utcDate.getTime())) {
+            const formattedWarsaw = new Intl.DateTimeFormat('pl-PL', {
+              timeZone: 'Europe/Warsaw',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            }).format(utcDate).replace(',', '');
+            document.getElementById('last-updated').innerText = formattedWarsaw;
+          } else {
+            document.getElementById('last-updated').innerText = d.updated_at;
+          }
+        } else {
+          document.getElementById('last-updated').innerText = 'Teraz';
+        }
+
         document.getElementById('kpi-total').innerText = totalCnt;
         document.getElementById('kpi-sub-total').innerText = `${futureCnt} aktywnych + ${pastCnt} archiwum`;
         document.getElementById('kpi-future').innerText = futureCnt;
