@@ -1,0 +1,2918 @@
+{
+  "updated_at": "2026-10-11 14:02:58",
+  "total_courses": 320,
+  "total_sold_out": 6,
+  "sold_out_rate_pct": 1.9,
+  "avg_price": 120.65,
+  "analytics": {
+    "days": [
+      "Pn",
+      "Wt",
+      "Śr",
+      "Cz",
+      "Pt",
+      "Sb",
+      "Nd"
+    ],
+    "sold_out_rates": [
+      0.0,
+      2.5,
+      0.0,
+      2.1,
+      2.1,
+      6.2,
+      0.0
+    ],
+    "avg_prices": [
+      120.65,
+      120.65,
+      120.65,
+      120.65,
+      120.65,
+      120.65,
+      120.65
+    ]
+  },
+  "records": [
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 61,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 53,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 25,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.10.2026",
+      "day": "Sb",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 9,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 29,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 29,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.10.2026",
+      "day": "Pt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 55,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 53,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 47,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 60,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.10.2026",
+      "day": "Cz",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 52,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 18,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 23,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.10.2026",
+      "day": "Śr",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 47,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 55,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.10.2026",
+      "day": "Wt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 53,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 47,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "03:40",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.10.2026",
+      "day": "Pn",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 7,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 57,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "16:20",
+      "price": 120.65,
+      "seats": 22,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 26,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 28,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 31,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.10.2026",
+      "day": "Nd",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 13,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 57,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.10.2026",
+      "day": "Sb",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 19,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 28,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 52,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 55,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "02.10.2026",
+      "day": "Pt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 26,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "01.10.2026",
+      "day": "Cz",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 25,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 27,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "30.09.2026",
+      "day": "Śr",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 9,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 22,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 55,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "29.09.2026",
+      "day": "Wt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 24,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 19,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "03:40",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "28.09.2026",
+      "day": "Pn",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 13,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "16:20",
+      "price": 120.65,
+      "seats": 12,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 32,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "27.09.2026",
+      "day": "Nd",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 16,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 16,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 61,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "26.09.2026",
+      "day": "Sb",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 52,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 25,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "25.09.2026",
+      "day": "Pt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 53,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 23,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 33,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "24.09.2026",
+      "day": "Cz",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 14,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 9,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 15,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 68,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "23.09.2026",
+      "day": "Śr",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 57,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 65,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 21,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "22.09.2026",
+      "day": "Wt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 57,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 58,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 68,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "03:40",
+      "price": 120.65,
+      "seats": 52,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "21.09.2026",
+      "day": "Pn",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 4,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 65,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "16:20",
+      "price": 120.65,
+      "seats": 14,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 23,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "20.09.2026",
+      "day": "Nd",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 3,
+      "sold_out": true
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 62,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "19.09.2026",
+      "day": "Sb",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 6,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 12,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 28,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 26,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 62,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 29,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "18.09.2026",
+      "day": "Pt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 59,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 1,
+      "sold_out": true
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 62,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 67,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "17.09.2026",
+      "day": "Cz",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 47,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 31,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 29,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 65,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "16.09.2026",
+      "day": "Śr",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 32,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 2,
+      "sold_out": true
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 55,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 25,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "15.09.2026",
+      "day": "Wt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 47,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 18,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 63,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 28,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "03:40",
+      "price": 120.65,
+      "seats": 54,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "14.09.2026",
+      "day": "Pn",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 20,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 66,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "16:20",
+      "price": 120.65,
+      "seats": 28,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "13.09.2026",
+      "day": "Nd",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 34,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 1,
+      "sold_out": true
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 62,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 25,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "12.09.2026",
+      "day": "Sb",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 9,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 29,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 15,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 68,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "11.09.2026",
+      "day": "Pt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 37,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 12,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 41,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 27,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "10.09.2026",
+      "day": "Cz",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 61,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "09.09.2026",
+      "day": "Śr",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 26,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 53,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 29,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "08.09.2026",
+      "day": "Wt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 24,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 64,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 35,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "03:40",
+      "price": 120.65,
+      "seats": 38,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "07.09.2026",
+      "day": "Pn",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 6,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "16:20",
+      "price": 120.65,
+      "seats": 17,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 32,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 55,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "06.09.2026",
+      "day": "Nd",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 44,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 1,
+      "sold_out": true
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 39,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 45,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 51,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 63,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 49,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 25,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "05.09.2026",
+      "day": "Sb",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 2,
+      "sold_out": true
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 21,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 31,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 30,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "04.09.2026",
+      "day": "Pt",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 50,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 36,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 43,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 42,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 65,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 70,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "06:35",
+      "price": 120.65,
+      "seats": 40,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "03.09.2026",
+      "day": "Cz",
+      "hour": "03:00",
+      "price": 120.65,
+      "seats": 56,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "02.09.2026",
+      "day": "Śr",
+      "hour": "23:50",
+      "price": 120.65,
+      "seats": 11,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.09.2026",
+      "day": "Śr",
+      "hour": "22:25",
+      "price": 120.65,
+      "seats": 22,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.09.2026",
+      "day": "Śr",
+      "hour": "15:35",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.09.2026",
+      "day": "Śr",
+      "hour": "12:00",
+      "price": 120.65,
+      "seats": 48,
+      "sold_out": false
+    },
+    {
+      "route": "Sanok ➔ Wrocław",
+      "date": "02.09.2026",
+      "day": "Śr",
+      "hour": "10:10",
+      "price": 120.65,
+      "seats": 46,
+      "sold_out": false
+    },
+    {
+      "route": "Wrocław ➔ Sanok",
+      "date": "02.09.2026",
+      "day": "Śr",
+      "hour": "07:45",
+      "price": 120.65,
+      "seats": 65,
+      "sold_out": false
+    }
+  ]
+}
