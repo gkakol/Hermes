@@ -4,21 +4,31 @@ import json
 import os
 from datetime import datetime, date
 
-DOCS_DIR = "docs"
-ARCHIVE_DIR = "archive"
+# Ścieżka bazowa repozytorium (zabezpieczenie przed CWD)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DOCS_DIR = os.path.join(BASE_DIR, "docs")
+ARCHIVE_DIR = os.path.join(BASE_DIR, "archive")
 OUTPUT_JSON = os.path.join(DOCS_DIR, "data.json")
 
 DNI_TYGODNIA = ["Pn", "Wt", "Śr", "Cz", "Pt", "Sb", "Nd"]
 
 
 def parse_date_safe(d_str):
+    if not d_str:
+        return None
     try:
         return datetime.strptime(d_str.strip(), "%d.%m.%Y").date()
+    except Exception:
+        pass
+    try:
+        return datetime.strptime(d_str.strip(), "%Y-%m-%d").date()
     except Exception:
         return None
 
 
 def parse_datetime_safe(dt_str):
+    if not dt_str:
+        return None
     try:
         return datetime.strptime(dt_str.strip(), "%Y-%m-%d %H:%M:%S")
     except Exception:
@@ -29,40 +39,52 @@ def process_all_data():
     os.makedirs(DOCS_DIR, exist_ok=True)
     today = date.today()
 
-    # 1. Zbieramy WSZYSTKIE źródła: historyczne z archive/ oraz bieżące pliki aktywne
-    all_files = []
-    
-    # Pliki archiwalne (przeszłe kursy)
-    all_files.extend(glob.glob(os.path.join(ARCHIVE_DIR, "arch_*.csv")))
-    
-    # Aktywne pliki z głównego katalogu (nadchodzące kursy)
-    for active_file in ["ceny_sanok_wroclaw.csv", "ceny_wroclaw_sanok.csv"]:
-        if os.path.isfile(active_file):
-            all_files.append(active_file)
+    # Zbieranie plików archiwalnych oraz aktywnych
+    sources = []
+
+    # 1. Główne pliki aktywne
+    for active_name in ["ceny_sanok_wroclaw.csv", "ceny_wroclaw_sanok.csv"]:
+        full_p = os.path.join(BASE_DIR, active_name)
+        if os.path.isfile(full_p):
+            sources.append((full_p, "active"))
+        else:
+            print(f"[WARN] Nie znaleziono aktywnego pliku: {full_p}")
+
+    # 2. Pliki historyczne
+    arch_files = glob.glob(os.path.join(ARCHIVE_DIR, "arch_*.csv"))
+    for af in arch_files:
+        sources.append((af, "archive"))
+
+    print(f"[*] Wykryto {len(sources)} źródeł danych do przetworzenia.")
 
     courses_map = {}
 
-    for path in all_files:
-        route_name = "Sanok ➔ Wrocław" if "sanok_wroclaw" in path else "Wrocław ➔ Sanok"
+    for path, source_type in sources:
+        route_name = "Sanok ➔ Wrocław" if "sanok_wroclaw" in os.path.basename(path) else "Wrocław ➔ Sanok"
+        read_count = 0
         try:
             with open(path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    d_kurs = row.get("Data kursu")
-                    godz = row.get("Godzina")
+                    # Elastyczne pobieranie kluczy
+                    d_kurs = row.get("Data kursu") or row.get("Data") or row.get("date")
+                    godz = row.get("Godzina") or row.get("departure") or row.get("Godzina odjazdu")
                     if not d_kurs or not godz:
                         continue
 
-                    key = (route_name, d_kurs, godz)
+                    key = (route_name, d_kurs.strip(), godz.strip())
                     meas_dt = parse_datetime_safe(row.get("Data pomiaru", ""))
                     
+                    price_raw = row.get("Cena (PLN)") or row.get("Cena") or row.get("price") or "0"
                     try:
-                        price = float(row.get("Cena (PLN)", 0.0) or 0.0)
+                        price = float(str(price_raw).replace(",", ".").replace("zł", "").strip())
                     except ValueError:
                         price = 0.0
 
-                    seats_raw = row.get("Wolne miejsca", "")
-                    seats = int(seats_raw) if str(seats_raw).isdigit() else None
+                    seats_raw = row.get("Wolne miejsca") or row.get("seats") or ""
+                    seats = int(seats_raw) if str(seats_raw).strip().isdigit() else None
+
+                    read_count += 1
 
                     if key not in courses_map:
                         courses_map[key] = {
@@ -80,14 +102,14 @@ def process_all_data():
                             c["min_price"] = price
                         if price > c["max_price"]:
                             c["max_price"] = price
-                        
-                        # Zachowujemy stan z najświeższego pomiaru
-                        if meas_dt and (c["last_meas_dt"] is None or meas_dt > c["last_meas_dt"]):
+
+                        if meas_dt and (c["last_meas_dt"] is None or meas_dt >= c["last_meas_dt"]):
                             c["last_meas_dt"] = meas_dt
                             c["current_price"] = price
                             c["current_seats"] = seats
+            print(f"  -> [{source_type.upper()}] {os.path.basename(path)}: wczytano {read_count} wierszy")
         except Exception as e:
-            print(f"[!] Błąd w pliku {path}: {e}")
+            print(f"[!] Błąd przetwarzania {path}: {e}")
 
     records = []
     weekday_stats = {d: {"total": 0, "sold_out": 0} for d in DNI_TYGODNIA}
@@ -123,7 +145,7 @@ def process_all_data():
             "sold_out": is_sold_out
         })
 
-    # Sortowanie chronologiczne: najnowsze daty na górze
+    # Sortowanie chronologiczne malejąco
     records.sort(
         key=lambda r: (datetime.strptime(r["date"], "%d.%m.%Y"), r["hour"]),
         reverse=True
@@ -154,10 +176,10 @@ def process_all_data():
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ Wygenerowano {OUTPUT_JSON}:")
-    print(f"   - Łącznie kursów w bazie: {total_courses}")
-    print(f"   - Kursów aktywnych (w sprzedaży): {future_courses}")
-    print(f"   - Kursów zarchiwizowanych: {past_courses}")
+    print(f"\n[SUKCES] Wygenerowano {OUTPUT_JSON}:")
+    print(f"   -> Aktywne w sprzedaży (przyszłe): {future_courses}")
+    print(f"   -> Zarchiwizowane (odbyte):        {past_courses}")
+    print(f"   -> Łącznie unikalnych kursów:       {total_courses}")
 
 
 if __name__ == "__main__":
