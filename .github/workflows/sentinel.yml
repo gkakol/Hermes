@@ -49,6 +49,11 @@ jobs:
         run: |
           python -u build_archive_web.py
 
+      - name: Uruchomienie snajpera obserwowanych kursów
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -u sniper_discord.py
+
       - name: Publikacja wyników w repozytorium
         run: |
           git config --global user.name "Hermes Agent"
