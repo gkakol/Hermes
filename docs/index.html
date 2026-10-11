@@ -214,7 +214,7 @@
 
     initTheme();
 
-    // Ładowanie bazy danych dopasowane do struktury records i sumarycznych pól
+    // Ładowanie bazy danych z obsługą archiwum
     async function loadData() {
       try {
         const resp = await fetch('./data.json?v=' + Date.now());
@@ -237,18 +237,38 @@
           document.getElementById('stat-soldout').innerText = json.sold_out_cnt;
         }
 
+        // Dzisiejsza data do wyznaczania przeszłych kursów
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
         // Mapowanie pól do struktury dashboardu
-        allRecords = rawList.map(r => ({
-          date: r.date || r.course_date || '',
-          hour: r.hour || r.departure_time || r.time || '',
-          route: r.route || `${r.from || ''} ➔ ${r.to || ''}`,
-          price_min: r.price_min ?? r.price ?? r.current_price ?? 0,
-          price_max: r.price_max ?? r.price ?? r.current_price ?? 0,
-          seats_left: r.seats_left ?? r.seats ?? r.available_seats ?? 50,
-          status: r.status || (r.seats_left === 0 ? 'WYPRZEDANE' : 'W sprzedaży'),
-          is_archived: r.is_archived ?? false,
-          day_tag: r.day_tag || ''
-        }));
+        allRecords = rawList.map(r => {
+          const dateStr = r.date || r.course_date || '';
+          let isPastCourse = false;
+
+          if (dateStr) {
+            const parts = dateStr.split('.');
+            if (parts.length === 3) {
+              const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+              isPastCourse = isoDate < todayStr;
+            }
+          }
+
+          // Odczyt flagi z JSON lub po dacie
+          const isArchived = (r.is_archived === true) || (r.is_past === true) || (r.archived === true) || (r.status === 'ODBYTE') || isPastCourse;
+
+          return {
+            date: dateStr,
+            hour: r.hour || r.departure_time || r.time || '',
+            route: r.route || `${r.from || ''} ➔ ${r.to || ''}`,
+            price_min: r.price_min ?? r.price ?? r.current_price ?? 0,
+            price_max: r.price_max ?? r.price ?? r.current_price ?? 0,
+            seats_left: r.seats_left ?? r.seats ?? r.available_seats ?? 50,
+            status: r.status || (isArchived ? 'Odbyte' : (r.seats_left === 0 ? 'WYPRZEDANE' : 'W sprzedaży')),
+            is_archived: isArchived,
+            day_tag: r.day_tag || ''
+          };
+        });
 
         if (json.total_courses === undefined) {
           updateKPIs();
