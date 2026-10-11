@@ -24,7 +24,7 @@
 </head>
 <body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-7xl mx-auto min-h-screen">
 
- <!-- Header: Zbalansowany i równy na PC oraz Mobile -->
+  <!-- Header: Zbalansowany i równy na PC oraz Mobile -->
   <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 border border-red-900/20">
     
     <!-- Lewa strona: Logo i Tytuł -->
@@ -54,7 +54,7 @@
         <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
       </button>
 
-      <!-- Cykl radaru: Zawsze równy z przyciskami -->
+      <!-- Cykl radaru -->
       <div class="bg-red-950/50 border border-red-400/30 px-3.5 py-1.5 rounded-xl flex flex-col justify-center items-end shrink-0 whitespace-nowrap">
         <div class="text-[9px] text-red-200 uppercase font-semibold leading-tight">Cykl radaru</div>
         <div class="text-xs font-mono font-bold text-white flex items-center gap-1.5 leading-tight mt-0.5">
@@ -66,8 +66,7 @@
 
   </header>
 
-
-  <!-- Filtry Widoku: Wyraziste kropki statusowe -->
+  <!-- Filtry Widoku -->
   <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
     <div class="flex flex-wrap items-center gap-2">
       <span class="text-xs md:text-sm font-bold text-slate-500 dark:text-slate-400 mr-1">Widok:</span>
@@ -213,21 +212,17 @@
 
     initTheme();
 
-    // Ładowanie bazy danych z obsługą archiwum
     async function loadData() {
       try {
         const resp = await fetch('./data.json?v=' + Date.now());
         if (!resp.ok) throw new Error("Błąd pobierania data.json");
         const json = await resp.json();
 
-        // Data ostatniego skanu
         document.getElementById('last-updated').innerText = 
           json.updated_at || json.meta?.last_scan || 'Dzisiaj';
 
-        // Pobranie kursów z tablicy "records"
         const rawList = Array.isArray(json.records) ? json.records : (Array.isArray(json) ? json : []);
 
-        // Użycie gotowych statystyk z JSON-a
         if (json.total_courses !== undefined) {
           document.getElementById('stat-total').innerText = json.total_courses;
           document.getElementById('stat-total-sub').innerText = `${json.future_courses} aktywnych + ${json.past_courses} archiwum`;
@@ -236,11 +231,9 @@
           document.getElementById('stat-soldout').innerText = json.sold_out_cnt;
         }
 
-        // Dzisiejsza data do wyznaczania przeszłych kursów
         const now = new Date();
         const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-        // Mapowanie pól do struktury dashboardu
         allRecords = rawList.map(r => {
           const dateStr = r.date || r.course_date || '';
           let isPastCourse = false;
@@ -253,8 +246,26 @@
             }
           }
 
-          // Odczyt flagi z JSON lub po dacie
-          const isArchived = (r.is_archived === true) || (r.is_past === true) || (r.archived === true) || (r.status === 'ODBYTE') || isPastCourse;
+          // Odczyt liczby wolnych foteli
+          let seats = null;
+          if (r.seats_left !== undefined && r.seats_left !== null) seats = Number(r.seats_left);
+          else if (r.seats !== undefined && r.seats !== null) seats = Number(r.seats);
+          else if (r.available_seats !== undefined && r.available_seats !== null) seats = Number(r.available_seats);
+          else if (r.free_seats !== undefined && r.free_seats !== null) seats = Number(r.free_seats);
+
+          // Pewna detekcja wyprzedania
+          const statusUpper = String(r.status || '').toUpperCase();
+          const isSoldOut = (seats === 0) || 
+                            (r.is_sold_out === true) || 
+                            (r.sold_out === true) || 
+                            statusUpper.includes('WYPRZED') || 
+                            statusUpper.includes('BRAK');
+
+          if (seats === null) {
+            seats = isSoldOut ? 0 : 50;
+          }
+
+          const isArchived = (r.is_archived === true) || (r.is_past === true) || (r.archived === true) || statusUpper.includes('ODBYT') || isPastCourse;
 
           return {
             date: dateStr,
@@ -262,8 +273,9 @@
             route: r.route || `${r.from || ''} ➔ ${r.to || ''}`,
             price_min: r.price_min ?? r.price ?? r.current_price ?? 0,
             price_max: r.price_max ?? r.price ?? r.current_price ?? 0,
-            seats_left: r.seats_left ?? r.seats ?? r.available_seats ?? 50,
-            status: r.status || (isArchived ? 'Odbyte' : (r.seats_left === 0 ? 'WYPRZEDANE' : 'W sprzedaży')),
+            seats_left: seats,
+            is_sold_out: isSoldOut,
+            status: isSoldOut ? 'WYPRZEDANE' : (isArchived ? 'Odbyte' : 'W sprzedaży'),
             is_archived: isArchived,
             day_tag: r.day_tag || ''
           };
@@ -286,7 +298,7 @@
       const total = allRecords.length;
       const active = allRecords.filter(r => !r.is_archived).length;
       const archived = allRecords.filter(r => r.is_archived).length;
-      const soldout = allRecords.filter(r => r.seats_left === 0 || r.status === 'WYPRZEDANE').length;
+      const soldout = allRecords.filter(r => r.is_sold_out).length;
 
       document.getElementById('stat-total').innerText = total;
       document.getElementById('stat-total-sub').innerText = `${active} aktywnych + ${archived} archiwum`;
@@ -330,7 +342,9 @@
       filteredRecords = allRecords.filter(r => {
         if (currentFilter === 'active' && r.is_archived) return false;
         if (currentFilter === 'archived' && !r.is_archived) return false;
-        if (onlySoldOut && r.seats_left > 0 && r.status !== 'WYPRZEDANE') return false;
+        
+        // Filtr wyprzedanych
+        if (onlySoldOut && !r.is_sold_out) return false;
 
         if (searchQuery) {
           const matchStr = `${r.date} ${r.hour} ${r.route} ${r.price_min} ${r.price_max}`.toLowerCase();
@@ -402,12 +416,12 @@
       const visible = filteredRecords.slice(start, end);
 
       tbody.innerHTML = visible.map(r => {
-        const isSoldOut = r.seats_left === 0 || r.status === 'WYPRZEDANE';
+        const isSoldOut = r.is_sold_out;
         const priceText = r.price_min === r.price_max
           ? `${r.price_min.toFixed(2)} zł`
           : `${r.price_min.toFixed(2)} zł ➔ ${r.price_max.toFixed(2)} zł`;
 
-        const seatsLeft = r.seats_left ?? 50;
+        const seatsLeft = r.seats_left ?? 0;
         const totalSeats = 70;
         const pct = Math.max(0, Math.min(100, Math.round((seatsLeft / totalSeats) * 100)));
 
@@ -425,7 +439,7 @@
                 <div class="w-24 bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden shrink-0">
                   <div class="bg-emerald-500 h-full rounded-full" style="width: ${pct}%"></div>
                 </div>
-                <span class="text-xs md:text-sm font-semibold ${isSoldOut ? 'text-rose-500' : 'text-slate-600 dark:text-slate-300'}">
+                <span class="text-xs md:text-sm font-semibold ${isSoldOut ? 'text-rose-500 font-bold' : 'text-slate-600 dark:text-slate-300'}">
                   ${isSoldOut ? 'Brak' : `${seatsLeft} os.`}
                 </span>
               </div>
