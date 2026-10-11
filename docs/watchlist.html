@@ -11,6 +11,11 @@
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     .neobus-header { background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%); }
+    .slot-pill.active {
+      background-color: #c01427 !important;
+      color: #ffffff !important;
+      border-color: #991b1b !important;
+    }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen">
@@ -23,11 +28,11 @@
       </div>
       <div>
         <h1 class="text-xl font-black">SENTINEL // CENTRUM OBSERWACJI</h1>
-        <p class="text-red-100 text-xs">Snajper cenowy & alerty wolnych foteli na Discord</p>
+        <p class="text-red-100 text-xs">Automatyczny snajper cenowy & alerty wolnych foteli na Discord</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button onclick="configureToken()" class="px-3 py-1.5 rounded-lg bg-black/30 hover:bg-black/50 border border-white/20 text-xs font-semibold">🔑 Konfiguruj Token GitHub</button>
+      <button onclick="configureToken()" class="px-3 py-1.5 rounded-lg bg-black/30 hover:bg-black/50 border border-white/20 text-xs font-semibold cursor-pointer">🔑 Konfiguruj Token GitHub</button>
       <a href="./index.html" class="px-3 py-1.5 rounded-lg bg-white text-[#c01427] text-xs font-bold shadow hover:bg-slate-100">← Wróć do Radaru</a>
     </div>
   </header>
@@ -36,128 +41,37 @@
 
     <!-- Lewa Kolumna: Konfigurator połączenia -->
     <div class="lg:col-span-1 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">1. Wybierz trasę</h2>
+      <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">1. Skonfiguruj cel</h2>
       
       <div>
         <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Skąd (Odjazd)</label>
-        <select id="selFrom" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
-          <option value="47">DOMARADZ</option>
-          <option value="123">GLIWICE Centrum Przesiadkowe</option>
-          <option value="17">SANOK D.A. Lipińskiego</option>
-          <option value="22">KROSNO D.A.st. 4</option>
-          <option value="76">RZESZÓW D.A. PKS</option>
-          <option value="71">KRAKÓW MDA</option>
-          <option value="73">KATOWICE D.A. ul. Sądowa 5</option>
-          <option value="77">WROCŁAW PKS Polbus</option>
-          <option value="75">WARSZAWA Dw. Zach. st.7</option>
-          <option value="28">WARSZAWA Lotn. Chopina</option>
-          <!-- Pełna lista stacji Neobus -->
-          <option value="49">BABICA Kolonia</option>
-          <option value="46">BLIZNE</option>
-          <option value="36">BOGUCHWAŁA ODR</option>
-          <option value="44">BRZOZÓW Dworzec PKS</option>
-          <option value="84">BUSKO- ZDRÓJ MDA</option>
-          <option value="38">GRABOWNICA</option>
-          <option value="43">HUMNISKA</option>
-          <option value="21">IWONICZ Zdrój</option>
-          <option value="124">IŁŻA D.A.</option>
-          <option value="94">JAROSŁAW Centr. Przes. PKP</option>
-          <option value="85">KIELCE DA</option>
-          <option value="23">KOLBUSZOWA Dw. PKS</option>
-          <option value="72">KRAKÓW Lotnisko Balice</option>
-          <option value="66">LESKO D.A.</option>
-          <option value="48">LUTCZA skrz.</option>
-          <option value="96">MEDYKA Granica</option>
-          <option value="37">MIEJSCE PIASTOWE</option>
-          <option value="81">MIELEC D.A.</option>
-          <option value="19">NIEBYLEC</option>
-          <option value="25">NOWA DĘBA</option>
-          <option value="35">OPATÓW D.A.</option>
-          <option value="78">OSTROWIEC Św. D.A.</option>
-          <option value="92">PIOTRKÓW TRYB. DA</option>
-          <option value="62">POLAŃCZYK</option>
-          <option value="82">POŁANIEC D.A.</option>
-          <option value="95">PRZEMYŚL Dw.PKS</option>
-          <option value="54">RADOM Słowackiego/Idalińska</option>
-          <option value="24">RYMANÓW Rynek</option>
-          <option value="64">SOLINA</option>
-          <option value="39">STARA WIEŚ</option>
-          <option value="83">STASZÓW Rynek</option>
-          <option value="79">TARNOBRZEG D.A.</option>
-          <option value="68">ZAGÓRZ osiedle</option>
-          <option value="115">ŻARNÓW Pl.Piłsudskiego</option>
-          <option value="93">ŁÓDŹ FABRYCZNA WPA</option>
-          <option value="88">ŁÓDŹ KALISKA</option>
-          <option value="53">ŁONIÓW</option>
+        <select id="selFrom" onchange="onFormChange()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+          <option value="">-- Wybierz przystanek początkowy --</option>
         </select>
       </div>
 
       <div class="flex justify-center">
-        <button onclick="swapStations()" class="p-2 rounded-full border border-slate-300 dark:border-slate-700 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition font-bold">⇄ Odwróć kierunek</button>
+        <button onclick="swapStations()" class="p-2 rounded-full border border-slate-300 dark:border-slate-700 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition font-bold cursor-pointer">⇄ Odwróć kierunek</button>
       </div>
 
       <div>
         <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Dokąd (Przyjazd)</label>
-        <select id="selTo" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
-          <option value="123">GLIWICE Centrum Przesiadkowe</option>
-          <option value="47">DOMARADZ</option>
-          <option value="17">SANOK D.A. Lipińskiego</option>
-          <option value="22">KROSNO D.A.st. 4</option>
-          <option value="76">RZESZÓW D.A. PKS</option>
-          <option value="71">KRAKÓW MDA</option>
-          <option value="73">KATOWICE D.A. ul. Sądowa 5</option>
-          <option value="77">WROCŁAW PKS Polbus</option>
-          <option value="75">WARSZAWA Dw. Zach. st.7</option>
-          <option value="28">WARSZAWA Lotn. Chopina</option>
-          <!-- Pełna lista stacji Neobus -->
-          <option value="49">BABICA Kolonia</option>
-          <option value="46">BLIZNE</option>
-          <option value="36">BOGUCHWAŁA ODR</option>
-          <option value="44">BRZOZÓW Dworzec PKS</option>
-          <option value="84">BUSKO- ZDRÓJ MDA</option>
-          <option value="38">GRABOWNICA</option>
-          <option value="43">HUMNISKA</option>
-          <option value="21">IWONICZ Zdrój</option>
-          <option value="124">IŁŻA D.A.</option>
-          <option value="94">JAROSŁAW Centr. Przes. PKP</option>
-          <option value="85">KIELCE DA</option>
-          <option value="23">KOLBUSZOWA Dw. PKS</option>
-          <option value="72">KRAKÓW Lotnisko Balice</option>
-          <option value="66">LESKO D.A.</option>
-          <option value="48">LUTCZA skrz.</option>
-          <option value="96">MEDYKA Granica</option>
-          <option value="37">MIEJSCE PIASTOWE</option>
-          <option value="81">MIELEC D.A.</option>
-          <option value="19">NIEBYLEC</option>
-          <option value="25">NOWA DĘBA</option>
-          <option value="35">OPATÓW D.A.</option>
-          <option value="78">OSTROWIEC Św. D.A.</option>
-          <option value="92">PIOTRKÓW TRYB. DA</option>
-          <option value="62">POLAŃCZYK</option>
-          <option value="82">POŁANIEC D.A.</option>
-          <option value="95">PRZEMYŚL Dw.PKS</option>
-          <option value="54">RADOM Słowackiego/Idalińska</option>
-          <option value="24">RYMANÓW Rynek</option>
-          <option value="64">SOLINA</option>
-          <option value="39">STARA WIEŚ</option>
-          <option value="83">STASZÓW Rynek</option>
-          <option value="79">TARNOBRZEG D.A.</option>
-          <option value="68">ZAGÓRZ osiedle</option>
-          <option value="115">ŻARNÓW Pl.Piłsudskiego</option>
-          <option value="93">ŁÓDŹ FABRYCZNA WPA</option>
-          <option value="88">ŁÓDŹ KALISKA</option>
-          <option value="53">ŁONIÓW</option>
+        <select id="selTo" onchange="onFormChange()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+          <option value="">-- Wybierz przystanek docelowy --</option>
         </select>
       </div>
 
       <div>
         <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Data kursu</label>
-        <input type="date" id="selDate" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <input type="date" id="selDate" onchange="onFormChange()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
+      <!-- Dynamiczny Wybór Godzin -->
       <div>
-        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Godziny (oddzielone przecinkiem)</label>
-        <input type="text" id="selHours" placeholder="np. 04:20, 23:10" value="23:10" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Dostępne godziny odjazdu</label>
+        <div id="slotsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-h-[70px] flex flex-wrap gap-2 items-center justify-center">
+          <span class="text-[11px] text-slate-400 text-center">Wybierz skąd, dokąd i datę, aby pobrać kursy...</span>
+        </div>
       </div>
 
       <div>
@@ -165,7 +79,7 @@
         <input type="number" id="selThreshold" value="5" min="1" max="30" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
-      <button onclick="addTarget()" class="w-full py-3 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-2">
+      <button onclick="addTarget()" id="btnAddTarget" class="w-full py-3 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-2 cursor-pointer">
         <span>🎯 Dodaj do obserwowanych</span>
       </button>
     </div>
@@ -194,12 +108,169 @@
     const REPO_NAME = "Hermes";
     let fileSha = null;
     let watchlistData = { targets: [], archived_targets: [] };
+    let selectedHours = new Set();
+
+    const STATIONS = [
+      { id: "49", name: "BABICA Kolonia" },
+      { id: "46", name: "BLIZNE" },
+      { id: "36", name: "BOGUCHWAŁA ODR" },
+      { id: "44", name: "BRZOZÓW Dworzec PKS Plac Grunwaldzki 01" },
+      { id: "84", name: "BUSKO- ZDRÓJ MDA ul. Waryńskiego 29" },
+      { id: "47", name: "DOMARADZ" },
+      { id: "123", name: "GLIWICE Centrum Przesiadkowe ul. Składowa 8a" },
+      { id: "38", name: "GRABOWNICA" },
+      { id: "43", name: "HUMNISKA" },
+      { id: "21", name: "IWONICZ Zdrój" },
+      { id: "124", name: "IŁŻA D.A. ul. Podzamcze 33" },
+      { id: "94", name: "JAROSŁAW Centr. Przes. PKP" },
+      { id: "73", name: "KATOWICE D.A. ul. Sądowa 5" },
+      { id: "85", name: "KIELCE DA ul. Czarnowska 12" },
+      { id: "23", name: "KOLBUSZOWA Dw. PKS" },
+      { id: "72", name: "KRAKÓW Lotnisko Balice" },
+      { id: "71", name: "KRAKÓW MDA" },
+      { id: "22", name: "KROSNO D.A.st. 4" },
+      { id: "66", name: "LESKO D.A. ul. Piłsudskiego 50" },
+      { id: "48", name: "LUTCZA skrz." },
+      { id: "96", name: "MEDYKA Granica" },
+      { id: "37", name: "MIEJSCE PIASTOWE" },
+      { id: "81", name: "MIELEC D.A. ul Jagiellończyka" },
+      { id: "19", name: "NIEBYLEC" },
+      { id: "25", name: "NOWA DĘBA" },
+      { id: "35", name: "OPATÓW D.A. ul. Sienkiewicza 19" },
+      { id: "78", name: "OSTROWIEC Św. D.A." },
+      { id: "92", name: "PIOTRKÓW TRYB. DA ul.P.O.W. 12" },
+      { id: "62", name: "POLAŃCZYK" },
+      { id: "63", name: "POLAŃCZYK skrz." },
+      { id: "82", name: "POŁANIEC D.A. (Galeria Połaniecka)" },
+      { id: "95", name: "PRZEMYŚL Dw.PKS" },
+      { id: "54", name: "RADOM Słowackiego/Idalińska" },
+      { id: "55", name: "RADOM Warszawska (rondo)" },
+      { id: "24", name: "RYMANÓW Rynek" },
+      { id: "29", name: "RYMANÓW Zdrój Góra" },
+      { id: "40", name: "RYMANÓW Zdrój pocz.PKS" },
+      { id: "76", name: "RZESZÓW D.A. PKS" },
+      { id: "17", name: "SANOK D.A. Lipińskiego" },
+      { id: "41", name: "SANOK ul. Dmowskiego/Staszica ALFA" },
+      { id: "42", name: "SANOK ul. Krakowska , Dąbrówka" },
+      { id: "64", name: "SOLINA" },
+      { id: "39", name: "STARA WIEŚ," },
+      { id: "83", name: "STASZÓW Rynek 01/02" },
+      { id: "79", name: "TARNOBRZEG D.A." },
+      { id: "75", name: "WARSZAWA Dw. Zach. st.7" },
+      { id: "28", name: "WARSZAWA Lotn. Chopina" },
+      { id: "77", name: "WROCŁAW PKS Polbus" },
+      { id: "68", name: "ZAGÓRZ osiedle" },
+      { id: "115", name: "ŻARNÓW Pl.Piłsudskiego/Rynek" },
+      { id: "93", name: "ŁÓDŹ FABRYCZNA WPA" },
+      { id: "88", name: "ŁÓDŹ KALISKA Włókniarzy/Karolewska" },
+      { id: "53", name: "ŁONIÓW" }
+    ];
+
+    // Inicjalizacja posortowanych list A-Z
+    function initStationSelects() {
+      const sorted = [...STATIONS].sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+      const sFrom = document.getElementById('selFrom');
+      const sTo = document.getElementById('selTo');
+
+      sorted.forEach(st => {
+        sFrom.add(new Option(st.name, st.id));
+        sTo.add(new Option(st.name, st.id));
+      });
+    }
 
     function swapStations() {
       const f = document.getElementById('selFrom').value;
       const t = document.getElementById('selTo').value;
       document.getElementById('selFrom').value = t;
       document.getElementById('selTo').value = f;
+      onFormChange();
+    }
+
+    async function onFormChange() {
+      const f = document.getElementById('selFrom').value;
+      const t = document.getElementById('selTo').value;
+      const d = document.getElementById('selDate').value;
+      const container = document.getElementById('slotsContainer');
+      selectedHours.clear();
+
+      if (!f || !t || !d) {
+        container.innerHTML = `<span class="text-[11px] text-slate-400 text-center">Wybierz skąd, dokąd i datę, aby pobrać kursy...</span>`;
+        return;
+      }
+
+      if (f === t) {
+        container.innerHTML = `<span class="text-[11px] text-amber-500 text-center">Przystanek odjazdu i przyjazdu nie mogą być takie same!</span>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="flex items-center gap-2 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span> Odpytywanie rozkładu Neobus...</div>`;
+
+      try {
+        const targetUrl = `https://bilety.neobus.pl/paneldtp/rezerwacja_kurs.phtml?p_odjazd=${f}&p_przyjazd=${t}&data=${d}`;
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+        
+        const resp = await fetch(proxyUrl);
+        const data = await resp.json();
+        const html = data.contents;
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const rows = doc.querySelectorAll('tr');
+
+        const foundCourses = [];
+
+        rows.forEach(r => {
+          const txt = r.textContent;
+          const hMatch = txt.match(/(\d{2}:\d{2})/);
+          if (hMatch) {
+            const hour = hMatch[1];
+            const pMatch = txt.match(/(\d+[\.,]\d{2})\s*zł/);
+            const price = pMatch ? pMatch[1].replace(',', '.') + ' zł' : '';
+            const isSoldOut = txt.toLowerCase().includes('wyprzedan');
+            foundCourses.push({ hour, price, isSoldOut });
+          }
+        });
+
+        // Usuń duplikaty godzin
+        const uniqueCourses = [];
+        const seen = new Set();
+        foundCourses.forEach(c => {
+          if (!seen.has(c.hour)) {
+            seen.add(c.hour);
+            uniqueCourses.push(c);
+          }
+        });
+
+        if (!uniqueCourses.length) {
+          container.innerHTML = `<span class="text-[11px] text-slate-400 text-center">Brak kursów w tym dniu na wybranej trasie lub Neobus nie otworzył jeszcze sprzedaży.</span>`;
+          return;
+        }
+
+        container.innerHTML = '';
+        uniqueCourses.forEach(c => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `slot-pill px-3 py-1.5 rounded-lg border text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+            c.isSoldOut 
+              ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700' 
+              : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-red-500'
+          }`;
+          btn.innerHTML = `<span>${c.hour}</span> <span class="text-[10px] opacity-75 font-mono">${c.isSoldOut ? '(brak)' : c.price}</span>`;
+          btn.onclick = () => {
+            if (selectedHours.has(c.hour)) {
+              selectedHours.delete(c.hour);
+              btn.classList.remove('active');
+            } else {
+              selectedHours.add(c.hour);
+              btn.classList.add('active');
+            }
+          };
+          container.appendChild(btn);
+        });
+
+      } catch (err) {
+        container.innerHTML = `<span class="text-[11px] text-rose-500 text-center">Błąd komunikacji z Neobusem. Spróbuj ponownie za chwilę.</span>`;
+      }
     }
 
     function configureToken() {
@@ -224,7 +295,7 @@
         watchlistData = JSON.parse(decodeURIComponent(escape(atob(jsonRes.content))));
         renderTargets();
       } catch (e) {
-        listEl.innerHTML = `<div class="text-xs text-amber-500 py-4 text-center">Nie udało się pobrać pliku z GitHub API. Sprawdź token lub uprawnienia.</div>`;
+        listEl.innerHTML = `<div class="text-xs text-amber-500 py-4 text-center">Nie udało się pobrać pliku z GitHub API. Skonfiguruj token lub upewnij się, że plik watchlist.json istnieje.</div>`;
       }
     }
 
@@ -248,7 +319,7 @@
               Ostatnia cena: ${t.current_price ? t.current_price.toFixed(2) + ' zł' : 'Oczekuje na skan'}
             </div>
           </div>
-          <button onclick="removeTarget(${idx})" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900">Usuń</button>
+          <button onclick="removeTarget(${idx})" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 cursor-pointer">Usuń</button>
         </div>
       `).join('');
     }
@@ -290,17 +361,16 @@
       const fSel = document.getElementById('selFrom');
       const tSel = document.getElementById('selTo');
       const dateVal = document.getElementById('selDate').value;
-      const hoursVal = document.getElementById('selHours').value;
       const thresholdVal = parseInt(document.getElementById('selThreshold').value, 10);
 
+      if (!fSel.value || !tSel.value) { alert("Wybierz przystanek odjazdu i przyjazdu!"); return; }
       if (!dateVal) { alert("Wybierz datę!"); return; }
+      if (!selectedHours.size) { alert("Kliknij i zaznacz przynajmniej jedną godzinę z kafelków!"); return; }
+
       const [yr, mo, da] = dateVal.split('-');
       const dPl = `${da}.${mo}.${yr}`;
 
-      const hours = hoursVal.split(',').map(h => h.trim()).filter(Boolean);
-      if (!hours.length) { alert("Podaj przynajmniej jedną godzinę!"); return; }
-
-      hours.forEach(h => {
+      selectedHours.forEach(h => {
         watchlistData.targets.push({
           id: `${fSel.value}-${tSel.value}-${dateVal}-${h.replace(':', '')}`,
           from_id: fSel.value,
@@ -318,7 +388,11 @@
       });
 
       const ok = await saveWatchlist(`Watchlist: Dodano ${fSel.options[fSel.selectedIndex].text} -> ${tSel.options[tSel.selectedIndex].text} (${dPl})`);
-      if (ok) alert("Pomyślnie dodano do obserwowanych!");
+      if (ok) {
+        alert("Pomyślnie dodano do obserwowanych!");
+        selectedHours.clear();
+        onFormChange();
+      }
     }
 
     async function removeTarget(idx) {
@@ -327,8 +401,7 @@
       await saveWatchlist("Watchlist: Usunięto zadanie monitorowania");
     }
 
-    // Ustaw dzisiejszą datę domyślnie
-    document.getElementById('selDate').value = new Date().toISOString().split('T')[0];
+    initStationSelects();
     loadWatchlist();
   </script>
 </body>
