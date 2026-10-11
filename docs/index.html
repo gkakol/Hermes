@@ -24,7 +24,7 @@
 </head>
 <body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-7xl mx-auto min-h-screen">
 
-  <!-- Header: Spójna skala typograficzna z Watchlistą -->
+  <!-- Header -->
   <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 border border-red-900/20">
     
     <!-- Lewa strona: Logo i Tytuł -->
@@ -33,7 +33,7 @@
         <span class="text-xl lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
       </div>
       <div class="min-w-0">
-        <h1 class="text-base sm:text-lg md:text-xl font-black tracking-tight leading-tight">
+        <h1 class="text-base sm:text-lg lg:text-xl font-black tracking-tight leading-tight">
           SENTINEL // RADAR CEN & OBŁOŻENIA
         </h1>
         <p class="text-red-100 text-xs md:text-sm font-medium mt-0.5 leading-snug">
@@ -137,4 +137,399 @@
   <!-- Tabela z horyzontalnym scrollem na telefonie -->
   <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-[#111827]">
     <table class="w-full min-w-[760px] text-left border-collapse text-xs md:text-sm">
-      <thead class="bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200
+      <thead class="bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wider">
+        <tr>
+          <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('date')">Termin ⇕</th>
+          <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('hour')">Godzina ⇕</th>
+          <th class="p-3.5 md:p-4 font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:text-red-500 select-none" onclick="sortTable('route')">Relacja ⇕</th>
+          <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('price')">Widełki Cenowe (MIN ⇄ MAX) ⇕</th>
+          <th class="p-3.5 md:p-4 font-bold">Dostępność Foteli</th>
+          <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('status')">Stan Kursu ⇕</th>
+        </tr>
+      </thead>
+      <tbody id="table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+        <tr>
+          <td colspan="6" class="p-8 text-center text-slate-400">Wczytywanie bazy kursów...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Nawigacja Stron -->
+  <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-4 text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium">
+    <div id="pageInfo">Wyświetlanie 0 z 0 kursów</div>
+    <div class="flex items-center gap-1.5" id="paginationControls">
+      <!-- Generowane przez JS -->
+    </div>
+  </div>
+
+  <script>
+    let allRecords = [];
+    let filteredRecords = [];
+    let currentFilter = 'all';
+    let onlySoldOut = false;
+    let searchQuery = '';
+    let currentPage = 1;
+    let pageSize = 50;
+    let sortColumn = 'date';
+    let sortDirection = 'asc';
+
+    const DAYS_PL = ['Nd', 'Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'Sb'];
+
+    function resolveDayTag(dateStr, providedTag) {
+      if (providedTag) return providedTag;
+      if (!dateStr || typeof dateStr !== 'string') return '';
+      try {
+        const parts = dateStr.trim().split('.');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+          if (!isNaN(d.getTime())) {
+            return DAYS_PL[d.getDay()] || '';
+          }
+        }
+      } catch (e) {}
+      return '';
+    }
+
+    // Obsługa motywu
+    function initTheme() {
+      const saved = localStorage.getItem('sentinel_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        applyTheme('dark');
+      } else {
+        applyTheme('light');
+      }
+    }
+
+    function applyTheme(theme) {
+      const body = document.body;
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+
+      if (theme === 'dark') {
+        body.classList.add('dark');
+        html.classList.add('dark');
+        icon.innerText = '☀️';
+        label.innerText = 'Tryb jasny';
+        localStorage.setItem('sentinel_theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        html.classList.remove('dark');
+        icon.innerText = '🌙';
+        label.innerText = 'Tryb ciemny';
+        localStorage.setItem('sentinel_theme', 'light');
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    }
+
+    initTheme();
+
+    // Główna funkcja ładowania danych
+    async function loadData() {
+      try {
+        const resp = await fetch('./data.json?v=' + Date.now());
+        if (!resp.ok) throw new Error("Błąd pobierania data.json");
+        const json = await resp.json();
+
+        // 1. Data aktualizacji
+        const updatedTime = json.updated_at || json.meta?.last_scan || 'Dzisiaj';
+        const updatedElem = document.getElementById('last-updated');
+        if (updatedElem) updatedElem.innerText = updatedTime;
+
+        // 2. Pobranie listy rekordów
+        const rawList = Array.isArray(json.records) ? json.records : (Array.isArray(json) ? json : []);
+
+        // 3. Dzisiejsza data do porównań
+        const now = new Date();
+        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        // 4. Bezpieczne mapowanie rekordów
+        allRecords = rawList.map(r => {
+          const dateStr = String(r.date || r.course_date || '').trim();
+          let isPastCourse = false;
+
+          if (dateStr) {
+            const parts = dateStr.split('.');
+            if (parts.length === 3) {
+              const cDate = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10)).getTime();
+              if (!isNaN(cDate)) {
+                isPastCourse = cDate < todayZero;
+              }
+            }
+          }
+
+          let seats = null;
+          if (r.seats_left !== undefined && r.seats_left !== null) seats = Number(r.seats_left);
+          else if (r.seats !== undefined && r.seats !== null) seats = Number(r.seats);
+          else if (r.available_seats !== undefined && r.available_seats !== null) seats = Number(r.available_seats);
+          else if (r.free_seats !== undefined && r.free_seats !== null) seats = Number(r.free_seats);
+
+          const statusUpper = String(r.status || '').toUpperCase();
+          const isSoldOut = (seats === 0) || 
+                            (r.is_sold_out === true) || 
+                            (r.sold_out === true) || 
+                            statusUpper.includes('WYPRZED') || 
+                            statusUpper.includes('BRAK');
+
+          if (seats === null) {
+            seats = isSoldOut ? 0 : 50;
+          }
+
+          const isArchived = (r.is_archived === true) || (r.is_past === true) || (r.archived === true) || statusUpper.includes('ODBYT') || isPastCourse;
+          const dayTag = resolveDayTag(dateStr, r.day_tag || r.day);
+
+          return {
+            date: dateStr,
+            hour: String(r.hour || r.departure_time || r.time || '').trim(),
+            route: String(r.route || (r.from ? `${r.from} ➔ ${r.to}` : '')).trim(),
+            price_min: Number(r.price_min ?? r.price ?? r.current_price ?? 0),
+            price_max: Number(r.price_max ?? r.price ?? r.current_price ?? 0),
+            seats_left: seats,
+            is_sold_out: isSoldOut,
+            status: isSoldOut ? 'WYPRZEDANE' : (isArchived ? 'Odbyte' : 'W sprzedaży'),
+            is_archived: isArchived,
+            day_tag: dayTag
+          };
+        });
+
+        // 5. Statystyki
+        if (json.total_courses !== undefined) {
+          document.getElementById('stat-total').innerText = json.total_courses;
+          document.getElementById('stat-total-sub').innerText = `${json.future_courses} aktywnych + ${json.past_courses} archiwum`;
+          document.getElementById('stat-active').innerText = json.future_courses;
+          document.getElementById('stat-archived').innerText = json.past_courses;
+          document.getElementById('stat-soldout').innerText = json.sold_out_cnt;
+        } else {
+          updateKPIs();
+        }
+
+        applyAllFilters();
+      } catch (err) {
+        console.error("Błąd loadData:", err);
+        document.getElementById('table-body').innerHTML = `
+          <tr><td colspan="6" class="p-8 text-center text-rose-500 font-semibold">Nie udało się załadować danych kursów.</td></tr>
+        `;
+      }
+    }
+
+    function updateKPIs() {
+      const total = allRecords.length;
+      const active = allRecords.filter(r => !r.is_archived).length;
+      const archived = allRecords.filter(r => r.is_archived).length;
+      const soldout = allRecords.filter(r => r.is_sold_out).length;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-total-sub').innerText = `${active} aktywnych + ${archived} archiwum`;
+      document.getElementById('stat-active').innerText = active;
+      document.getElementById('stat-archived').innerText = archived;
+      document.getElementById('stat-soldout').innerText = soldout;
+    }
+
+    function setFilter(type) {
+      currentFilter = type;
+      ['all', 'active', 'archived'].forEach(k => {
+        const el = document.getElementById(`flt-${k}`);
+        if (el) el.classList.toggle('active', k === type);
+      });
+      currentPage = 1;
+      applyAllFilters();
+    }
+
+    function toggleSoldOutOnly() {
+      onlySoldOut = !onlySoldOut;
+      const btn = document.getElementById('flt-soldout');
+      if (btn) {
+        btn.classList.toggle('bg-purple-600', onlySoldOut);
+        btn.classList.toggle('text-white', onlySoldOut);
+      }
+      currentPage = 1;
+      applyAllFilters();
+    }
+
+    function onSearchChange() {
+      searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+      currentPage = 1;
+      applyAllFilters();
+    }
+
+    function onPageSizeChange() {
+      const val = document.getElementById('pageSize').value;
+      pageSize = val === 'all' ? 999999 : parseInt(val, 10);
+      currentPage = 1;
+      renderTable();
+    }
+
+    function applyAllFilters() {
+      filteredRecords = allRecords.filter(r => {
+        if (currentFilter === 'active' && r.is_archived) return false;
+        if (currentFilter === 'archived' && !r.is_archived) return false;
+        if (onlySoldOut && !r.is_sold_out) return false;
+
+        if (searchQuery) {
+          const matchStr = `${r.date} ${r.day_tag} ${r.hour} ${r.route} ${r.price_min} ${r.price_max}`.toLowerCase();
+          if (!matchStr.includes(searchQuery)) return false;
+        }
+        return true;
+      });
+
+      sortRecords();
+      renderTable();
+    }
+
+    function sortTable(col) {
+      if (sortColumn === col) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = col;
+        sortDirection = 'asc';
+      }
+      sortRecords();
+      renderTable();
+    }
+
+    function sortRecords() {
+      filteredRecords.sort((a, b) => {
+        let valA, valB;
+
+        if (sortColumn === 'date') {
+          const [d1, m1, y1] = a.date.split('.');
+          const [d2, m2, y2] = b.date.split('.');
+          valA = `${y1 || '0'}-${m1 || '0'}-${d1 || '0'}T${a.hour || '00:00'}:00`;
+          valB = `${y2 || '0'}-${m2 || '0'}-${d2 || '0'}T${b.hour || '00:00'}:00`;
+        } else if (sortColumn === 'hour') {
+          valA = a.hour;
+          valB = b.hour;
+        } else if (sortColumn === 'route') {
+          valA = a.route;
+          valB = b.route;
+        } else if (sortColumn === 'price') {
+          valA = a.price_min || 0;
+          valB = b.price_min || 0;
+        } else if (sortColumn === 'status') {
+          valA = a.status || '';
+          valB = b.status || '';
+        }
+
+        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('table-body');
+      const total = filteredRecords.length;
+
+      if (!total) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Brak kursów spełniających podane kryteria.</td></tr>`;
+        document.getElementById('pageInfo').innerText = "Wyświetlanie 0 z 0 kursów";
+        document.getElementById('paginationControls').innerHTML = '';
+        return;
+      }
+
+      const totalPages = Math.ceil(total / pageSize);
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const end = Math.min(start + pageSize, total);
+      const visible = filteredRecords.slice(start, end);
+
+      tbody.innerHTML = visible.map(r => {
+        const isSoldOut = r.is_sold_out;
+        const priceText = r.price_min === r.price_max
+          ? `${r.price_min.toFixed(2)} zł`
+          : `${r.price_min.toFixed(2)} zł ➔ ${r.price_max.toFixed(2)} zł`;
+
+        const seatsLeft = r.seats_left ?? 0;
+        const totalSeats = 70;
+        const pct = Math.max(0, Math.min(100, Math.round((seatsLeft / totalSeats) * 100)));
+
+        const isWeekend = r.day_tag === 'Sb' || r.day_tag === 'Nd';
+        const dayBadge = r.day_tag ? `
+          <div class="mt-1">
+            <span class="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${
+              isWeekend 
+                ? 'bg-rose-500/15 text-rose-500 border border-rose-500/20' 
+                : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+            }">
+              ${r.day_tag}
+            </span>
+          </div>
+        ` : '';
+
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+            <td class="p-3.5 md:p-4 font-bold align-top">
+              <span>${r.date}</span>
+              ${dayBadge}
+            </td>
+            <td class="p-3.5 md:p-4 font-mono font-bold align-top">${r.hour}</td>
+            <td class="p-3.5 md:p-4 font-semibold text-slate-700 dark:text-slate-300 align-top">${r.route}</td>
+            <td class="p-3.5 md:p-4 font-bold ${isSoldOut ? 'text-slate-400' : 'text-emerald-600 dark:text-emerald-400'} align-top">${priceText}</td>
+            <td class="p-3.5 md:p-4 align-top">
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden shrink-0">
+                  <div class="bg-emerald-500 h-full rounded-full" style="width: ${pct}%"></div>
+                </div>
+                <span class="text-xs md:text-sm font-semibold ${isSoldOut ? 'text-rose-500 font-bold' : 'text-slate-600 dark:text-slate-300'}">
+                  ${isSoldOut ? 'Brak' : `${seatsLeft} os.`}
+                </span>
+              </div>
+            </td>
+            <td class="p-3.5 md:p-4 align-top">
+              ${isSoldOut 
+                ? '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">Wyprzedane</span>'
+                : (r.is_archived 
+                    ? '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">Odbyte</span>'
+                    : '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900">W sprzedaży</span>'
+                  )
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('pageInfo').innerText = `Wyświetlanie ${start + 1}-${end} z ${total} kursów`;
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      const container = document.getElementById('paginationControls');
+      if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+      let html = `
+        <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 disabled:opacity-30 font-bold">‹</button>
+      `;
+
+      for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `
+          <button onclick="goToPage(${i})" class="px-3 py-1.5 rounded-xl border text-xs md:text-sm font-bold ${currentPage === i ? 'bg-[#c01427] text-white border-red-800' : 'border-slate-300 dark:border-slate-700'}">${i}</button>
+        `;
+      }
+
+      if (totalPages > 5) {
+        html += `<span class="px-1 text-slate-400">...</span>`;
+        html += `<button onclick="goToPage(${totalPages})" class="px-3 py-1.5 rounded-xl border text-xs md:text-sm font-bold ${currentPage === totalPages ? 'bg-[#c01427] text-white border-red-800' : 'border-slate-300 dark:border-slate-700'}">${totalPages}</button>`;
+      }
+
+      html += `
+        <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 disabled:opacity-30 font-bold">›</button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function goToPage(p) {
+      currentPage = p;
+      renderTable();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
