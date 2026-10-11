@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-11 16:50:48",
+  "updated_at": "2026-10-11 21:02:11",
   "total_courses": 1231,
   "past_courses": 320,
   "future_courses": 911,
@@ -3093,7 +3093,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 48,
       "is_past": false,
       "sold_out": false
     },
@@ -3933,7 +3933,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 49,
+      "seats": 48,
       "is_past": false,
       "sold_out": false
     },
@@ -4233,7 +4233,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 49,
       "is_past": false,
       "sold_out": false
     },
@@ -4629,7 +4629,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 49,
+      "seats": 48,
       "is_past": false,
       "sold_out": false
     },
@@ -4869,7 +4869,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 48,
       "is_past": false,
       "sold_out": false
     },
@@ -7557,7 +7557,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 47,
+      "seats": 49,
       "is_past": false,
       "sold_out": false
     },
@@ -8097,7 +8097,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 49,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -8709,7 +8709,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 44,
+      "seats": 42,
       "is_past": false,
       "sold_out": false
     },
@@ -9297,7 +9297,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -9393,7 +9393,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 41,
+      "seats": 40,
       "is_past": false,
       "sold_out": false
     },
@@ -9573,7 +9573,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 44,
+      "seats": 43,
       "is_past": false,
       "sold_out": false
     },
@@ -9873,7 +9873,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 45,
+      "seats": 44,
       "is_past": false,
       "sold_out": false
     },
@@ -9957,7 +9957,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 34,
+      "seats": 33,
       "is_past": false,
       "sold_out": false
     },
@@ -10173,7 +10173,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 27,
+      "seats": 26,
       "is_past": false,
       "sold_out": false
     },
@@ -10221,7 +10221,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 25,
+      "seats": 23,
       "is_past": false,
       "sold_out": false
     },
@@ -10341,7 +10341,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -10365,7 +10365,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 29,
+      "seats": 28,
       "is_past": false,
       "sold_out": false
     },
@@ -10377,7 +10377,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 38,
+      "seats": 37,
       "is_past": false,
       "sold_out": false
     },
@@ -10401,7 +10401,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 36,
+      "seats": 35,
       "is_past": false,
       "sold_out": false
     },
@@ -10473,7 +10473,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 64,
+      "seats": 66,
       "is_past": false,
       "sold_out": false
     },
@@ -10509,7 +10509,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 69,
+      "seats": 70,
       "is_past": false,
       "sold_out": false
     },
@@ -10569,7 +10569,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 64,
+      "seats": 66,
       "is_past": false,
       "sold_out": false
     },
@@ -10593,7 +10593,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 57,
+      "seats": 56,
       "is_past": false,
       "sold_out": false
     },
@@ -10605,7 +10605,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 61,
+      "seats": 63,
       "is_past": false,
       "sold_out": false
     },
@@ -10617,7 +10617,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 57,
+      "seats": 56,
       "is_past": false,
       "sold_out": false
     },
@@ -10641,7 +10641,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -10725,7 +10725,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 60,
+      "seats": 59,
       "is_past": false,
       "sold_out": false
     },
@@ -10797,7 +10797,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 67,
+      "seats": 65,
       "is_past": false,
       "sold_out": false
     },
@@ -10809,7 +10809,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 55,
+      "seats": 53,
       "is_past": false,
       "sold_out": false
     },
@@ -10845,7 +10845,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 44,
+      "seats": 37,
       "is_past": false,
       "sold_out": false
     },
@@ -10857,7 +10857,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 16,
+      "seats": 9,
       "is_past": false,
       "sold_out": false
     },
