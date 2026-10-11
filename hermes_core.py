@@ -453,10 +453,11 @@ def build_readme(all_courses: list, deltas: list, now_ts: str, horizon_str: str,
     md = [
         "# 🚌 Sentinel N3: Sanok ⇄ Wrocław\n\n",
         f"> 🕒 **Ostatnia aktualizacja:** `{now_ts}` | 📡 **Aktywny horyzont sprzedaży:** **`{horizon_str}`** ({active_days} dni)\n\n",
+        # TUTAJ DODAĆ TĘ LINIJKĘ:
+        "> 🌐 **Live Analytics & Archive:** [Otwórz Interaktywne Archiwum](https://gkakol.github.io/Hermes-Protocol/)\n\n",
         "## 🚨 1. Dziennik Zmian (Względem poprzedniego pomiaru)\n\n",
         "> Poniżej prezentowane są różnice względem poprzedniego sprawdzenia (ubytek foteli lub obniżka ceny).\n\n"
     ]
-
     if deltas:
         md.append("| Data sprawdzenia | Trasa | Kurs | Zmiana ceny | Zmiana miejsc |\n")
         md.append("| :--- | :--- | :--- | :---: | :---: |\n")
