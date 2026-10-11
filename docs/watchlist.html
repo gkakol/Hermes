@@ -9,7 +9,11 @@
     tailwind.config = { darkMode: 'class' }
   </script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      -webkit-font-smoothing: antialiased;
+    }
     .neobus-header { background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%); }
     .slot-pill.active {
       background-color: #c01427 !important;
@@ -18,22 +22,26 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen">
+<body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen select-none">
 
   <!-- Header -->
-  <header class="neobus-header rounded-2xl p-5 mb-6 text-white shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div class="flex items-center gap-3">
-      <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md select-none">
-        <span class="text-xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
+  <header class="neobus-header rounded-2xl p-5 mb-6 text-white shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-red-900/20">
+    <div class="flex items-center gap-3.5">
+      <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md select-none shrink-0">
+        <span class="text-xl md:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
       </div>
       <div>
-        <h1 class="text-xl font-black tracking-tight">SENTINEL // CENTRUM OBSERWACJI</h1>
-        <p class="text-red-100 text-xs">Automatyczny snajper cenowy & alerty Discord (N1, N2, N3, N4)</p>
+        <h1 class="text-lg md:text-2xl font-black tracking-tight">SENTINEL // CENTRUM OBSERWACJI</h1>
+        <p class="text-red-100 text-xs md:text-sm font-medium mt-0.5">Automatyczny snajper cenowy & alerty Discord (N1, N2, N3, N4)</p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <button onclick="configureToken()" class="px-3 py-1.5 rounded-lg bg-black/30 hover:bg-black/50 border border-white/20 text-xs font-semibold cursor-pointer">🔑 Konfiguruj Token GitHub</button>
-      <a href="./index.html" class="px-3 py-1.5 rounded-lg bg-white text-[#c01427] text-xs font-bold shadow hover:bg-slate-100">← Wróć do Radaru</a>
+    <div class="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+      <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs md:text-sm font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-sm shrink-0">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label">Tryb ciemny</span>
+      </button>
+      <button onclick="configureToken()" class="px-3.5 py-2 rounded-xl bg-black/30 hover:bg-black/50 border border-white/20 text-xs md:text-sm font-semibold cursor-pointer shrink-0">🔑 Konfiguruj Token GitHub</button>
+      <a href="./index.html" class="px-3.5 py-2 rounded-xl bg-white text-[#c01427] text-xs md:text-sm font-bold shadow hover:bg-slate-100 shrink-0">← Wróć do Radaru</a>
     </div>
   </header>
 
@@ -41,53 +49,53 @@
 
     <!-- Lewa Kolumna: Konfigurator połączenia -->
     <div class="lg:col-span-1 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">1. Skonfiguruj cel</h2>
+      <h2 class="text-sm md:text-base font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">1. Skonfiguruj cel</h2>
       
       <div>
-        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Skąd (Odjazd)</label>
-        <select id="selFrom" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Skąd (Odjazd)</label>
+        <select id="selFrom" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
           <option value="">-- Wybierz przystanek początkowy --</option>
         </select>
       </div>
 
       <div class="flex justify-center">
-        <button onclick="swapStations()" class="p-2 rounded-full border border-slate-300 dark:border-slate-700 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition font-bold cursor-pointer">⇄ Odwróć kierunek</button>
+        <button onclick="swapStations()" class="px-3.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-xs md:text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition font-bold cursor-pointer">⇄ Odwróć kierunek</button>
       </div>
 
       <div>
-        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Dokąd (Przyjazd)</label>
-        <select id="selTo" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Dokąd (Przyjazd)</label>
+        <select id="selTo" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
           <option value="">-- Wybierz przystanek docelowy --</option>
         </select>
       </div>
 
       <div>
-        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Data kursu</label>
-        <input type="date" id="selDate" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Data kursu</label>
+        <input type="date" id="selDate" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
       <!-- Kafelki Godzin ze scalonych rozkładów -->
       <div>
-        <div class="flex justify-between items-center mb-1">
-          <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Godziny odjazdu (z rozkładu)</label>
-          <span class="text-[10px] text-slate-400">kliknij, aby wybrać</span>
+        <div class="flex justify-between items-center mb-1.5">
+          <label class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">Godziny odjazdu (z rozkładu)</label>
+          <span class="text-[11px] text-slate-400">kliknij, aby wybrać</span>
         </div>
-        <div id="slotsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-1.5 items-center justify-start min-h-[50px]">
-          <span class="text-[11px] text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>
+        <div id="slotsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-2 items-center justify-start min-h-[55px]">
+          <span class="text-xs text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>
         </div>
         
-        <div class="mt-2 flex items-center gap-2">
-          <input type="text" id="customHour" placeholder="Inna godzina (np. 14:15)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-xs font-mono">
-          <button onclick="addCustomHour()" class="px-3 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-xs font-bold rounded-lg shrink-0">Dodaj</button>
+        <div class="mt-2.5 flex items-center gap-2">
+          <input type="text" id="customHour" placeholder="Inna godzina (np. 14:15)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs md:text-sm font-mono">
+          <button onclick="addCustomHour()" class="px-3.5 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-xs md:text-sm font-bold rounded-xl shrink-0 cursor-pointer">Dodaj</button>
         </div>
       </div>
 
       <div>
-        <label class="block text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">Próg alertu miejsc (fotele &le;)</label>
-        <input type="number" id="selThreshold" value="5" min="1" max="30" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Próg alertu miejsc (fotele &le;)</label>
+        <input type="number" id="selThreshold" value="5" min="1" max="30" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
-      <button onclick="addTarget()" id="btnAddTarget" class="w-full py-3 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-xs flex items-center justify-center gap-2 cursor-pointer">
+      <button onclick="addTarget()" id="btnAddTarget" class="w-full py-3.5 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-sm flex items-center justify-center gap-2 cursor-pointer">
         <span>🎯 Dodaj do obserwowanych</span>
       </button>
     </div>
@@ -95,16 +103,16 @@
     <!-- Prawa Kolumna: Lista Obserwowanych -->
     <div class="lg:col-span-2 space-y-6">
       <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-        <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Aktywnie obserwowane kursy</h2>
-            <p class="text-xs text-slate-400">Bot sprawdza ceny i wyśle alert na Discord w razie spadku lub braku foteli.</p>
+            <h2 class="text-sm md:text-base font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Aktywnie obserwowane kursy</h2>
+            <p class="text-xs md:text-sm text-slate-400 mt-0.5">Posortowane chronologicznie od najbliższego terminu. Wyślą alert na Discord w razie spadku ceny lub braku foteli.</p>
           </div>
-          <span id="targetCount" class="text-xs font-bold px-2.5 py-1 rounded-md bg-red-100 dark:bg-red-950 text-[#c01427] dark:text-red-400">0 zadań</span>
+          <span id="targetCount" class="text-xs md:text-sm font-bold px-3 py-1 rounded-lg bg-red-100 dark:bg-red-950 text-[#c01427] dark:text-red-400 shrink-0">0 zadań</span>
         </div>
 
-        <div id="targetsList" class="space-y-2.5">
-          <div class="text-xs text-slate-400 py-6 text-center">Wczytywanie listy z repozytorium...</div>
+        <div id="targetsList" class="space-y-3">
+          <div class="text-sm text-slate-400 py-6 text-center">Wczytywanie listy z repozytorium...</div>
         </div>
       </div>
     </div>
@@ -118,7 +126,44 @@
     let watchlistData = { targets: [], archived_targets: [] };
     let selectedHours = new Set();
 
-    // SŁOWNIK PRZYSTANKÓW NEOBUSA
+    // Obsługa motywu
+    function initTheme() {
+      const savedTheme = localStorage.getItem('sentinel_theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        applyTheme('dark');
+      } else {
+        applyTheme('light');
+      }
+    }
+
+    function applyTheme(theme) {
+      const body = document.body;
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+
+      if (theme === 'dark') {
+        body.classList.add('dark');
+        html.classList.add('dark');
+        icon.innerText = '☀️';
+        label.innerText = 'Tryb jasny';
+        localStorage.setItem('sentinel_theme', 'dark');
+      } else {
+        body.classList.remove('dark');
+        html.classList.remove('dark');
+        icon.innerText = '🌙';
+        label.innerText = 'Tryb ciemny';
+        localStorage.setItem('sentinel_theme', 'light');
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    }
+
+    initTheme();
+
     const STATIONS = [
       { id: "49", name: "BABICA Kolonia" },
       { id: "46", name: "BLIZNE" },
@@ -175,11 +220,7 @@
       { id: "53", name: "ŁONIÓW" }
     ];
 
-    // ==========================================
-    // ROZKŁADY JAZDY NEOBUSA (N1/N2, N3, N4)
-    // ==========================================
-
-    // --- LINIA N3: WROCŁAW ---
+    // Matryca linii N3
     const N3_TO_WRO = {
       order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "71", "72", "73", "123", "77"],
       days: ['all', 'all', 'all', 'all', 0],
@@ -232,7 +273,7 @@
       }
     };
 
-    // --- LINIA N1 / N2: WARSZAWA ---
+    // Matryca linii N1 / N2
     const N1_TO_WAW = {
       order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "23", "25", "79", "53", "35", "78", "124", "54", "55", "28", "75"],
       days: ['all', 'all', 'all', 'all', 'all', 'all'],
@@ -297,7 +338,7 @@
       }
     };
 
-    // --- LINIA N4: ŁÓDŹ ---
+    // Matryca linii N4
     const N4_TO_LODZ = {
       order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "23", "81", "82", "83", "84", "85", "115", "92", "93", "88"],
       days: ['all'],
@@ -332,6 +373,9 @@
       { name: "N4 Łódź", to: N4_TO_LODZ, from: N4_FROM_LODZ }
     ];
 
+    const WAW_STATIONS = ["75", "28"];
+    const LODZ_STATIONS = ["93", "88"];
+
     function initStationSelects() {
       const sorted = [...STATIONS].sort((a, b) => a.name.localeCompare(b.name, 'pl'));
       const sFrom = document.getElementById('selFrom');
@@ -351,7 +395,6 @@
       updateSchedule();
     }
 
-    // Dynamiczne wyszukiwanie godzin w rozkładach
     function updateSchedule() {
       const f = document.getElementById('selFrom').value;
       const t = document.getElementById('selTo').value;
@@ -360,7 +403,7 @@
       selectedHours.clear();
 
       if (!f || !t) {
-        container.innerHTML = `<span class="text-[11px] text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>`;
+        container.innerHTML = `<span class="text-xs text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>`;
         return;
       }
 
@@ -368,15 +411,17 @@
       if (dateVal) {
         const parts = dateVal.split('-');
         const dObj = new Date(parts[0], parts[1] - 1, parts[2]);
-        dayOfWeek = dObj.getDay(); // 0 = Nd, 1 = Pn, ..., 6 = Sb
+        dayOfWeek = dObj.getDay();
       }
+
+      const normF = WAW_STATIONS.includes(f) ? "75" : (LODZ_STATIONS.includes(f) ? "93" : f);
+      const normT = WAW_STATIONS.includes(t) ? "75" : (LODZ_STATIONS.includes(t) ? "93" : t);
 
       let matchedSlots = [];
 
       ALL_ROUTES.forEach(route => {
-        // Sprawdzamy kierunek 'tam' (to)
-        let idxF = route.to.order.indexOf(f);
-        let idxT = route.to.order.indexOf(t);
+        let idxF = route.to.order.indexOf(normF);
+        let idxT = route.to.order.indexOf(normT);
         if (idxF !== -1 && idxT !== -1 && idxF < idxT && route.to.stations[f]) {
           const rawHours = route.to.stations[f];
           rawHours.forEach((hour, i) => {
@@ -392,9 +437,8 @@
           });
         }
 
-        // Sprawdzamy kierunek 'powrót' (from)
-        let idxF_from = route.from.order.indexOf(f);
-        let idxT_from = route.from.order.indexOf(t);
+        let idxF_from = route.from.order.indexOf(normF);
+        let idxT_from = route.from.order.indexOf(normT);
         if (idxF_from !== -1 && idxT_from !== -1 && idxF_from < idxT_from && route.from.stations[f]) {
           const rawHours = route.from.stations[f];
           rawHours.forEach((hour, i) => {
@@ -411,7 +455,6 @@
         }
       });
 
-      // Usuwamy duplikaty godzin i sortujemy chronologicznie
       const uniqueSlots = [];
       const seen = new Set();
       matchedSlots.sort((a, b) => a.hour.localeCompare(b.hour));
@@ -424,7 +467,7 @@
       });
 
       if (!uniqueSlots.length) {
-        container.innerHTML = `<span class="text-[11px] text-amber-500 text-center w-full">Brak bezpośrednich kursów w rozkładzie dla tej relacji. Możesz dodać własną godzinę poniżej.</span>`;
+        container.innerHTML = `<span class="text-xs text-amber-500 text-center w-full">Brak bezpośrednich kursów w rozkładzie. Możesz wpisać własną godzinę poniżej.</span>`;
         return;
       }
 
@@ -432,8 +475,8 @@
       uniqueSlots.forEach(slot => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = `slot-pill px-3 py-1.5 rounded-lg border text-xs font-mono font-bold transition cursor-pointer bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-red-500`;
-        btn.innerHTML = `${slot.hour} <span class="text-[10px] text-red-500 font-sans">${slot.tag}</span>`;
+        btn.className = `slot-pill px-3.5 py-2 rounded-xl border text-xs md:text-sm font-mono font-bold transition cursor-pointer bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-red-500`;
+        btn.innerHTML = `${slot.hour} <span class="text-[11px] text-red-500 font-sans">${slot.tag}</span>`;
         btn.onclick = () => {
           if (selectedHours.has(slot.hour)) {
             selectedHours.delete(slot.hour);
@@ -459,7 +502,7 @@
       const container = document.getElementById('slotsContainer');
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `slot-pill active px-3 py-1.5 rounded-lg border text-xs font-mono font-bold bg-[#c01427] text-white border-red-800`;
+      btn.className = `slot-pill active px-3.5 py-2 rounded-xl border text-xs md:text-sm font-mono font-bold bg-[#c01427] text-white border-red-800`;
       btn.innerText = val;
       container.appendChild(btn);
       input.value = '';
@@ -487,8 +530,19 @@
         watchlistData = JSON.parse(decodeURIComponent(escape(atob(jsonRes.content))));
         renderTargets();
       } catch (e) {
-        listEl.innerHTML = `<div class="text-xs text-amber-500 py-4 text-center">Brak pliku watchlist.json lub brak autoryzacji tokenem.</div>`;
+        listEl.innerHTML = `<div class="text-sm text-amber-500 py-4 text-center">Brak pliku watchlist.json lub brak autoryzacji tokenem.</div>`;
       }
+    }
+
+    // Sortowanie chronologiczne od najbliższego terminu do najdalszego
+    function sortTargetsChronologically(targets) {
+      return [...targets].sort((a, b) => {
+        const [d1, m1, y1] = a.date.split('.');
+        const [d2, m2, y2] = b.date.split('.');
+        const keyA = `${y1}-${m1}-${d1}T${a.hour}:00`;
+        const keyB = `${y2}-${m2}-${d2}T${b.hour}:00`;
+        return keyA.localeCompare(keyB);
+      });
     }
 
     function renderTargets() {
@@ -496,24 +550,31 @@
       document.getElementById('targetCount').innerText = `${watchlistData.targets.length} zadań`;
 
       if (!watchlistData.targets.length) {
-        listEl.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">Brak aktywnych obserwacji. Skonfiguruj kurs po lewej stronie.</div>`;
+        listEl.innerHTML = `<div class="text-sm text-slate-400 py-8 text-center">Brak aktywnych obserwacji. Skonfiguruj kurs po lewej stronie.</div>`;
         return;
       }
 
-      listEl.innerHTML = watchlistData.targets.map((t, idx) => `
-        <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-          <div>
-            <div class="text-xs font-bold text-slate-800 dark:text-slate-200">${t.from_name} ➔ ${t.to_name}</div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              📅 <span class="font-bold text-slate-700 dark:text-slate-300">${t.date}</span> o <span class="font-mono font-bold">${t.hour}</span> • Alert miejsc: &le;${t.seat_threshold}
+      const sorted = sortTargetsChronologically(watchlistData.targets);
+
+      listEl.innerHTML = sorted.map((t) => {
+        // Wyszukanie oryginalnego indeksu do usunięcia
+        const originalIndex = watchlistData.targets.findIndex(item => item.id === t.id);
+        
+        return `
+          <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex justify-between items-center bg-slate-50/70 dark:bg-slate-900/60 shadow-sm transition">
+            <div>
+              <div class="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">${t.from_name} ➔ ${t.to_name}</div>
+              <div class="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                📅 <span class="font-bold text-slate-700 dark:text-slate-200">${t.date}</span> o <span class="font-mono font-bold text-slate-800 dark:text-white">${t.hour}</span> • Alert miejsc: &le;${t.seat_threshold}
+              </div>
+              <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+                Ostatnia cena: ${t.current_price ? t.current_price.toFixed(2) + ' zł' : 'Oczekuje na skan bota'}
+              </div>
             </div>
-            <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">
-              Ostatnia cena: ${t.current_price ? t.current_price.toFixed(2) + ' zł' : 'Oczekuje na skan bota'}
-            </div>
+            <button onclick="removeTarget(${originalIndex})" class="text-xs md:text-sm text-rose-500 hover:text-rose-700 font-bold px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 cursor-pointer transition">Usuń</button>
           </div>
-          <button onclick="removeTarget(${idx})" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-2 py-1 rounded bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 cursor-pointer">Usuń</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     async function saveWatchlist(commitMsg) {
@@ -522,6 +583,9 @@
         alert("Podaj najpierw GitHub Token.");
         return false;
       }
+
+      // Zapisujemy listę posortowaną chronologicznie w pliku JSON
+      watchlistData.targets = sortTargetsChronologically(watchlistData.targets);
 
       const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(watchlistData, null, 2))));
       const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/watchlist.json`, {
