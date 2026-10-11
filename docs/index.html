@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sentinel & Neobus Radar // N3 Sanok ⇄ Wrocław</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -13,17 +12,13 @@
     :root {
       --neobus-red: #c01427;
       --neobus-darkred: #940f1e;
-      --neobus-purple: #6b21a8;
-      --neobus-blue: #0284c7;
     }
     body { background-color: #f1f5f9; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
-    /* Neobus Banner Headers */
     .neobus-header-bg {
       background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%);
     }
 
-    /* DataTables Style Dopasowany do Neobus */
     .dataTables_wrapper { font-size: 0.88rem; }
     .dataTables_filter input {
       background: #ffffff; color: #1e293b; border: 2px solid #e2e8f0; border-radius: 9999px; padding: 6px 16px; outline: none; transition: all 0.2s;
@@ -43,13 +38,13 @@
 </head>
 <body class="p-3 md:p-6 max-w-7xl mx-auto">
 
-  <!-- Główny Nagłówek w stylu Neobus -->
+  <!-- Główny Nagłówek -->
   <header class="mb-6 rounded-2xl shadow-xl overflow-hidden border border-red-900/20">
     <div class="neobus-header-bg px-6 py-5 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center gap-4">
-        <!-- Logo Neobus Stylizowane -->
-        <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
-          <span class="text-2xl font-black tracking-tighter text-slate-900">NE<span class="text-[#c01427]">●</span>BUS</span>
+        <!-- Logo z normalną czcionką -->
+        <div class="bg-white px-4 py-1.5 rounded-xl shadow-md flex items-center">
+          <span class="text-2xl font-black tracking-tight text-slate-900">NE<span class="text-[#c01427]">O</span>BUS</span>
         </div>
         <div>
           <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
@@ -67,7 +62,7 @@
       </div>
     </div>
 
-    <!-- Pasek zakładek biletowych jak na neobus.pl -->
+    <!-- Pasek zakładek biletowych -->
     <div class="bg-slate-900 px-6 py-2.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300 border-t border-red-800">
       <span class="text-slate-400 mr-2">Widok:</span>
       <button onclick="setTabFilter('all')" id="tab-all" class="px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition">Wszystkie kursy</button>
@@ -83,12 +78,12 @@
     </div>
   </header>
 
-  <!-- Paski KPI (Białe karty z czerwonymi/fioletowymi akcentami) -->
+  <!-- Paski KPI -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
     <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
       <div class="text-[11px] font-bold text-slate-500 uppercase">Wszystkie monitorowane</div>
       <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-total">—</div>
-      <div class="text-[11px] text-slate-400 mt-0.5" id="kpi-sub-total">Brak danych</div>
+      <div class="text-[11px] text-slate-400 mt-0.5" id="kpi-sub-total">Pomiary w bazie</div>
     </div>
     <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm border-l-4 border-l-emerald-500">
       <div class="text-[11px] font-bold text-emerald-700 uppercase">Aktywne w sprzedaży</div>
@@ -112,7 +107,7 @@
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
       <div>
         <h2 class="text-base font-bold text-slate-800">Rozkład Jazdy, Ceny Min / Max oraz Obłożenie</h2>
-        <p class="text-xs text-slate-500">Dynamiczne porównanie aktualnej stawki względem historycznych minimów i maksimów danej relacji.</p>
+        <p class="text-xs text-slate-500">Dynamiczne porównanie aktualnej stawki względem historycznych minimów i maksimów.</p>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="setRouteFilter('Sanok ➔ Wrocław')" class="text-xs px-3 py-1 rounded-full border border-slate-300 font-semibold text-slate-600 hover:bg-slate-100">Sanok ➔ Wrocław</button>
@@ -143,7 +138,7 @@
     function setTabFilter(type) {
       ['tab-all', 'tab-future', 'tab-past', 'tab-sold-out'].forEach(id => {
         const el = document.getElementById(id);
-        el.className = el.className.replace('bg-[#c01427] text-white', 'bg-slate-800 text-slate-300');
+        if (el) el.className = el.className.replace('bg-[#c01427] text-white', 'bg-slate-800 text-slate-300');
       });
 
       if (type === 'all') {
@@ -169,24 +164,41 @@
     fetch('./data.json')
       .then(r => r.json())
       .then(d => {
-        rawRecords = d.records;
-        document.getElementById('last-updated').innerText = d.updated_at;
-        document.getElementById('kpi-total').innerText = d.total_courses;
-        document.getElementById('kpi-sub-total').innerText = `${d.future_courses} aktywnych + ${d.past_courses} archiwum`;
-        document.getElementById('kpi-future').innerText = d.future_courses;
-        document.getElementById('kpi-past').innerText = d.past_courses;
-        document.getElementById('kpi-sold-out').innerText = d.sold_out_cnt;
+        const todayStr = new Date().toISOString().split('T')[0];
 
-        const rows = d.records.map(r => {
+        // Normalizacja rekordów pod kątem starych i nowych struktur JSON
+        rawRecords = (d.records || []).map(r => {
           const parts = r.date.split('.');
           const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          const is_past = (r.is_past !== undefined) ? r.is_past : (isoDate < todayStr);
+          const min_p = (r.min_price !== undefined) ? r.min_price : r.price;
+          const max_p = (r.max_price !== undefined) ? r.max_price : r.price;
+          return {
+            ...r,
+            isoDate,
+            is_past,
+            min_price: min_p,
+            max_price: max_p
+          };
+        });
 
-          // Stylizacja wiersza w zależności od tego czy kurs się odbył
+        const totalCnt = rawRecords.length;
+        const pastCnt = d.past_courses !== undefined ? d.past_courses : rawRecords.filter(r => r.is_past).length;
+        const futureCnt = d.future_courses !== undefined ? d.future_courses : (totalCnt - pastCnt);
+        const soldOutCnt = d.sold_out_cnt !== undefined ? d.sold_out_cnt : (d.total_sold_out || rawRecords.filter(r => r.sold_out).length);
+
+        document.getElementById('last-updated').innerText = d.updated_at || 'Teraz';
+        document.getElementById('kpi-total').innerText = totalCnt;
+        document.getElementById('kpi-sub-total').innerText = `${futureCnt} aktywnych + ${pastCnt} archiwum`;
+        document.getElementById('kpi-future').innerText = futureCnt;
+        document.getElementById('kpi-past').innerText = pastCnt;
+        document.getElementById('kpi-sold-out').innerText = soldOutCnt;
+
+        const rows = rawRecords.map(r => {
           const dateBadge = r.is_past
-            ? `<span class="hidden">${isoDate}</span><span class="text-slate-400 font-medium">${r.date}</span> <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`
-            : `<span class="hidden">${isoDate}</span><span class="text-slate-900 font-bold">${r.date}</span> <span class="text-[10px] bg-red-100 text-[#c01427] px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`;
+            ? `<span class="hidden">${r.isoDate}</span><span class="text-slate-400 font-medium">${r.date}</span> <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`
+            : `<span class="hidden">${r.isoDate}</span><span class="text-slate-900 font-bold">${r.date}</span> <span class="text-[10px] bg-red-100 text-[#c01427] px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`;
 
-          // Widełki Min - Max
           const minMaxHtml = `
             <div class="text-xs font-mono">
               <span class="text-emerald-700 font-bold">${r.min_price.toFixed(2)} zł</span>
@@ -195,15 +207,13 @@
             </div>
           `;
 
-          // Cena aktualna
           let priceBadge = `<span class="font-mono font-bold text-slate-800 text-sm">${r.price.toFixed(2)} zł</span>`;
           if (r.price <= r.min_price && r.price < r.max_price) {
             priceBadge = `<span class="font-mono font-black text-[#c01427] text-sm bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">🔥 ${r.price.toFixed(2)} zł</span>`;
           }
 
-          // Pasek foteli
           let seatHtml = '';
-          if (r.seats === -1) {
+          if (r.seats === -1 || r.seats === null) {
             seatHtml = '<span class="text-slate-400 text-xs">Brak danych</span>';
           } else {
             const pct = Math.min(100, Math.round((r.seats / 70) * 100));
@@ -221,7 +231,6 @@
             `;
           }
 
-          // Stan kursu
           let statusBadge = '';
           if (r.is_past) {
             statusBadge = r.sold_out 
