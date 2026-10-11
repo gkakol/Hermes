@@ -144,25 +144,25 @@
         <div class="bg-red-950/40 border border-red-400/30 px-3.5 py-1.5 md:py-2 rounded-xl text-right shrink-0">
           <div class="text-[9px] md:text-[10px] text-red-200 uppercase font-semibold">Ostatni cykl radaru</div>
           <div class="text-[11px] md:text-xs font-mono font-bold text-white flex items-center gap-2 justify-end mt-0.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-sm animate-pulse"></span>
             <span id="last-updated">Synchronizacja...</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Pasek zakładek biletowych -->
+    <!-- Pasek zakładek biletowych z większymi kropkami -->
     <div class="bg-slate-900 px-4 py-2.5 md:px-6 md:py-2.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300 border-t border-red-800">
       <span class="text-slate-400 mr-2">Widok:</span>
       <button onclick="setTabFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition">Wszystkie kursy</button>
       <button onclick="setTabFilter('future')" id="tab-future" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> W sprzedaży (Przyszłe)
+        <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-sm shrink-0"></span> W sprzedaży (Przyszłe)
       </button>
       <button onclick="setTabFilter('past')" id="tab-past" class="px-3.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Odbyte (Historia / Archiwum)
+        <span class="w-3.5 h-3.5 rounded-full bg-slate-300 shadow-sm shrink-0"></span> Odbyte (Historia / Archiwum)
       </button>
       <button onclick="setTabFilter('sold_out')" id="tab-sold-out" class="px-3.5 py-1.5 rounded-lg bg-purple-900/60 text-purple-200 hover:bg-purple-800 transition ml-auto flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-rose-500"></span> Tylko Wyprzedane
+        <span class="w-3.5 h-3.5 rounded-full bg-rose-500 shadow-sm shrink-0"></span> Tylko Wyprzedane
       </button>
     </div>
   </header>
