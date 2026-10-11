@@ -25,39 +25,44 @@
 <body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen select-none">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-<!-- Header: Responsywny i stabilny na mobile/desktop -->
-  <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-6 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 border border-red-900/20">
+<!-- Header: Dopracowany na natywny ekran telefonu i desktop -->
+  <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 border border-red-900/20">
     
-    <!-- Lewa strona: Logo i Tytuł -->
-    <div class="flex items-center gap-3 min-w-0">
+    <!-- Góra / Lewa strona: Logo i Tytuł -->
+    <div class="flex items-center gap-3">
       <div class="bg-white px-3 py-1.5 rounded-xl shadow-md select-none shrink-0">
-        <span class="text-lg lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
+        <span class="text-xl lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
       </div>
       <div class="min-w-0">
-        <h1 class="text-sm sm:text-base lg:text-xl font-black tracking-tight leading-snug truncate">
+        <h1 class="text-sm sm:text-base lg:text-xl font-black tracking-tight leading-tight">
           SENTINEL // CENTRUM OBSERWACJI
         </h1>
-        <p class="text-red-100 text-[11px] sm:text-xs lg:text-sm font-medium mt-0.5 truncate">
-          Automatyczny snajper cenowy & alerty Discord (N1, N2, N3, N4)
+        <p class="text-red-100 text-[11px] sm:text-xs lg:text-sm font-medium mt-0.5 leading-snug">
+          Snajper cenowy & alerty Discord (N1, N2, N3, N4)
         </p>
       </div>
     </div>
 
-    <!-- Prawa strona: Przyciski z pełnymi nazwami -->
-    <div class="flex flex-col sm:flex-row lg:flex-row items-stretch sm:items-center justify-end gap-2 shrink-0 pt-2.5 lg:pt-0 border-t border-red-800/60 lg:border-t-0">
-      <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm text-center">
+    <!-- Dół na mobile / Prawa strona na PC: Przyciski akcji -->
+    <div class="flex items-center gap-2 pt-2 lg:pt-0 border-t border-red-800/50 lg:border-t-0">
+      <!-- Przełącznik motywu (na mobile kompaktowy) -->
+      <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm shrink-0">
         <span id="theme-icon">🌙</span>
-        <span id="theme-label">Tryb ciemny</span>
+        <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
       </button>
 
-      <button onclick="configureToken()" class="px-3.5 py-2 rounded-xl bg-black/30 hover:bg-black/50 border border-white/20 text-xs sm:text-sm font-semibold cursor-pointer text-center">
-        🔑 Konfiguruj Token GitHub
+      <!-- Token GitHub -->
+      <button onclick="configureToken()" class="flex-1 lg:flex-initial px-3 py-2 rounded-xl bg-black/30 hover:bg-black/50 border border-white/20 text-xs sm:text-sm font-semibold cursor-pointer text-center truncate">
+        🔑 Token GitHub
       </button>
 
-      <a href="./index.html" class="px-3.5 py-2 rounded-xl bg-white text-[#c01427] text-xs sm:text-sm font-bold shadow hover:bg-slate-100 text-center flex items-center justify-center">
+      <!-- Powrót do Radaru -->
+      <a href="./index.html" class="flex-1 lg:flex-initial px-3 py-2 rounded-xl bg-white text-[#c01427] text-xs sm:text-sm font-bold shadow hover:bg-slate-100 text-center truncate">
         ← Wróć do Radaru
       </a>
     </div>
+
+  </header>
 
   </header>
 
