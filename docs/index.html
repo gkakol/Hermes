@@ -68,7 +68,7 @@
 
   </header>
 
-  <!-- Filtry Widoku: Duże, klasyczne kropki statusowe -->
+  <!-- Filtry Widoku: Wyraziste kropki statusowe -->
   <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
     <div class="flex flex-wrap items-center gap-2">
       <span class="text-xs md:text-sm font-bold text-slate-500 dark:text-slate-400 mr-1">Widok:</span>
@@ -94,7 +94,7 @@
     </button>
   </div>
 
-  <!-- Karty Statystyk (KPI): Spójna typografia -->
+  <!-- Karty Statystyk (KPI) -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
     <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-5 shadow-sm">
       <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Wszystkie monitorowane</div>
@@ -214,18 +214,44 @@
 
     initTheme();
 
+    // Odporne ładowanie bazy danych z auto-normalizacją formatów
     async function loadData() {
       try {
-        const resp = await fetch('./data.json');
+        const resp = await fetch('./data.json?v=' + Date.now());
         if (!resp.ok) throw new Error("Błąd pobierania data.json");
         const json = await resp.json();
 
-        document.getElementById('last-updated').innerText = json.meta?.last_scan || 'Dzisiaj';
+        document.getElementById('last-updated').innerText = 
+          json.meta?.last_scan || json.last_updated || 'Dzisiaj';
 
-        allRecords = json.courses || [];
+        let rawList = [];
+        if (Array.isArray(json)) {
+          rawList = json;
+        } else if (Array.isArray(json.courses)) {
+          rawList = json.courses;
+        } else if (Array.isArray(json.data)) {
+          rawList = json.data;
+        } else if (Array.isArray(json.items)) {
+          rawList = json.items;
+        }
+
+        // Normalizacja właściwości na wypadek alternatywnych kluczy w Pythonie
+        allRecords = rawList.map(r => ({
+          date: r.date || r.course_date || '',
+          hour: r.hour || r.departure_time || r.time || '',
+          route: r.route || `${r.from || ''} ➔ ${r.to || ''}`,
+          price_min: r.price_min ?? r.price ?? r.current_price ?? 0,
+          price_max: r.price_max ?? r.price ?? r.current_price ?? 0,
+          seats_left: r.seats_left ?? r.seats ?? r.available_seats ?? 50,
+          status: r.status || (r.seats_left === 0 ? 'WYPRZEDANE' : 'W sprzedaży'),
+          is_archived: r.is_archived ?? false,
+          day_tag: r.day_tag || ''
+        }));
+
         updateKPIs();
         applyAllFilters();
       } catch (err) {
+        console.error(err);
         document.getElementById('table-body').innerHTML = `
           <tr><td colspan="6" class="p-8 text-center text-rose-500 font-semibold">Nie udało się załadować pliku data.json. Upewnij się, że plik istnieje w katalogu docs/.</td></tr>
         `;
