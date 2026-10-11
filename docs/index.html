@@ -33,7 +33,7 @@
         <span class="text-xl lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
       </div>
       <div class="min-w-0">
-        <h1 class="text-base sm:text-lg lg:text-xl font-black tracking-tight leading-tight">
+        <h1 class="text-base sm:text-lg md:text-xl font-black tracking-tight leading-tight">
           SENTINEL // RADAR CEN & OBŁOŻENIA
         </h1>
         <p class="text-red-100 text-xs md:text-sm font-medium mt-0.5 leading-snug">
@@ -134,12 +134,13 @@
     </div>
   </div>
 
-  <!-- Tabela z horyzontalnym scrollem na telefonie -->
+  <!-- Tabela z osobną kolumną DZIEŃ -->
   <div class="overflow-x-auto -mx-3 sm:mx-0 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-[#111827]">
-    <table class="w-full min-w-[760px] text-left border-collapse text-xs md:text-sm">
+    <table class="w-full min-w-[780px] text-left border-collapse text-xs md:text-sm">
       <thead class="bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase text-xs tracking-wider">
         <tr>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('date')">Termin ⇕</th>
+          <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none text-center" onclick="sortTable('day')">Dzień ⇕</th>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('hour')">Godzina ⇕</th>
           <th class="p-3.5 md:p-4 font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:text-red-500 select-none" onclick="sortTable('route')">Relacja ⇕</th>
           <th class="p-3.5 md:p-4 font-bold cursor-pointer hover:text-red-500 select-none" onclick="sortTable('price')">Widełki Cenowe (MIN ⇄ MAX) ⇕</th>
@@ -149,7 +150,7 @@
       </thead>
       <tbody id="table-body" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
         <tr>
-          <td colspan="6" class="p-8 text-center text-slate-400">Wczytywanie bazy kursów...</td>
+          <td colspan="7" class="p-8 text-center text-slate-400">Wczytywanie bazy kursów...</td>
         </tr>
       </tbody>
     </table>
@@ -229,26 +230,21 @@
 
     initTheme();
 
-    // Główna funkcja ładowania danych
     async function loadData() {
       try {
         const resp = await fetch('./data.json?v=' + Date.now());
         if (!resp.ok) throw new Error("Błąd pobierania data.json");
         const json = await resp.json();
 
-        // 1. Data aktualizacji
         const updatedTime = json.updated_at || json.meta?.last_scan || 'Dzisiaj';
         const updatedElem = document.getElementById('last-updated');
         if (updatedElem) updatedElem.innerText = updatedTime;
 
-        // 2. Pobranie listy rekordów
         const rawList = Array.isArray(json.records) ? json.records : (Array.isArray(json) ? json : []);
 
-        // 3. Dzisiejsza data do porównań
         const now = new Date();
         const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
-        // 4. Bezpieczne mapowanie rekordów
         allRecords = rawList.map(r => {
           const dateStr = String(r.date || r.course_date || '').trim();
           let isPastCourse = false;
@@ -285,6 +281,7 @@
 
           return {
             date: dateStr,
+            day_tag: dayTag,
             hour: String(r.hour || r.departure_time || r.time || '').trim(),
             route: String(r.route || (r.from ? `${r.from} ➔ ${r.to}` : '')).trim(),
             price_min: Number(r.price_min ?? r.price ?? r.current_price ?? 0),
@@ -292,12 +289,10 @@
             seats_left: seats,
             is_sold_out: isSoldOut,
             status: isSoldOut ? 'WYPRZEDANE' : (isArchived ? 'Odbyte' : 'W sprzedaży'),
-            is_archived: isArchived,
-            day_tag: dayTag
+            is_archived: isArchived
           };
         });
 
-        // 5. Statystyki
         if (json.total_courses !== undefined) {
           document.getElementById('stat-total').innerText = json.total_courses;
           document.getElementById('stat-total-sub').innerText = `${json.future_courses} aktywnych + ${json.past_courses} archiwum`;
@@ -312,7 +307,7 @@
       } catch (err) {
         console.error("Błąd loadData:", err);
         document.getElementById('table-body').innerHTML = `
-          <tr><td colspan="6" class="p-8 text-center text-rose-500 font-semibold">Nie udało się załadować danych kursów.</td></tr>
+          <tr><td colspan="7" class="p-8 text-center text-rose-500 font-semibold">Nie udało się załadować danych kursów.</td></tr>
         `;
       }
     }
@@ -401,6 +396,9 @@
           const [d2, m2, y2] = b.date.split('.');
           valA = `${y1 || '0'}-${m1 || '0'}-${d1 || '0'}T${a.hour || '00:00'}:00`;
           valB = `${y2 || '0'}-${m2 || '0'}-${d2 || '0'}T${b.hour || '00:00'}:00`;
+        } else if (sortColumn === 'day') {
+          valA = a.day_tag;
+          valB = b.day_tag;
         } else if (sortColumn === 'hour') {
           valA = a.hour;
           valB = b.hour;
@@ -426,7 +424,7 @@
       const total = filteredRecords.length;
 
       if (!total) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Brak kursów spełniających podane kryteria.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Brak kursów spełniających podane kryteria.</td></tr>`;
         document.getElementById('pageInfo').innerText = "Wyświetlanie 0 z 0 kursów";
         document.getElementById('paginationControls').innerHTML = '';
         return;
@@ -451,27 +449,23 @@
 
         const isWeekend = r.day_tag === 'Sb' || r.day_tag === 'Nd';
         const dayBadge = r.day_tag ? `
-          <div class="mt-1">
-            <span class="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${
-              isWeekend 
-                ? 'bg-rose-500/15 text-rose-500 border border-rose-500/20' 
-                : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-            }">
-              ${r.day_tag}
-            </span>
-          </div>
+          <span class="inline-block text-[11px] font-bold px-2 py-0.5 rounded-md ${
+            isWeekend 
+              ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30' 
+              : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+          }">
+            ${r.day_tag}
+          </span>
         ` : '';
 
         return `
           <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
-            <td class="p-3.5 md:p-4 font-bold align-top">
-              <span>${r.date}</span>
-              ${dayBadge}
-            </td>
-            <td class="p-3.5 md:p-4 font-mono font-bold align-top">${r.hour}</td>
-            <td class="p-3.5 md:p-4 font-semibold text-slate-700 dark:text-slate-300 align-top">${r.route}</td>
-            <td class="p-3.5 md:p-4 font-bold ${isSoldOut ? 'text-slate-400' : 'text-emerald-600 dark:text-emerald-400'} align-top">${priceText}</td>
-            <td class="p-3.5 md:p-4 align-top">
+            <td class="p-3.5 md:p-4 font-bold">${r.date}</td>
+            <td class="p-3.5 md:p-4 text-center">${dayBadge}</td>
+            <td class="p-3.5 md:p-4 font-mono font-bold">${r.hour}</td>
+            <td class="p-3.5 md:p-4 font-semibold text-slate-700 dark:text-slate-300">${r.route}</td>
+            <td class="p-3.5 md:p-4 font-bold ${isSoldOut ? 'text-slate-400' : 'text-emerald-600 dark:text-emerald-400'}">${priceText}</td>
+            <td class="p-3.5 md:p-4">
               <div class="flex items-center gap-2">
                 <div class="w-24 bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden shrink-0">
                   <div class="bg-emerald-500 h-full rounded-full" style="width: ${pct}%"></div>
@@ -481,7 +475,7 @@
                 </span>
               </div>
             </td>
-            <td class="p-3.5 md:p-4 align-top">
+            <td class="p-3.5 md:p-4">
               ${isSoldOut 
                 ? '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900">Wyprzedane</span>'
                 : (r.is_archived 
