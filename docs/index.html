@@ -323,7 +323,28 @@
         const futureCnt = d.future_courses !== undefined ? d.future_courses : (totalCnt - pastCnt);
         const soldOutCnt = d.sold_out_cnt !== undefined ? d.sold_out_cnt : (d.total_sold_out || rawRecords.filter(r => r.sold_out).length);
 
-        document.getElementById('last-updated').innerText = d.updated_at || 'Teraz';
+        
+        if (d.updated_at) {
+      // Parsujemy datę z JSON i wymuszamy polską strefę czasową (Europe/Warsaw)
+      const utcDate = new Date(d.updated_at.replace(' ', 'T') + 'Z');
+      if (!isNaN(utcDate.getTime())) {
+        const formattedWarsaw = new Intl.DateTimeFormat('pl-PL', {
+          timeZone: 'Europe/Warsaw',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }).format(utcDate).replace(',', '');
+        document.getElementById('last-updated').innerText = formattedWarsaw;
+      } else {
+        document.getElementById('last-updated').innerText = d.updated_at;
+      }
+      } else {
+      document.getElementById('last-updated').innerText = 'Teraz';
+      }
         document.getElementById('kpi-total').innerText = totalCnt;
         document.getElementById('kpi-sub-total').innerText = `${futureCnt} aktywnych + ${pastCnt} archiwum`;
         document.getElementById('kpi-future').innerText = futureCnt;
