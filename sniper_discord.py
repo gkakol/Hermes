@@ -6,16 +6,25 @@ from zoneinfo import ZoneInfo
 import requests
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Obsługa ścieżki niezależnie czy plik jest w głównym katalogu czy w docs/
-WATCHLIST_PATH = os.path.join(BASE_DIR, "docs", "watchlist.json") if os.path.isdir(os.path.join(BASE_DIR, "docs")) else os.path.join(BASE_DIR, "watchlist.json")
-DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
+# Automatyczne wykrycie właściwego położenia pliku
+if os.path.isfile(os.path.join(BASE_DIR, "watchlist.json")):
+    WATCHLIST_PATH = os.path.join(BASE_DIR, "watchlist.json")
+elif os.path.isfile(os.path.join(BASE_DIR, "docs", "watchlist.json")):
+    WATCHLIST_PATH = os.path.join(BASE_DIR, "docs", "watchlist.json")
+else:
+    WATCHLIST_PATH = os.path.join(BASE_DIR, "watchlist.json")
+
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 WARSAW_TZ = ZoneInfo("Europe/Warsaw")
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     "Accept-Language": "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7",
 }
+
+session = requests.Session()
+session.headers.update(HEADERS)
 
 
 def send_discord_alert(title, description, color, fields=None):
@@ -46,9 +55,14 @@ def send_discord_alert(title, description, color, fields=None):
 
 def fetch_neobus_courses(from_id, to_id, date_dmy, from_name="", to_name=""):
     """
-    Wysyła żądanie AJAX POST do systemu Neotickets (wymaga formatu daty DD.MM.YYYY).
+    Wysyła żądanie AJAX POST z zachowaniem sesji (format DD.MM.YYYY).
     """
     url = "https://bilety.neobus.pl/"
+    try:
+        session.get(url, timeout=10)
+    except Exception:
+        pass
+
     payload = {
         "ajax": "true",
         "dataType": "json",
@@ -65,7 +79,7 @@ def fetch_neobus_courses(from_id, to_id, date_dmy, from_name="", to_name=""):
     }
 
     try:
-        resp = requests.post(url, data=payload, headers=HEADERS, timeout=15)
+        resp = session.post(url, data=payload, timeout=15)
         if resp.status_code != 200:
             print(f"[!] Neobus zwrócił status HTTP {resp.status_code}")
             return {}
@@ -113,6 +127,7 @@ def fetch_neobus_courses(from_id, to_id, date_dmy, from_name="", to_name=""):
 
 
 def run_sniper():
+    print(f"[*] Wczytywanie watchlisty z: {WATCHLIST_PATH}")
     if not os.path.isfile(WATCHLIST_PATH):
         print(f"[-] Brak pliku {WATCHLIST_PATH}.")
         return
@@ -142,7 +157,6 @@ def run_sniper():
 
     # 2. Monitorowanie aktywnych kursów
     for target in active_targets:
-        # Przekazujemy datę bezpośrednio w formacie DD.MM.YYYY
         date_dmy = target["date"].strip()
         results = fetch_neobus_courses(
             from_id=target["from_id"],
@@ -154,14 +168,13 @@ def run_sniper():
         
         hour = target["hour"].strip()
         if hour not in results:
-            print(f"[-] Brak kursu w wynikach dla {target.get('from_name')} -> {target.get('to_name')} na {date_dmy} o godz. {hour}")
+            print(f"[-] Brak godziny {hour} w wynikach dla {target.get('from_name')} -> {target.get('to_name')} ({date_dmy})")
             continue
 
         info = results[hour]
         curr_price = info["price"]
         curr_seats = info["seats"]
         
-        # Inicjalizacja bazowych cen przy pierwszym wykryciu
         baseline_price = target.get("baseline_price", 0)
         if baseline_price <= 0:
             baseline_price = curr_price
@@ -210,7 +223,7 @@ def run_sniper():
         target["last_seats"] = curr_seats
         target["current_price"] = curr_price
         target["last_checked"] = datetime.now(WARSAW_TZ).strftime("%Y-%m-%d %H:%M:%S")
-        print(f"[✓] Zaktualizowano kurs {target.get('from_name')} -> {target.get('to_name')} ({date_dmy} {hour}): {curr_price:.2f} zł, {curr_seats} miejsc")
+        print(f"[✓] Odczytano kurs {target.get('from_name')} -> {target.get('to_name')} ({date_dmy} {hour}): {curr_price:.2f} zł, {curr_seats} wolnych miejsc")
 
     data["targets"] = active_targets
     data["archived_targets"] = archived_targets
