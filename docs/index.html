@@ -3,84 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sentinel Analytics // Archiwum Kursów Neobus</title>
+  <title>Sentinel & Neobus Radar // N3 Sanok ⇄ Wrocław</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <style>
-    body { background-color: #0b0f19; color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif; }
-    .dataTables_wrapper { color: #cbd5e1; }
-    .dataTables_length select, .dataTables_filter input {
-      background: #1e293b; color: #fff; border: 1px solid #334155; border-radius: 6px; padding: 4px 8px;
+    :root {
+      --neobus-red: #c01427;
+      --neobus-darkred: #940f1e;
+      --neobus-purple: #6b21a8;
+      --neobus-blue: #0284c7;
     }
-    table.dataTable tbody tr { background-color: #111827; }
-    table.dataTable tbody tr:hover { background-color: #1e293b; }
-    table.dataTable thead th { border-bottom: 2px solid #334155; }
-    .dataTables_paginate .paginate_button { color: #cbd5e1 !important; }
-    .dataTables_paginate .paginate_button.current { background: #3b82f6 !important; color: #fff !important; border-radius: 4px; }
+    body { background-color: #f1f5f9; color: #1e293b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
+    /* Neobus Banner Headers */
+    .neobus-header-bg {
+      background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%);
+    }
+
+    /* DataTables Style Dopasowany do Neobus */
+    .dataTables_wrapper { font-size: 0.88rem; }
+    .dataTables_filter input {
+      background: #ffffff; color: #1e293b; border: 2px solid #e2e8f0; border-radius: 9999px; padding: 6px 16px; outline: none; transition: all 0.2s;
+    }
+    .dataTables_filter input:focus { border-color: var(--neobus-red); box-shadow: 0 0 0 3px rgba(192, 20, 39, 0.15); }
+    
+    table.dataTable { border-collapse: separate; border-spacing: 0; width: 100% !important; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #ffffff; }
+    table.dataTable thead th {
+      background-color: #f8fafc; color: #475569; font-weight: 700; text-transform: uppercase; font-size: 0.73rem; letter-spacing: 0.05em; padding: 12px 14px; border-bottom: 2px solid #e2e8f0 !important;
+    }
+    table.dataTable tbody td { padding: 11px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    table.dataTable tbody tr:hover { background-color: #fff1f2 !important; }
+    
+    .dataTables_paginate .paginate_button { border-radius: 8px !important; border: none !important; font-weight: 600; }
+    .dataTables_paginate .paginate_button.current { background: var(--neobus-red) !important; color: #ffffff !important; }
   </style>
 </head>
-<body class="p-4 md:p-8 max-w-7xl mx-auto">
+<body class="p-3 md:p-6 max-w-7xl mx-auto">
 
-  <!-- Nagłówek -->
-  <header class="mb-8 border-b border-slate-800 pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-    <div>
-      <h1 class="text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-        <span>🚌 Sentinel Archive</span>
-        <span class="text-xs font-semibold px-2.5 py-1 bg-blue-950 text-blue-400 border border-blue-800 rounded-full">Neobus N3</span>
-      </h1>
-      <p class="text-slate-400 text-sm mt-1">Interaktywne archiwum historycznych kursów, cen oraz obłożenia autokarów.</p>
+  <!-- Główny Nagłówek w stylu Neobus -->
+  <header class="mb-6 rounded-2xl shadow-xl overflow-hidden border border-red-900/20">
+    <div class="neobus-header-bg px-6 py-5 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center gap-4">
+        <!-- Logo Neobus Stylizowane -->
+        <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+          <span class="text-2xl font-black tracking-tighter text-slate-900">NE<span class="text-[#c01427]">●</span>BUS</span>
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2">
+            SENTINEL // RADAR CEN & OBŁOŻENIA
+          </h1>
+          <p class="text-red-100 text-xs font-medium mt-0.5">Korytarz N3: Sanok ⇄ Krosno ⇄ Rzeszów ⇄ Kraków ⇄ Katowice ⇄ Wrocław</p>
+        </div>
+      </div>
+      <div class="bg-red-950/40 border border-red-400/30 px-3.5 py-2 rounded-xl text-right">
+        <div class="text-[10px] text-red-200 uppercase font-semibold">Ostatni cykl radaru</div>
+        <div class="text-xs font-mono font-bold text-white flex items-center gap-2 justify-end mt-0.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="last-updated">Synchronizacja...</span>
+        </div>
+      </div>
     </div>
-    <div class="text-xs text-slate-500 font-mono" id="last-updated">Ładowanie danych...</div>
+
+    <!-- Pasek zakładek biletowych jak na neobus.pl -->
+    <div class="bg-slate-900 px-6 py-2.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300 border-t border-red-800">
+      <span class="text-slate-400 mr-2">Widok:</span>
+      <button onclick="setTabFilter('all')" id="tab-all" class="px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition">Wszystkie kursy</button>
+      <button onclick="setTabFilter('future')" id="tab-future" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 🟢 W sprzedaży (Przyszłe)
+      </button>
+      <button onclick="setTabFilter('past')" id="tab-past" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span> ⚪ Odbyte (Historia / Archiwum)
+      </button>
+      <button onclick="setTabFilter('sold_out')" id="tab-sold-out" class="px-4 py-1.5 rounded-lg bg-purple-900/60 text-purple-200 hover:bg-purple-800 transition ml-auto">
+        🔴 Tylko Wyprzedane
+      </button>
+    </div>
   </header>
 
-  <!-- Karty KPI -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-      <div class="text-xs font-medium text-slate-400 uppercase">Zarchiwizowane kursy</div>
-      <div class="text-2xl font-bold text-white mt-1" id="kpi-total">—</div>
+  <!-- Paski KPI (Białe karty z czerwonymi/fioletowymi akcentami) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mb-6">
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div class="text-[11px] font-bold text-slate-500 uppercase">Wszystkie monitorowane</div>
+      <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-total">—</div>
+      <div class="text-[11px] text-slate-400 mt-0.5" id="kpi-sub-total">Brak danych</div>
     </div>
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-      <div class="text-xs font-medium text-slate-400 uppercase">Kursy wyprzedane (Sold-Out)</div>
-      <div class="text-2xl font-bold text-rose-400 mt-1" id="kpi-sold-out">—</div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm border-l-4 border-l-emerald-500">
+      <div class="text-[11px] font-bold text-emerald-700 uppercase">Aktywne w sprzedaży</div>
+      <div class="text-2xl font-black text-emerald-600 mt-1" id="kpi-future">—</div>
+      <div class="text-[11px] text-slate-400 mt-0.5">Nadchodzące dni</div>
     </div>
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-      <div class="text-xs font-medium text-slate-400 uppercase">Wskaźnik wyprzedania</div>
-      <div class="text-2xl font-bold text-amber-400 mt-1" id="kpi-sold-out-rate">—</div>
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm border-l-4 border-l-slate-400">
+      <div class="text-[11px] font-bold text-slate-500 uppercase">Zarchiwizowane (Odbyte)</div>
+      <div class="text-2xl font-black text-slate-700 mt-1" id="kpi-past">—</div>
+      <div class="text-[11px] text-slate-400 mt-0.5">Przeszłe wyjazdy</div>
     </div>
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-      <div class="text-xs font-medium text-slate-400 uppercase">Średnia cena końcowa</div>
-      <div class="text-2xl font-bold text-emerald-400 mt-1" id="kpi-avg-price">—</div>
-    </div>
-  </div>
-
-  <!-- Wykresy analityczne -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-200 mb-4">Ryzyko wyprzedania wg dni tygodnia (%)</h3>
-      <canvas id="chartSoldOut" height="180"></canvas>
-    </div>
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-200 mb-4">Średnia cena końcowa wg dni tygodnia (PLN)</h3>
-      <canvas id="chartPrices" height="180"></canvas>
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm border-l-4 border-l-[#c01427]">
+      <div class="text-[11px] font-bold text-[#c01427] uppercase">Kursy wyprzedane (100%)</div>
+      <div class="text-2xl font-black text-[#c01427] mt-1" id="kpi-sold-out">—</div>
+      <div class="text-[11px] text-slate-400 mt-0.5">Brak wolnych miejsc</div>
     </div>
   </div>
 
-  <!-- Główna tabela historyczna -->
-  <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-    <h3 class="text-base font-bold text-white mb-4">Pełny wykaz zarchiwizowanych kursów</h3>
-    <table id="archiveTable" class="w-full text-left text-sm display compact">
+  <!-- Główna Tabela Kursów -->
+  <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+      <div>
+        <h2 class="text-base font-bold text-slate-800">Rozkład Jazdy, Ceny Min / Max oraz Obłożenie</h2>
+        <p class="text-xs text-slate-500">Dynamiczne porównanie aktualnej stawki względem historycznych minimów i maksimów danej relacji.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="setRouteFilter('Sanok ➔ Wrocław')" class="text-xs px-3 py-1 rounded-full border border-slate-300 font-semibold text-slate-600 hover:bg-slate-100">Sanok ➔ Wrocław</button>
+        <button onclick="setRouteFilter('Wrocław ➔ Sanok')" class="text-xs px-3 py-1 rounded-full border border-slate-300 font-semibold text-slate-600 hover:bg-slate-100">Wrocław ➔ Sanok</button>
+      </div>
+    </div>
+
+    <table id="mainTable" class="display compact w-full">
       <thead>
-        <tr class="text-slate-400">
-          <th>Data</th>
-          <th>Dzień</th>
+        <tr>
+          <th>Termin</th>
           <th>Godzina</th>
-          <th>Kierunek</th>
-          <th>Cena końcowa</th>
-          <th>Pozostałe fotele</th>
-          <th>Status</th>
+          <th>Relacja</th>
+          <th>Widełki Cenowe (Min ⇄ Max)</th>
+          <th>Cena Rezerwacji</th>
+          <th style="min-width: 130px;">Dostępność foteli</th>
+          <th>Stan kursu</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -88,95 +137,122 @@
   </div>
 
   <script>
-    fetch('data.json')
+    let table = null;
+    let rawRecords = [];
+
+    function setTabFilter(type) {
+      ['tab-all', 'tab-future', 'tab-past', 'tab-sold-out'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = el.className.replace('bg-[#c01427] text-white', 'bg-slate-800 text-slate-300');
+      });
+
+      if (type === 'all') {
+        document.getElementById('tab-all').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition";
+        $.fn.dataTable.ext.search = [];
+      } else if (type === 'future') {
+        document.getElementById('tab-future').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-1.5";
+        $.fn.dataTable.ext.search = [(settings, data, dataIndex) => !rawRecords[dataIndex].is_past];
+      } else if (type === 'past') {
+        document.getElementById('tab-past').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition flex items-center gap-1.5";
+        $.fn.dataTable.ext.search = [(settings, data, dataIndex) => rawRecords[dataIndex].is_past];
+      } else if (type === 'sold_out') {
+        document.getElementById('tab-sold-out').className = "px-4 py-1.5 rounded-lg bg-[#c01427] text-white shadow-sm transition ml-auto";
+        $.fn.dataTable.ext.search = [(settings, data, dataIndex) => rawRecords[dataIndex].sold_out];
+      }
+      table.draw();
+    }
+
+    function setRouteFilter(route) {
+      if (table) table.search(route).draw();
+    }
+
+    fetch('./data.json')
       .then(r => r.json())
       .then(d => {
-        document.getElementById('last-updated').innerText = 'Ostatnia aktualizacja: ' + d.updated_at;
+        rawRecords = d.records;
+        document.getElementById('last-updated').innerText = d.updated_at;
         document.getElementById('kpi-total').innerText = d.total_courses;
-        document.getElementById('kpi-sold-out').innerText = d.total_sold_out;
-        document.getElementById('kpi-sold-out-rate').innerText = d.sold_out_rate_pct + '%';
-        document.getElementById('kpi-avg-price').innerText = d.avg_price.toFixed(2) + ' zł';
+        document.getElementById('kpi-sub-total').innerText = `${d.future_courses} aktywnych + ${d.past_courses} archiwum`;
+        document.getElementById('kpi-future').innerText = d.future_courses;
+        document.getElementById('kpi-past').innerText = d.past_courses;
+        document.getElementById('kpi-sold-out').innerText = d.sold_out_cnt;
 
-        // Wykres 1
-        new Chart(document.getElementById('chartSoldOut'), {
-          type: 'bar',
-          data: {
-            labels: d.analytics.days,
-            datasets: [{
-              label: '% wyprzedanych',
-              data: d.analytics.sold_out_rates,
-              backgroundColor: '#ef4444',
-              borderRadius: 4
-            }]
-          },
-          options: {
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-              x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-            }
-          }
-        });
-
-        // Wykres 2
-        new Chart(document.getElementById('chartPrices'), {
-          type: 'line',
-          data: {
-            labels: d.analytics.days,
-            datasets: [{
-              label: 'Średnia cena (zł)',
-              data: d.analytics.avg_prices,
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              fill: true,
-              tension: 0.3
-            }]
-          },
-          options: {
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-              x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-            }
-          }
-        });
-
-        // Tabela DataTables
         const rows = d.records.map(r => {
-          let badge = '';
-          if (r.seats === -1) {
-            badge = '<span class="text-slate-500">B/D</span>';
-          } else if (r.seats <= 3) {
-            badge = `<span class="px-2 py-0.5 rounded text-xs bg-rose-950 text-rose-400 border border-rose-800 font-bold">${r.seats} szt.</span>`;
-          } else if (r.seats <= 15) {
-            badge = `<span class="px-2 py-0.5 rounded text-xs bg-amber-950 text-amber-400 border border-amber-800 font-bold">${r.seats} szt.</span>`;
-          } else {
-            badge = `<span class="px-2 py-0.5 rounded text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">${r.seats} szt.</span>`;
+          const parts = r.date.split('.');
+          const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+          // Stylizacja wiersza w zależności od tego czy kurs się odbył
+          const dateBadge = r.is_past
+            ? `<span class="hidden">${isoDate}</span><span class="text-slate-400 font-medium">${r.date}</span> <span class="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`
+            : `<span class="hidden">${isoDate}</span><span class="text-slate-900 font-bold">${r.date}</span> <span class="text-[10px] bg-red-100 text-[#c01427] px-1.5 py-0.5 rounded font-bold ml-1">${r.day}</span>`;
+
+          // Widełki Min - Max
+          const minMaxHtml = `
+            <div class="text-xs font-mono">
+              <span class="text-emerald-700 font-bold">${r.min_price.toFixed(2)} zł</span>
+              <span class="text-slate-400 mx-1">➔</span>
+              <span class="text-slate-600 font-semibold">${r.max_price.toFixed(2)} zł</span>
+            </div>
+          `;
+
+          // Cena aktualna
+          let priceBadge = `<span class="font-mono font-bold text-slate-800 text-sm">${r.price.toFixed(2)} zł</span>`;
+          if (r.price <= r.min_price && r.price < r.max_price) {
+            priceBadge = `<span class="font-mono font-black text-[#c01427] text-sm bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">🔥 ${r.price.toFixed(2)} zł</span>`;
           }
 
-          let status = r.sold_out 
-            ? '<span class="text-rose-400 font-semibold">🔴 Wyprzedany</span>' 
-            : '<span class="text-slate-400">Dostępny</span>';
+          // Pasek foteli
+          let seatHtml = '';
+          if (r.seats === -1) {
+            seatHtml = '<span class="text-slate-400 text-xs">Brak danych</span>';
+          } else {
+            const pct = Math.min(100, Math.round((r.seats / 70) * 100));
+            let color = 'bg-emerald-500';
+            if (r.seats <= 3) color = 'bg-[#c01427]';
+            else if (r.seats <= 15) color = 'bg-amber-500';
+
+            seatHtml = `
+              <div class="flex items-center gap-2">
+                <div class="w-16 h-2 bg-slate-100 border border-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full ${color}" style="width: ${pct}%"></div>
+                </div>
+                <span class="font-mono text-xs font-bold ${r.seats <= 3 ? 'text-[#c01427]' : 'text-slate-700'}">${r.seats} os.</span>
+              </div>
+            `;
+          }
+
+          // Stan kursu
+          let statusBadge = '';
+          if (r.is_past) {
+            statusBadge = r.sold_out 
+              ? '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-red-700 border border-red-200">Odbyty (Wyprzedany)</span>' 
+              : '<span class="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-500">Odbyty</span>';
+          } else {
+            statusBadge = r.sold_out
+              ? '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-100 text-[#c01427] border border-red-300 animate-pulse">Brak miejsc</span>'
+              : '<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">W sprzedaży</span>';
+          }
 
           return [
-            r.date,
-            r.day,
-            r.hour,
-            r.route,
-            `<b>${r.price.toFixed(2)} zł</b>`,
-            badge,
-            status
+            dateBadge,
+            `<span class="font-mono font-bold text-slate-800 text-xs">${r.hour}</span>`,
+            `<span class="text-xs font-semibold ${r.is_past ? 'text-slate-500' : 'text-slate-700'}">${r.route.replace('➔', '→')}</span>`,
+            minMaxHtml,
+            priceBadge,
+            seatHtml,
+            statusBadge
           ];
         });
 
-        $('#archiveTable').DataTable({
+        table = $('#mainTable').DataTable({
           data: rows,
           pageLength: 25,
           order: [[0, 'desc']],
           language: {
-            search: "Filtruj kursy:",
+            search: "",
+            searchPlaceholder: "Szukaj kursu, dnia, godziny...",
             lengthMenu: "Pokaż _MENU_ pozycji",
-            info: "Pozycje od _START_ do _END_ z _TOTAL_",
+            info: "Wyniki _START_–_END_ z _TOTAL_",
             paginate: { next: "Dalej", previous: "Wstecz" }
           }
         });
