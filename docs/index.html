@@ -24,16 +24,16 @@
 </head>
 <body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-7xl mx-auto min-h-screen">
 
-  <!-- Header: Spójna skala typograficzna z Watchlistą -->
-  <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 border border-red-900/20">
+ <!-- Header: Zbalansowany i równy na PC oraz Mobile -->
+  <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 border border-red-900/20">
     
-    <!-- Logo i Tytuł -->
+    <!-- Lewa strona: Logo i Tytuł -->
     <div class="flex items-center gap-3.5 min-w-0">
       <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md select-none shrink-0">
         <span class="text-xl lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
       </div>
       <div class="min-w-0">
-        <h1 class="text-base sm:text-lg md:text-xl font-black tracking-tight leading-tight">
+        <h1 class="text-base sm:text-lg lg:text-xl font-black tracking-tight leading-tight">
           SENTINEL // RADAR CEN & OBŁOŻENIA
         </h1>
         <p class="text-red-100 text-xs md:text-sm font-medium mt-0.5 leading-snug">
@@ -42,19 +42,29 @@
       </div>
     </div>
 
-    <!-- Przyciski Akcji + Cykl Radaru -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2.5 lg:pt-0 border-t border-red-800/50 lg:border-t-0">
-      <div class="flex items-center gap-2 flex-1 sm:flex-initial">
-        <a href="./watchlist.html" class="flex-1 sm:flex-initial bg-red-950/60 hover:bg-red-950/90 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition shadow-sm text-center">
-          <span>🎯</span>
-          <span>Obserwowane kursy</span>
-        </a>
+    <!-- Prawa strona: Przyciski w równej linii -->
+    <div class="flex items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t border-red-800/50 lg:border-t-0 flex-wrap sm:flex-nowrap">
+      <a href="./watchlist.html" class="bg-red-950/60 hover:bg-red-950/90 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition shadow-sm whitespace-nowrap">
+        <span>🎯</span>
+        <span>Obserwowane kursy</span>
+      </a>
 
-        <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm shrink-0">
-          <span id="theme-icon">🌙</span>
-          <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
-        </button>
+      <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm whitespace-nowrap">
+        <span id="theme-icon">🌙</span>
+        <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
+      </button>
+
+      <!-- Cykl radaru: Zawsze równy z przyciskami -->
+      <div class="bg-red-950/50 border border-red-400/30 px-3.5 py-1.5 rounded-xl flex flex-col justify-center items-end shrink-0 whitespace-nowrap">
+        <div class="text-[9px] text-red-200 uppercase font-semibold leading-tight">Cykl radaru</div>
+        <div class="text-xs font-mono font-bold text-white flex items-center gap-1.5 leading-tight mt-0.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm animate-pulse"></span>
+          <span id="last-updated">Synchronizacja...</span>
+        </div>
       </div>
+    </div>
+
+  </header>
 
       <!-- Stan Cyklu Radaru -->
       <div class="bg-red-950/50 border border-red-400/30 px-3.5 py-1.5 lg:py-2 rounded-xl flex sm:flex-col justify-between items-center sm:items-end shrink-0">
