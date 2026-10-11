@@ -56,6 +56,20 @@
       "lowest_seen_price": 999,
       "current_price": 0,
       "last_seats": 70
+    },
+    {
+      "id": "47-75-2026-10-13-0348",
+      "from_id": "47",
+      "from_name": "DOMARADZ",
+      "to_id": "75",
+      "to_name": "WARSZAWA Dw. Zach. st.7",
+      "date": "13.10.2026",
+      "hour": "03:48",
+      "seat_threshold": 5,
+      "baseline_price": 0,
+      "lowest_seen_price": 999,
+      "current_price": 0,
+      "last_seats": 70
     }
   ],
   "archived_targets": []
