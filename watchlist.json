@@ -12,7 +12,7 @@
       "seat_threshold": 5,
       "baseline_price": 95,
       "lowest_seen_price": 95,
-      "current_price": 95.0,
+      "current_price": 95,
       "last_seats": 50,
       "last_checked": "2026-10-12 13:34:41"
     },
@@ -25,11 +25,26 @@
       "date": "18.10.2026",
       "hour": "17:40",
       "seat_threshold": 5,
-      "baseline_price": 95.0,
-      "lowest_seen_price": 95.0,
-      "current_price": 95.0,
+      "baseline_price": 95,
+      "lowest_seen_price": 95,
+      "current_price": 95,
       "last_seats": 45,
       "last_checked": "2026-10-12 13:34:57"
+    },
+    {
+      "id": "47-123-2026-10-25-1718",
+      "from_id": "47",
+      "from_name": "DOMARADZ",
+      "to_id": "123",
+      "to_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
+      "date": "25.10.2026",
+      "hour": "17:18",
+      "seat_threshold": 5,
+      "price_threshold": 50,
+      "baseline_price": 0,
+      "lowest_seen_price": 999,
+      "current_price": 0,
+      "last_seats": 70
     }
   ],
   "archived_targets": []
