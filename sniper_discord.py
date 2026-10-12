@@ -155,13 +155,11 @@ def match_departure(available_deps: list, target_dep: str) -> str:
 
 def probe_seats_accurate(from_id: str, from_name: str, to_id: str, to_name: str, date_str: str, matched_dep: str) -> int:
     """Precyzyjny pomiar wolnych foteli z corridor_radar."""
-    # 1. Sprawdzamy czy kurs ma >= 50 miejsc
     res_50 = query_api(from_id, from_name, to_id, to_name, date_str, passengers=50)
     if res_50 and matched_dep in res_50:
         res_70 = query_api(from_id, from_name, to_id, to_name, date_str, passengers=MAX_CAPACITY)
         return MAX_CAPACITY if (res_70 and matched_dep in res_70) else 50
 
-    # 2. Binary search w zakresie 1..49
     low, high = 1, 49
     exact = 1
 
@@ -218,24 +216,19 @@ def run_sniper():
         to_name = target.get("to_name", "")
         target_hour = target["hour"].strip()
 
-        # Pobranie kursów za pomocą mechanizmu GA4
         day_courses = query_api(from_id, from_name, to_id, to_name, date_str, passengers=1)
         if not day_courses:
             print(f"[-] Brak odpowiedzi API dla {from_name} -> {to_name} na {date_str}", flush=True)
             continue
 
-        # Dopasowanie godziny z tolerancją
         matched_hour = match_departure(list(day_courses.keys()), target_hour)
         if not matched_hour:
             print(f"[-] Brak godziny {target_hour} dla {from_name} -> {to_name} ({date_str}). Znalezione: {list(day_courses.keys())}", flush=True)
             continue
 
         curr_price = day_courses[matched_hour]["price"]
-        
-        # Precyzyjny odczyt wolnych foteli
         curr_seats = probe_seats_accurate(from_id, from_name, to_id, to_name, date_str, matched_hour)
 
-        # Inicjalizacja stawek
         baseline_price = target.get("baseline_price", 0)
         if baseline_price <= 0:
             baseline_price = curr_price
@@ -247,13 +240,21 @@ def run_sniper():
             target["lowest_seen_price"] = curr_price
 
         seat_threshold = target.get("seat_threshold", 5)
+        price_threshold = target.get("price_threshold")
 
-        # Alert A: Spadek ceny
-        if 0 < curr_price < lowest_price:
+        # Scenariusz A: Spadek ceny z uwzględnieniem opcjonalnego limitu cenowego
+        is_price_drop = (0 < curr_price < lowest_price)
+        meets_price_threshold = True
+        if price_threshold is not None and float(price_threshold) > 0:
+            meets_price_threshold = (curr_price <= float(price_threshold))
+
+        if is_price_drop and meets_price_threshold:
             drop_pct = round(((baseline_price - curr_price) / baseline_price) * 100) if baseline_price > 0 else 0
+            threshold_note = f" (próg: ≤{float(price_threshold):.2f} zł)" if (price_threshold and float(price_threshold) > 0) else ""
+
             send_discord_alert(
                 title="🔥 Okazja Cenowa // Neobus",
-                description=f"Wykryto spadek ceny dla kursu **{from_name} ➔ {to_name}**!",
+                description=f"Wykryto korzystną cenę dla kursu **{from_name} ➔ {to_name}**!{threshold_note}",
                 color=0x10B981,
                 fields=[
                     {"name": "Termin i Godzina", "value": f"📅 {date_str} o **{matched_hour}**", "inline": True},
@@ -265,8 +266,12 @@ def run_sniper():
             )
             target["lowest_seen_price"] = curr_price
             updated = True
+        elif is_price_drop:
+            # Cena spadła, ale nie osiągnęła jeszcze progu użytkownika – odnotowujemy spadek bez spamu na Discordzie
+            target["lowest_seen_price"] = curr_price
+            updated = True
 
-        # Alert B: Ostatnie fotele
+        # Scenariusz B: Kończące się fotele
         last_recorded_seats = target.get("last_seats", 70)
         if 0 < curr_seats <= seat_threshold and last_recorded_seats > seat_threshold:
             send_discord_alert(
