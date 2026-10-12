@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-12 06:40:36",
+  "updated_at": "2026-10-12 07:16:38",
   "total_courses": 1231,
   "past_courses": 329,
   "future_courses": 902,
@@ -2685,7 +2685,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 49,
+      "seats": 48,
       "is_past": false,
       "sold_out": false
     },
@@ -2961,7 +2961,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 49,
       "is_past": false,
       "sold_out": false
     },
@@ -8925,7 +8925,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 40,
+      "seats": 39,
       "is_past": false,
       "sold_out": false
     },
@@ -10197,7 +10197,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 46,
+      "seats": 45,
       "is_past": false,
       "sold_out": false
     },
@@ -10749,7 +10749,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 70,
+      "seats": 69,
       "is_past": false,
       "sold_out": false
     },
