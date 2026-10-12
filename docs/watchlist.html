@@ -25,10 +25,10 @@
 <body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen select-none">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-<!-- Header: Dopracowany na natywny ekran telefonu i desktop -->
+<!-- Header -->
   <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 border border-red-900/20">
     
-    <!-- Góra / Lewa strona: Logo i Tytuł -->
+    <!-- Lewa strona -->
     <div class="flex items-center gap-3">
       <div class="bg-white px-3 py-1.5 rounded-xl shadow-md select-none shrink-0">
         <span class="text-xl lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
@@ -43,26 +43,21 @@
       </div>
     </div>
 
-    <!-- Dół na mobile / Prawa strona na PC: Przyciski akcji -->
+    <!-- Prawa strona -->
     <div class="flex items-center gap-2 pt-2 lg:pt-0 border-t border-red-800/50 lg:border-t-0">
-      <!-- Przełącznik motywu (na mobile kompaktowy) -->
       <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm shrink-0">
         <span id="theme-icon">🌙</span>
         <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
       </button>
 
-      <!-- Token GitHub -->
       <button onclick="configureToken()" class="flex-1 lg:flex-initial px-3 py-2 rounded-xl bg-black/30 hover:bg-black/50 border border-white/20 text-xs sm:text-sm font-semibold cursor-pointer text-center truncate">
         🔑 Token GitHub
       </button>
 
-      <!-- Powrót do Radaru -->
       <a href="./index.html" class="flex-1 lg:flex-initial px-3 py-2 rounded-xl bg-white text-[#c01427] text-xs sm:text-sm font-bold shadow hover:bg-slate-100 text-center truncate">
         ← Wróć do Radaru
       </a>
     </div>
-
-  </header>
 
   </header>
 
@@ -95,7 +90,7 @@
         <input type="date" id="selDate" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
-      <!-- Kafelki Godzin ze scalonych rozkładów -->
+      <!-- Kafelki Godzin -->
       <div>
         <div class="flex justify-between items-center mb-1.5">
           <label class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">Godziny odjazdu (z rozkładu)</label>
@@ -114,6 +109,14 @@
       <div>
         <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Próg alertu miejsc (fotele &le;)</label>
         <input type="number" id="selThreshold" value="5" min="1" max="30" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <!-- NOWE: Próg alertu ceny -->
+      <div>
+        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">
+          Maksymalna pożądana cena (zł &le;) <span class="text-[11px] text-slate-400 font-normal lowercase">(opcjonalnie)</span>
+        </label>
+        <input type="number" id="selPriceThreshold" placeholder="Np. 60 (puste = każdy spadek)" min="1" step="0.5" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
       <button onclick="addTarget()" id="btnAddTarget" class="w-full py-3.5 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-sm flex items-center justify-center gap-2 cursor-pointer">
@@ -147,7 +150,6 @@
     let watchlistData = { targets: [], archived_targets: [] };
     let selectedHours = new Set();
 
-    // Obsługa motywu
     function initTheme() {
       const savedTheme = localStorage.getItem('sentinel_theme');
       if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -241,7 +243,6 @@
       { id: "53", name: "ŁONIÓW" }
     ];
 
-    // Matryca linii N3
     const N3_TO_WRO = {
       order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "71", "72", "73", "123", "77"],
       days: ['all', 'all', 'all', 'all', 0],
@@ -294,7 +295,6 @@
       }
     };
 
-    // Matryca linii N1 / N2
     const N1_TO_WAW = {
       order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "23", "25", "79", "53", "35", "78", "124", "54", "55", "28", "75"],
       days: ['all', 'all', 'all', 'all', 'all', 'all'],
@@ -359,7 +359,6 @@
       }
     };
 
-    // Matryca linii N4
     const N4_TO_LODZ = {
       order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "23", "81", "82", "83", "84", "85", "115", "92", "93", "88"],
       days: ['all'],
@@ -555,7 +554,6 @@
       }
     }
 
-    // Sortowanie chronologiczne od najbliższego terminu do najdalszego
     function sortTargetsChronologically(targets) {
       return [...targets].sort((a, b) => {
         const [d1, m1, y1] = a.date.split('.');
@@ -578,15 +576,20 @@
       const sorted = sortTargetsChronologically(watchlistData.targets);
 
       listEl.innerHTML = sorted.map((t) => {
-        // Wyszukanie oryginalnego indeksu do usunięcia
         const originalIndex = watchlistData.targets.findIndex(item => item.id === t.id);
-        
+        const pThreshold = (t.price_threshold && Number(t.price_threshold) > 0) ? Number(t.price_threshold) : null;
+        const priceThresholdText = pThreshold 
+          ? `• Alert ceny: &le;${pThreshold.toFixed(2)} zł` 
+          : `• Alert ceny: każdy spadek`;
+
         return `
           <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex justify-between items-center bg-slate-50/70 dark:bg-slate-900/60 shadow-sm transition">
             <div>
               <div class="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">${t.from_name} ➔ ${t.to_name}</div>
-              <div class="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                📅 <span class="font-bold text-slate-700 dark:text-slate-200">${t.date}</span> o <span class="font-mono font-bold text-slate-800 dark:text-white">${t.hour}</span> • Alert miejsc: &le;${t.seat_threshold}
+              <div class="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-1.5">
+                <span>📅 <span class="font-bold text-slate-700 dark:text-slate-200">${t.date}</span> o <span class="font-mono font-bold text-slate-800 dark:text-white">${t.hour}</span></span>
+                <span>• Alert miejsc: &le;${t.seat_threshold}</span>
+                <span class="text-slate-400 dark:text-slate-500 font-medium">${priceThresholdText}</span>
               </div>
               <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
                 Ostatnia cena: ${t.current_price ? t.current_price.toFixed(2) + ' zł' : 'Oczekuje na skan bota'}
@@ -605,7 +608,6 @@
         return false;
       }
 
-      // Zapisujemy listę posortowaną chronologicznie w pliku JSON
       watchlistData.targets = sortTargetsChronologically(watchlistData.targets);
 
       const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(watchlistData, null, 2))));
@@ -639,6 +641,9 @@
       const tSel = document.getElementById('selTo');
       const dateVal = document.getElementById('selDate').value;
       const thresholdVal = parseInt(document.getElementById('selThreshold').value, 10);
+      
+      const pThreshVal = document.getElementById('selPriceThreshold').value.trim();
+      const priceThreshold = pThreshVal ? parseFloat(pThreshVal) : null;
 
       if (!fSel.value || !tSel.value) { alert("Wybierz przystanek odjazdu i przyjazdu!"); return; }
       if (!dateVal) { alert("Wybierz datę!"); return; }
@@ -657,6 +662,7 @@
           date: dPl,
           hour: h,
           seat_threshold: thresholdVal || 5,
+          price_threshold: priceThreshold,
           baseline_price: 0.0,
           lowest_seen_price: 999.0,
           current_price: 0.0,
@@ -668,6 +674,7 @@
       if (ok) {
         alert("Pomyślnie dodano do obserwowanych!");
         selectedHours.clear();
+        document.getElementById('selPriceThreshold').value = '';
         updateSchedule();
       }
     }
