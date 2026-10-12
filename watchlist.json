@@ -2,21 +2,6 @@
   "updated_at": "2026-10-12 09:17:03",
   "targets": [
     {
-      "id": "47-75-2026-10-13-0348",
-      "from_id": "47",
-      "from_name": "DOMARADZ",
-      "to_id": "75",
-      "to_name": "WARSZAWA Dw. Zach. st.7",
-      "date": "13.10.2026",
-      "hour": "03:48",
-      "seat_threshold": 5,
-      "baseline_price": 100.7,
-      "lowest_seen_price": 100.7,
-      "current_price": 100.7,
-      "last_seats": 50,
-      "last_checked": "2026-10-12 09:16:45"
-    },
-    {
       "id": "123-47-2026-10-14-1400",
       "from_id": "123",
       "from_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
@@ -25,9 +10,9 @@
       "date": "14.10.2026",
       "hour": "14:00",
       "seat_threshold": 5,
-      "baseline_price": 95.0,
-      "lowest_seen_price": 95.0,
-      "current_price": 95.0,
+      "baseline_price": 95,
+      "lowest_seen_price": 95,
+      "current_price": 95,
       "last_seats": 50,
       "last_checked": "2026-10-12 09:16:51"
     },
