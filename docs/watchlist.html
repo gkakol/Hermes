@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sentinel Watchlist // Sniper Neobus</title>
+  <title>Sentinel // Centrum Obserwacji Kursów</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { darkMode: 'class' }
@@ -15,142 +15,169 @@
       -webkit-font-smoothing: antialiased;
     }
     .neobus-header { background: linear-gradient(135deg, #a80f20 0%, #c01427 50%, #870b18 100%); }
-    .slot-pill.active {
+    .hour-chip.selected {
       background-color: #c01427 !important;
       color: #ffffff !important;
       border-color: #991b1b !important;
     }
   </style>
 </head>
-<body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-6xl mx-auto min-h-screen select-none">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-<!-- Header: Dopracowany na natywny ekran telefonu i desktop -->
-  <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3.5 border border-red-900/20">
-    
-    <!-- Góra / Lewa strona: Logo i Tytuł -->
-    <div class="flex items-center gap-3">
-      <div class="bg-white px-3 py-1.5 rounded-xl shadow-md select-none shrink-0">
+<body class="bg-slate-100 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 p-3 md:p-6 max-w-7xl mx-auto min-h-screen">
+
+  <!-- Header -->
+  <header class="neobus-header rounded-2xl p-4 lg:p-5 mb-5 text-white shadow-xl flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 border border-red-900/20">
+    <div class="flex items-center gap-3.5 min-w-0">
+      <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-md select-none shrink-0">
         <span class="text-xl lg:text-2xl font-black text-slate-950">NEO<span class="text-[#c01427]">BUS</span></span>
       </div>
       <div class="min-w-0">
-        <h1 class="text-sm sm:text-base lg:text-xl font-black tracking-tight leading-tight">
+        <h1 class="text-base sm:text-lg lg:text-xl font-black tracking-tight leading-tight">
           SENTINEL // CENTRUM OBSERWACJI
         </h1>
-        <p class="text-red-100 text-[11px] sm:text-xs lg:text-sm font-medium mt-0.5 leading-snug">
+        <p class="text-red-100 text-xs md:text-sm font-medium mt-0.5 leading-snug">
           Snajper cenowy & alerty Discord (N1, N2, N3, N4)
         </p>
       </div>
     </div>
 
-    <!-- Dół na mobile / Prawa strona na PC: Przyciski akcji -->
-    <div class="flex items-center gap-2 pt-2 lg:pt-0 border-t border-red-800/50 lg:border-t-0">
-      <!-- Przełącznik motywu (na mobile kompaktowy) -->
-      <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm shrink-0">
+    <div class="flex items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t border-red-800/50 lg:border-t-0 flex-wrap sm:flex-nowrap">
+      <button id="theme-toggle" onclick="toggleTheme()" class="bg-red-950/50 hover:bg-red-950/80 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-sm whitespace-nowrap">
         <span id="theme-icon">🌙</span>
         <span id="theme-label" class="hidden sm:inline">Tryb ciemny</span>
       </button>
 
-      <!-- Token GitHub -->
-      <button onclick="configureToken()" class="flex-1 lg:flex-initial px-3 py-2 rounded-xl bg-black/30 hover:bg-black/50 border border-white/20 text-xs sm:text-sm font-semibold cursor-pointer text-center truncate">
-        🔑 Token GitHub
+      <button onclick="promptGithubToken()" class="bg-red-950/60 hover:bg-red-950/90 border border-red-400/40 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition shadow-sm whitespace-nowrap">
+        <span>🔑</span>
+        <span id="token-status-text">Token GitHub</span>
       </button>
 
-      <!-- Powrót do Radaru -->
-      <a href="./index.html" class="flex-1 lg:flex-initial px-3 py-2 rounded-xl bg-white text-[#c01427] text-xs sm:text-sm font-bold shadow hover:bg-slate-100 text-center truncate">
-        ← Wróć do Radaru
+      <a href="./index.html" class="bg-white text-slate-950 hover:bg-slate-100 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition shadow-sm whitespace-nowrap">
+        <span>← Wróć do Radaru</span>
       </a>
     </div>
-
   </header>
 
-  </header>
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Lewa kolumna: Konfiguracja celu -->
+    <div class="lg:col-span-5 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm h-fit">
+      <h2 class="text-xs md:text-sm font-black tracking-wider uppercase text-slate-400 mb-4">1. Skonfiguruj cel</h2>
 
-    <!-- Lewa Kolumna: Konfigurator połączenia -->
-    <div class="lg:col-span-1 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
-      <h2 class="text-sm md:text-base font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">1. Skonfiguruj cel</h2>
-      
-      <div>
-        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Skąd (Odjazd)</label>
-        <select id="selFrom" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      <!-- Przystanek odjazdu -->
+      <div class="mb-3.5">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Skąd (Odjazd)</label>
+        <select id="selectFrom" onchange="updateHourChips()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
           <option value="">-- Wybierz przystanek początkowy --</option>
         </select>
       </div>
 
-      <div class="flex justify-center">
-        <button onclick="swapStations()" class="px-3.5 py-1.5 rounded-full border border-slate-300 dark:border-slate-700 text-xs md:text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition font-bold cursor-pointer">⇄ Odwróć kierunek</button>
+      <!-- Przycisk odwracania relacji -->
+      <div class="flex justify-center my-2">
+        <button onclick="swapStops()" class="px-4 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition flex items-center gap-1.5">
+          <span>⇄</span> Odwróć kierunek
+        </button>
       </div>
 
-      <div>
-        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Dokąd (Przyjazd)</label>
-        <select id="selTo" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      <!-- Przystanek docelowy -->
+      <div class="mb-3.5">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Dokąd (Przyjazd)</label>
+        <select id="selectTo" onchange="updateHourChips()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
           <option value="">-- Wybierz przystanek docelowy --</option>
         </select>
       </div>
 
-      <div>
-        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Data kursu</label>
-        <input type="date" id="selDate" onchange="updateSchedule()" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      <!-- Data kursu -->
+      <div class="mb-3.5">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Data kursu</label>
+        <input type="date" id="courseDate" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
       </div>
 
-      <!-- Kafelki Godzin ze scalonych rozkładów -->
-      <div>
+      <!-- Godziny z rozkładu -->
+      <div class="mb-3.5">
         <div class="flex justify-between items-center mb-1.5">
-          <label class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">Godziny odjazdu (z rozkładu)</label>
+          <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Godziny odjazdu (z rozkładu)</label>
           <span class="text-[11px] text-slate-400">kliknij, aby wybrać</span>
         </div>
-        <div id="slotsContainer" class="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-2 items-center justify-start min-h-[55px]">
-          <span class="text-xs text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>
-        </div>
-        
-        <div class="mt-2.5 flex items-center gap-2">
-          <input type="text" id="customHour" placeholder="Inna godzina (np. 14:15)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs md:text-sm font-mono">
-          <button onclick="addCustomHour()" class="px-3.5 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-xs md:text-sm font-bold rounded-xl shrink-0 cursor-pointer">Dodaj</button>
+        <div id="hourChipsContainer" class="p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-2 min-h-[48px] items-center">
+          <span class="text-xs text-slate-400">Wybierz przystanek odjazdu i docelowy...</span>
         </div>
       </div>
 
-      <div>
-        <label class="block text-xs md:text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-200">Próg alertu miejsc (fotele &le;)</label>
-        <input type="number" id="selThreshold" value="5" min="1" max="30" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      <!-- Własna godzina -->
+      <div class="mb-3.5 flex gap-2">
+        <input type="text" id="customHour" placeholder="Inna godzina (np. 14:15)" class="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+        <button onclick="addCustomHourChip()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 rounded-xl text-xs font-bold transition">
+          Dodaj
+        </button>
       </div>
 
-      <button onclick="addTarget()" id="btnAddTarget" class="w-full py-3.5 bg-[#c01427] hover:bg-[#a80f20] text-white font-bold rounded-xl shadow transition text-sm flex items-center justify-center gap-2 cursor-pointer">
-        <span>🎯 Dodaj do obserwowanych</span>
+      <!-- Próg alertu foteli -->
+      <div class="mb-3.5">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">Próg alertu miejsc (fotele ≤)</label>
+        <input type="number" id="seatThreshold" value="5" min="1" max="70" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <!-- NOWE: Maksymalna pożądana cena -->
+      <div class="mb-5">
+        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5 uppercase">
+          Maksymalna pożądana cena (zł ≤) <span class="text-[10px] text-slate-400 normal-case">(opcjonalnie)</span>
+        </label>
+        <input type="number" id="priceThreshold" placeholder="Np. 60 (puste = każdy spadek)" min="1" step="0.5" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-600">
+      </div>
+
+      <!-- Przycisk dodawania -->
+      <button onclick="addTarget()" class="w-full bg-[#c01427] hover:bg-red-700 text-white font-bold py-3 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-xs md:text-sm cursor-pointer">
+        <span>🎯</span> Dodaj do obserwowanych
       </button>
     </div>
 
-    <!-- Prawa Kolumna: Lista Obserwowanych -->
-    <div class="lg:col-span-2 space-y-6">
-      <div class="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div>
-            <h2 class="text-sm md:text-base font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">Aktywnie obserwowane kursy</h2>
-            <p class="text-xs md:text-sm text-slate-400 mt-0.5">Posortowane chronologicznie od najbliższego terminu. Wyślą alert na Discord w razie spadku ceny lub braku foteli.</p>
-          </div>
-          <span id="targetCount" class="text-xs md:text-sm font-bold px-3 py-1 rounded-lg bg-red-100 dark:bg-red-950 text-[#c01427] dark:text-red-400 shrink-0">0 zadań</span>
+    <!-- Prawa kolumna: Lista aktywnych zadań -->
+    <div class="lg:col-span-7 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xs md:text-sm font-black tracking-wider uppercase text-slate-400">Aktywnie obserwowane kursy</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Posortowane chronologicznie od najbliższego terminu. Wyślą alert na Discord w razie spadku ceny lub braku foteli.
+          </p>
         </div>
+        <span id="targetBadgeCount" class="bg-red-100 dark:bg-red-950/70 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-xs font-bold px-2.5 py-1 rounded-xl">
+          0 zadań
+        </span>
+      </div>
 
-        <div id="targetsList" class="space-y-3">
-          <div class="text-sm text-slate-400 py-6 text-center">Wczytywanie listy z repozytorium...</div>
-        </div>
+      <div id="targetsList" class="space-y-3">
+        <div class="p-8 text-center text-slate-400 text-sm">Wczytywanie listy zadań...</div>
       </div>
     </div>
 
   </div>
 
   <script>
-    const REPO_OWNER = "gkakol";
-    const REPO_NAME = "Hermes";
-    let fileSha = null;
-    let watchlistData = { targets: [], archived_targets: [] };
-    let selectedHours = new Set();
+    // Baza przystanków korytarza Neobus
+    const STOPS_DATA = [
+      { id: "17", name: "SANOK D.A. Lipińskiego" },
+      { id: "19", name: "NIEBYLEC" },
+      { id: "47", name: "DOMARADZ" },
+      { id: "76", name: "RZESZÓW D.A. PKS" },
+      { id: "71", name: "KRAKÓW MDA" },
+      { id: "72", name: "KRAKÓW Lotnisko Balice" },
+      { id: "73", name: "KATOWICE D.A. ul. Sądowa 5" },
+      { id: "123", name: "GLIWICE Centrum Przesiadkowe ul. Składowa 8a" },
+      { id: "77", name: "WROCŁAW PKS Polbus" },
+      { id: "75", name: "WARSZAWA Dw. Zach. st.7" }
+    ];
 
-    // Obsługa motywu
+    // Standardowe godziny odjazdów
+    const KNOWN_HOURS = ["00:38", "03:00", "03:48", "06:35", "07:21", "07:45", "10:10", "11:08", "12:00", "14:00", "15:35", "16:20", "17:18", "17:40", "22:25", "23:50"];
+
+    let selectedHour = "";
+    let targets = [];
+    let githubToken = localStorage.getItem("sentinel_gh_token") || "";
+
+    // Motyw
     function initTheme() {
-      const savedTheme = localStorage.getItem('sentinel_theme');
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      const saved = localStorage.getItem('sentinel_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         applyTheme('dark');
       } else {
         applyTheme('light');
@@ -185,500 +212,264 @@
 
     initTheme();
 
-    const STATIONS = [
-      { id: "49", name: "BABICA Kolonia" },
-      { id: "46", name: "BLIZNE" },
-      { id: "36", name: "BOGUCHWAŁA ODR" },
-      { id: "44", name: "BRZOZÓW Dworzec PKS Plac Grunwaldzki 01" },
-      { id: "84", name: "BUSKO- ZDRÓJ MDA ul. Waryńskiego 29" },
-      { id: "47", name: "DOMARADZ" },
-      { id: "123", name: "GLIWICE Centrum Przesiadkowe ul. Składowa 8a" },
-      { id: "38", name: "GRABOWNICA" },
-      { id: "43", name: "HUMNISKA" },
-      { id: "21", name: "IWONICZ Zdrój" },
-      { id: "124", name: "IŁŻA D.A. ul. Podzamcze 33" },
-      { id: "94", name: "JAROSŁAW Centr. Przes. PKP" },
-      { id: "73", name: "KATOWICE D.A. ul. Sądowa 5" },
-      { id: "85", name: "KIELCE DA ul. Czarnowska 12" },
-      { id: "23", name: "KOLBUSZOWA Dw. PKS" },
-      { id: "72", name: "KRAKÓW Lotnisko Balice" },
-      { id: "71", name: "KRAKÓW MDA" },
-      { id: "22", name: "KROSNO D.A.st. 4" },
-      { id: "66", name: "LESKO D.A. ul. Piłsudskiego 50" },
-      { id: "48", name: "LUTCZA skrz." },
-      { id: "96", name: "MEDYKA Granica" },
-      { id: "37", name: "MIEJSCE PIASTOWE" },
-      { id: "81", name: "MIELEC D.A. ul Jagiellończyka" },
-      { id: "19", name: "NIEBYLEC" },
-      { id: "25", name: "NOWA DĘBA" },
-      { id: "35", name: "OPATÓW D.A. ul. Sienkiewicza 19" },
-      { id: "78", name: "OSTROWIEC Św. D.A." },
-      { id: "92", name: "PIOTRKÓW TRYB. DA ul.P.O.W. 12" },
-      { id: "62", name: "POLAŃCZYK" },
-      { id: "63", name: "POLAŃCZYK skrz." },
-      { id: "82", name: "POŁANIEC D.A. (Galeria Połaniecka)" },
-      { id: "95", name: "PRZEMYŚL Dw.PKS" },
-      { id: "54", name: "RADOM Słowackiego/Idalińska" },
-      { id: "55", name: "RADOM Warszawska (rondo)" },
-      { id: "24", name: "RYMANÓW Rynek" },
-      { id: "29", name: "RYMANÓW Zdrój Góra" },
-      { id: "40", name: "RYMANÓW Zdrój pocz.PKS" },
-      { id: "76", name: "RZESZÓW D.A. PKS" },
-      { id: "17", name: "SANOK D.A. Lipińskiego" },
-      { id: "41", name: "SANOK ul. Dmowskiego/Staszica ALFA" },
-      { id: "42", name: "SANOK ul. Krakowska , Dąbrówka" },
-      { id: "64", name: "SOLINA" },
-      { id: "39", name: "STARA WIEŚ," },
-      { id: "83", name: "STASZÓW Rynek 01/02" },
-      { id: "79", name: "TARNOBRZEG D.A." },
-      { id: "75", name: "WARSZAWA Dw. Zach. st.7" },
-      { id: "28", name: "WARSZAWA Lotn. Chopina" },
-      { id: "77", name: "WROCŁAW PKS Polbus" },
-      { id: "68", name: "ZAGÓRZ osiedle" },
-      { id: "115", name: "ŻARNÓW Pl.Piłsudskiego/Rynek" },
-      { id: "93", name: "ŁÓDŹ FABRYCZNA WPA" },
-      { id: "88", name: "ŁÓDŹ KALISKA Włókniarzy/Karolewska" },
-      { id: "53", name: "ŁONIÓW" }
-    ];
-
-    // Matryca linii N3
-    const N3_TO_WRO = {
-      order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "71", "72", "73", "123", "77"],
-      days: ['all', 'all', 'all', 'all', 0],
-      stations: {
-        "62": ["--", "--", "--", "09:00", "--"], "64": ["--", "--", "--", "09:10", "--"],
-        "66": ["--", "--", "--", "09:30", "--"], "68": ["--", "--", "--", "09:40", "--"],
-        "17": ["23:50", "03:00", "06:35", "10:10", "16:20"],
-        "38": ["00:10", "03:20", "07:00", "10:35", "16:45"],
-        "43": ["00:14", "03:24", "07:05", "10:40", "16:50"],
-        "44": ["00:20", "03:32", "07:10", "10:50", "17:00"],
-        "39": ["00:26", "03:36", "07:13", "10:55", "17:06"],
-        "46": ["00:31", "03:41", "07:15", "11:00", "17:11"],
-        "47": ["00:38", "03:48", "07:21", "11:08", "17:18"],
-        "48": ["00:44", "03:54", "07:28", "11:15", "17:24"],
-        "19": ["00:50", "04:00", "07:40", "11:25", "17:30"],
-        "49": ["01:00", "04:10", "07:55", "11:45", "17:40"],
-        "36": ["01:10", "04:20", "08:00", "11:55", "17:50"],
-        "76": ["01:30", "04:40", "08:40", "12:20", "18:20"],
-        "71": ["03:35", "06:55", "10:55", "14:40", "20:35"],
-        "72": ["04:00", "07:20", "11:30", "15:15", "21:00"],
-        "73": ["04:55", "08:30", "12:30", "16:25", "22:00"],
-        "123": ["05:22", "09:00", "13:00", "16:55", "22:27"],
-        "77": ["07:25", "10:55", "15:05", "18:50", "00:20"]
+    function updateTokenUI() {
+      const el = document.getElementById("token-status-text");
+      if (githubToken) {
+        el.innerText = "Token aktywny ✓";
+      } else {
+        el.innerText = "Token GitHub";
       }
-    };
-
-    const N3_FROM_WRO = {
-      order: ["77", "123", "73", "72", "71", "76", "36", "49", "19", "48", "47", "46", "39", "44", "43", "38", "17", "68", "66", "64", "62"],
-      days: [1, 'all', 'all', 'all', 'all'],
-      stations: {
-        "77": ["03:40", "07:45", "12:00", "15:35", "22:25"],
-        "123": ["05:40", "09:45", "14:00", "17:40", "00:20"],
-        "73": ["06:10", "10:15", "14:30", "18:15", "00:50"],
-        "72": ["07:00", "11:05", "15:20", "19:05", "01:50"],
-        "71": ["07:40", "11:45", "16:15", "19:45", "02:20"],
-        "76": ["09:55", "13:50", "18:40", "21:55", "04:30"],
-        "36": ["10:11", "14:00", "18:48", "22:10", "04:37"],
-        "49": ["10:21", "14:10", "18:58", "22:20", "04:45"],
-        "19": ["10:34", "14:35", "19:20", "22:30", "05:00"],
-        "48": ["10:40", "14:40", "19:25", "22:38", "05:05"],
-        "47": ["10:46", "14:36", "19:26", "22:48", "05:22"],
-        "46": ["10:53", "14:43", "19:33", "22:55", "05:29"],
-        "39": ["10:58", "15:08", "19:38", "23:00", "05:34"],
-        "44": ["11:05", "14:48", "19:42", "23:04", "05:42"],
-        "43": ["11:13", "14:55", "19:50", "23:12", "05:50"],
-        "38": ["11:17", "15:03", "19:54", "23:16", "05:58"],
-        "17": ["11:37", "15:27", "20:14", "23:36", "06:11"],
-        "68": ["--", "--", "--", "--", "06:44"], "66": ["--", "--", "--", "--", "07:14"],
-        "64": ["--", "--", "--", "--", "07:32"], "62": ["--", "--", "--", "--", "07:49"]
-      }
-    };
-
-    // Matryca linii N1 / N2
-    const N1_TO_WAW = {
-      order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "23", "25", "79", "53", "35", "78", "124", "54", "55", "28", "75"],
-      days: ['all', 'all', 'all', 'all', 'all', 'all'],
-      stations: {
-        "62": ["--", "--", "--", "09:00", "--", "--"], "64": ["--", "--", "--", "09:10", "--", "--"],
-        "66": ["--", "--", "--", "09:30", "--", "--"], "68": ["--", "--", "--", "09:40", "--", "--"],
-        "17": ["23:50", "03:00", "06:35", "10:10", "12:20", "16:20"],
-        "38": ["00:10", "03:20", "07:00", "10:35", "12:45", "16:50"],
-        "43": ["00:14", "03:24", "07:05", "10:40", "12:49", "16:54"],
-        "44": ["00:20", "03:32", "07:10", "10:50", "12:55", "17:02"],
-        "39": ["00:26", "03:36", "07:13", "10:55", "13:01", "17:06"],
-        "46": ["00:31", "03:41", "07:15", "11:00", "13:06", "17:11"],
-        "47": ["00:38", "03:48", "07:21", "11:08", "13:13", "17:18"],
-        "48": ["00:44", "03:53", "07:30", "11:15", "13:19", "17:24"],
-        "19": ["00:50", "04:00", "07:40", "11:25", "13:30", "17:30"],
-        "49": ["01:00", "04:10", "07:55", "11:45", "13:40", "17:40"],
-        "36": ["01:10", "04:20", "08:00", "11:55", "13:50", "17:50"],
-        "76": ["01:30", "04:40", "08:40", "12:20", "14:20", "18:20"],
-        "23": ["01:55", "05:10", "09:20", "12:55", "14:50", "18:50"],
-        "25": ["02:15", "05:30", "09:40", "13:15", "15:10", "19:10"],
-        "79": ["--", "--", "--", "--", "--", "--"],
-        "53": ["02:42", "05:56", "10:06", "13:35", "15:35", "19:33"],
-        "35": ["03:05", "06:20", "10:35", "14:10", "16:15", "20:05"],
-        "78": ["03:25", "06:40", "11:00", "14:30", "16:40", "20:25"],
-        "124": ["03:55", "07:16", "11:36", "15:05", "17:05", "--"],
-        "54": ["04:20", "07:40", "12:00", "15:38", "17:40", "21:20"],
-        "55": ["04:35", "07:55", "12:15", "15:42", "18:00", "21:35"],
-        "28": ["06:00", "09:25", "13:45", "17:35", "19:20", "--"],
-        "75": ["06:20", "09:50", "14:10", "18:00", "19:40", "23:20"]
-      }
-    };
-
-    const N1_FROM_WAW = {
-      order: ["75", "28", "55", "54", "124", "78", "35", "53", "79", "25", "23", "76", "36", "49", "19", "48", "47", "46", "39", "44", "43", "38", "17", "68", "66", "64", "62"],
-      days: ['all', 'all', 'all', 'all', 'all', 'all'],
-      stations: {
-        "75": ["00:10", "08:15", "13:20", "17:00", "19:00", "20:20"],
-        "28": ["00:20", "08:30", "13:35", "--", "19:10", "20:35"],
-        "55": ["01:20", "09:35", "14:40", "18:10", "20:20", "21:40"],
-        "54": ["01:36", "09:55", "14:55", "18:25", "20:40", "21:55"],
-        "124": ["--", "10:30", "15:30", "18:58", "21:05", "22:25"],
-        "78": ["02:30", "11:15", "16:10", "19:34", "21:40", "23:00"],
-        "35": ["02:50", "11:35", "16:35", "19:54", "21:59", "23:20"],
-        "53": ["03:15", "12:05", "17:04", "20:26", "22:25", "23:45"],
-        "79": ["--", "--", "--", "--", "22:40", "--"],
-        "25": ["03:35", "12:35", "17:35", "20:45", "23:00", "00:05"],
-        "23": ["03:55", "13:00", "17:55", "21:10", "23:20", "00:25"],
-        "76": ["04:30", "13:50", "18:40", "21:55", "23:50", "01:05"],
-        "36": ["04:37", "14:00", "18:48", "22:10", "00:05", "01:15"],
-        "49": ["04:45", "14:10", "18:58", "22:20", "00:15", "01:21"],
-        "19": ["05:00", "14:35", "19:20", "22:30", "00:30", "01:35"],
-        "48": ["05:05", "14:40", "19:25", "22:38", "--", "01:45"],
-        "47": ["05:22", "14:36", "19:26", "22:48", "--", "01:54"],
-        "46": ["05:29", "14:43", "19:33", "22:55", "--", "02:01"],
-        "39": ["05:34", "14:48", "19:38", "23:00", "--", "02:06"],
-        "44": ["05:42", "14:55", "19:42", "23:04", "--", "02:10"],
-        "43": ["05:50", "15:03", "19:50", "23:12", "--", "02:18"],
-        "38": ["05:58", "15:07", "19:54", "23:16", "--", "02:22"],
-        "17": ["06:11", "15:27", "20:14", "23:36", "--", "02:42"],
-        "68": ["06:44", "--", "--", "--", "--", "--"], "66": ["07:14", "--", "--", "--", "--", "--"],
-        "64": ["07:32", "--", "--", "--", "--", "--"], "62": ["07:49", "--", "--", "--", "--", "--"]
-      }
-    };
-
-    // Matryca linii N4
-    const N4_TO_LODZ = {
-      order: ["62", "64", "66", "68", "17", "38", "43", "44", "39", "46", "47", "48", "19", "49", "36", "76", "23", "81", "82", "83", "84", "85", "115", "92", "93", "88"],
-      days: ['all'],
-      stations: {
-        "62": ["09:00"], "64": ["09:10"], "66": ["09:30"], "68": ["09:40"],
-        "17": ["10:10"], "38": ["10:35"], "43": ["10:40"], "44": ["10:50"],
-        "39": ["10:55"], "46": ["11:00"], "47": ["11:08"], "48": ["11:15"],
-        "19": ["11:25"], "49": ["11:45"], "36": ["11:55"], "76": ["12:20"],
-        "23": ["12:55"], "81": ["13:30"], "82": ["14:03"], "83": ["14:25"],
-        "84": ["15:18"], "85": ["16:25"], "115": ["17:20"], "92": ["18:05"],
-        "93": ["18:50"], "88": ["18:50"]
-      }
-    };
-
-    const N4_FROM_LODZ = {
-      order: ["93", "88", "92", "115", "85", "84", "83", "82", "81", "23", "76", "36", "49", "19", "48", "47", "46", "39", "44", "43", "38", "17", "68", "66", "64", "62"],
-      days: ['all'],
-      stations: {
-        "93": ["22:15"], "88": ["22:15"], "92": ["23:15"], "115": ["23:55"],
-        "85": ["00:50"], "84": ["01:50"], "83": ["02:35"], "82": ["02:58"],
-        "81": ["03:28"], "23": ["03:57"], "76": ["04:30"], "36": ["04:37"],
-        "49": ["04:45"], "19": ["05:00"], "48": ["05:05"], "47": ["05:22"],
-        "46": ["05:29"], "39": ["05:34"], "44": ["05:42"], "43": ["05:50"],
-        "38": ["05:58"], "17": ["06:11"], "68": ["06:44"], "66": ["07:14"],
-        "64": ["07:32"], "62": ["07:49"]
-      }
-    };
-
-    const ALL_ROUTES = [
-      { name: "N1/N2 Warszawa", to: N1_TO_WAW, from: N1_FROM_WAW },
-      { name: "N3 Wrocław", to: N3_TO_WRO, from: N3_FROM_WRO },
-      { name: "N4 Łódź", to: N4_TO_LODZ, from: N4_FROM_LODZ }
-    ];
-
-    const WAW_STATIONS = ["75", "28"];
-    const LODZ_STATIONS = ["93", "88"];
-
-    function initStationSelects() {
-      const sorted = [...STATIONS].sort((a, b) => a.name.localeCompare(b.name, 'pl'));
-      const sFrom = document.getElementById('selFrom');
-      const sTo = document.getElementById('selTo');
-
-      sorted.forEach(st => {
-        sFrom.add(new Option(st.name, st.id));
-        sTo.add(new Option(st.name, st.id));
-      });
     }
 
-    function swapStations() {
-      const f = document.getElementById('selFrom').value;
-      const t = document.getElementById('selTo').value;
-      document.getElementById('selFrom').value = t;
-      document.getElementById('selTo').value = f;
-      updateSchedule();
+    function promptGithubToken() {
+      const val = prompt("Podaj swój Personal Access Token z GitHuba (uprawnienia repo/contents:write), aby zapisywać zadania bezpośrednio do repozytorium:", githubToken);
+      if (val !== null) {
+        githubToken = val.trim();
+        localStorage.setItem("sentinel_gh_token", githubToken);
+        updateTokenUI();
+      }
     }
 
-    function updateSchedule() {
-      const f = document.getElementById('selFrom').value;
-      const t = document.getElementById('selTo').value;
-      const dateVal = document.getElementById('selDate').value;
-      const container = document.getElementById('slotsContainer');
-      selectedHours.clear();
+    // Wypełnienie list przystanków
+    function initStopsDropdowns() {
+      const selFrom = document.getElementById("selectFrom");
+      const selTo = document.getElementById("selectTo");
 
-      if (!f || !t) {
-        container.innerHTML = `<span class="text-xs text-slate-400 text-center w-full">Wybierz przystanek odjazdu i docelowy...</span>`;
-        return;
-      }
-
-      let dayOfWeek = null;
-      if (dateVal) {
-        const parts = dateVal.split('-');
-        const dObj = new Date(parts[0], parts[1] - 1, parts[2]);
-        dayOfWeek = dObj.getDay();
-      }
-
-      const normF = WAW_STATIONS.includes(f) ? "75" : (LODZ_STATIONS.includes(f) ? "93" : f);
-      const normT = WAW_STATIONS.includes(t) ? "75" : (LODZ_STATIONS.includes(t) ? "93" : t);
-
-      let matchedSlots = [];
-
-      ALL_ROUTES.forEach(route => {
-        let idxF = route.to.order.indexOf(normF);
-        let idxT = route.to.order.indexOf(normT);
-        if (idxF !== -1 && idxT !== -1 && idxF < idxT && route.to.stations[f]) {
-          const rawHours = route.to.stations[f];
-          rawHours.forEach((hour, i) => {
-            if (hour === "--") return;
-            const reqDay = route.to.days[i];
-            if (reqDay === 'all') {
-              matchedSlots.push({ hour, tag: '' });
-            } else if (reqDay === 0 && (dayOfWeek === 0 || dayOfWeek === null)) {
-              matchedSlots.push({ hour, tag: ' (Nd)' });
-            } else if (reqDay === 1 && (dayOfWeek === 1 || dayOfWeek === null)) {
-              matchedSlots.push({ hour, tag: ' (Pn)' });
-            }
-          });
-        }
-
-        let idxF_from = route.from.order.indexOf(normF);
-        let idxT_from = route.from.order.indexOf(normT);
-        if (idxF_from !== -1 && idxT_from !== -1 && idxF_from < idxT_from && route.from.stations[f]) {
-          const rawHours = route.from.stations[f];
-          rawHours.forEach((hour, i) => {
-            if (hour === "--") return;
-            const reqDay = route.from.days[i];
-            if (reqDay === 'all') {
-              matchedSlots.push({ hour, tag: '' });
-            } else if (reqDay === 0 && (dayOfWeek === 0 || dayOfWeek === null)) {
-              matchedSlots.push({ hour, tag: ' (Nd)' });
-            } else if (reqDay === 1 && (dayOfWeek === 1 || dayOfWeek === null)) {
-              matchedSlots.push({ hour, tag: ' (Pn)' });
-            }
-          });
-        }
+      STOPS_DATA.forEach(s => {
+        const opt1 = new Option(s.name, s.id);
+        const opt2 = new Option(s.name, s.id);
+        selFrom.add(opt1);
+        selTo.add(opt2);
       });
 
-      const uniqueSlots = [];
-      const seen = new Set();
-      matchedSlots.sort((a, b) => a.hour.localeCompare(b.hour));
+      // Ustawienie domyślnej daty na jutro
+      const tom = new Date();
+      tom.setDate(tom.getDate() + 1);
+      document.getElementById("courseDate").value = tom.toISOString().split('T')[0];
+    }
 
-      matchedSlots.forEach(s => {
-        if (!seen.has(s.hour)) {
-          seen.add(s.hour);
-          uniqueSlots.push(s);
-        }
-      });
+    function swapStops() {
+      const selFrom = document.getElementById("selectFrom");
+      const selTo = document.getElementById("selectTo");
+      const tmp = selFrom.value;
+      selFrom.value = selTo.value;
+      selTo.value = tmp;
+      updateHourChips();
+    }
 
-      if (!uniqueSlots.length) {
-        container.innerHTML = `<span class="text-xs text-amber-500 text-center w-full">Brak bezpośrednich kursów w rozkładzie. Możesz wpisać własną godzinę poniżej.</span>`;
-        return;
-      }
+    function updateHourChips() {
+      const container = document.getElementById("hourChipsContainer");
+      container.innerHTML = "";
 
-      container.innerHTML = '';
-      uniqueSlots.forEach(slot => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `slot-pill px-3.5 py-2 rounded-xl border text-xs md:text-sm font-mono font-bold transition cursor-pointer bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:border-red-500`;
-        btn.innerHTML = `${slot.hour} <span class="text-[11px] text-red-500 font-sans">${slot.tag}</span>`;
+      KNOWN_HOURS.forEach(h => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `hour-chip px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold transition hover:border-red-500 ${selectedHour === h ? 'selected' : ''}`;
+        btn.innerText = h;
         btn.onclick = () => {
-          if (selectedHours.has(slot.hour)) {
-            selectedHours.delete(slot.hour);
-            btn.classList.remove('active', 'bg-[#c01427]', 'text-white');
-          } else {
-            selectedHours.add(slot.hour);
-            btn.classList.add('active', 'bg-[#c01427]', 'text-white');
-          }
+          selectedHour = h;
+          document.querySelectorAll('.hour-chip').forEach(c => c.classList.remove('selected'));
+          btn.classList.add('selected');
         };
         container.appendChild(btn);
       });
     }
 
-    function addCustomHour() {
-      const input = document.getElementById('customHour');
-      const val = input.value.trim();
-      if (!/^\d{2}:\d{2}$/.test(val)) {
-        alert("Podaj godzinę w formacie GG:MM (np. 14:15)!");
-        return;
+    function addCustomHourChip() {
+      const inp = document.getElementById("customHour");
+      const val = inp.value.trim();
+      if (!val) return;
+      if (!KNOWN_HOURS.includes(val)) {
+        KNOWN_HOURS.push(val);
       }
-      selectedHours.add(val);
-
-      const container = document.getElementById('slotsContainer');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `slot-pill active px-3.5 py-2 rounded-xl border text-xs md:text-sm font-mono font-bold bg-[#c01427] text-white border-red-800`;
-      btn.innerText = val;
-      container.appendChild(btn);
-      input.value = '';
+      selectedHour = val;
+      inp.value = "";
+      updateHourChips();
     }
 
-    function configureToken() {
-      const current = localStorage.getItem('sentinel_gh_token') || '';
-      const token = prompt("Podaj GitHub Personal Access Token:", current);
-      if (token !== null) {
-        localStorage.setItem('sentinel_gh_token', token.trim());
-        alert("Token zapisany w przeglądarce!");
-        loadWatchlist();
-      }
-    }
-
+    // Pobranie watchlisty
     async function loadWatchlist() {
-      const listEl = document.getElementById('targetsList');
       try {
-        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/watchlist.json?ref=main`, {
-          headers: localStorage.getItem('sentinel_gh_token') ? { 'Authorization': `token ${localStorage.getItem('sentinel_gh_token')}` } : {}
-        });
-        if (!res.ok) throw new Error("Błąd odczytu watchlist.json");
-        const jsonRes = await res.json();
-        fileSha = jsonRes.sha;
-        watchlistData = JSON.parse(decodeURIComponent(escape(atob(jsonRes.content))));
+        const resp = await fetch('./watchlist.json?v=' + Date.now());
+        if (!resp.ok) throw new Error("Błąd pobierania watchlist.json");
+        const json = await resp.json();
+        targets = Array.isArray(json.targets) ? json.targets : [];
         renderTargets();
-      } catch (e) {
-        listEl.innerHTML = `<div class="text-sm text-amber-500 py-4 text-center">Brak pliku watchlist.json lub brak autoryzacji tokenem.</div>`;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("targetsList").innerHTML = `
+          <div class="p-6 text-center text-rose-500 text-sm font-semibold">Nie udało się załadować watchlist.json. Upewnij się, że plik istnieje.</div>
+        `;
       }
-    }
-
-    // Sortowanie chronologiczne od najbliższego terminu do najdalszego
-    function sortTargetsChronologically(targets) {
-      return [...targets].sort((a, b) => {
-        const [d1, m1, y1] = a.date.split('.');
-        const [d2, m2, y2] = b.date.split('.');
-        const keyA = `${y1}-${m1}-${d1}T${a.hour}:00`;
-        const keyB = `${y2}-${m2}-${d2}T${b.hour}:00`;
-        return keyA.localeCompare(keyB);
-      });
     }
 
     function renderTargets() {
-      const listEl = document.getElementById('targetsList');
-      document.getElementById('targetCount').innerText = `${watchlistData.targets.length} zadań`;
+      const listEl = document.getElementById("targetsList");
+      document.getElementById("targetBadgeCount").innerText = `${targets.length} zadań`;
 
-      if (!watchlistData.targets.length) {
-        listEl.innerHTML = `<div class="text-sm text-slate-400 py-8 text-center">Brak aktywnych obserwacji. Skonfiguruj kurs po lewej stronie.</div>`;
+      if (targets.length === 0) {
+        listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Brak obserwowanych kursów. Skonfiguruj cel w formularzu po lewej.</div>`;
         return;
       }
 
-      const sorted = sortTargetsChronologically(watchlistData.targets);
+      // Sortowanie chronologiczne
+      targets.sort((a, b) => {
+        const [d1, m1, y1] = (a.date || "01.01.2099").split('.');
+        const [d2, m2, y2] = (b.date || "01.01.2099").split('.');
+        return `${y1}-${m1}-${d1}T${a.hour}`.localeCompare(`${y2}-${m2}-${d2}T${b.hour}`);
+      });
 
-      listEl.innerHTML = sorted.map((t) => {
-        // Wyszukanie oryginalnego indeksu do usunięcia
-        const originalIndex = watchlistData.targets.findIndex(item => item.id === t.id);
+      listEl.innerHTML = targets.map((t, idx) => {
+        const currPrice = Number(t.current_price || 0);
+        const hasPrice = currPrice > 0;
+        const pThreshold = (t.price_threshold && Number(t.price_threshold) > 0) ? Number(t.price_threshold) : null;
         
+        const priceThresholdText = pThreshold 
+          ? `• Alert ceny: ≤${pThreshold.toFixed(2)} zł` 
+          : `• Alert ceny: każdy spadek`;
+
         return `
-          <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex justify-between items-center bg-slate-50/70 dark:bg-slate-900/60 shadow-sm transition">
-            <div>
-              <div class="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">${t.from_name} ➔ ${t.to_name}</div>
-              <div class="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                📅 <span class="font-bold text-slate-700 dark:text-slate-200">${t.date}</span> o <span class="font-mono font-bold text-slate-800 dark:text-white">${t.hour}</span> • Alert miejsc: &le;${t.seat_threshold}
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/70 hover:border-slate-300 dark:hover:border-slate-700 transition flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                ${t.from_name} ➔ ${t.to_name}
               </div>
-              <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
-                Ostatnia cena: ${t.current_price ? t.current_price.toFixed(2) + ' zł' : 'Oczekuje na skan bota'}
+              <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap items-center gap-1.5">
+                <span>📅 <b>${t.date}</b> o <b>${t.hour}</b></span>
+                <span>• Alert miejsc: ≤${t.seat_threshold}</span>
+                <span class="text-slate-400 dark:text-slate-500">${priceThresholdText}</span>
+              </div>
+              <div class="text-xs mt-1.5 font-bold ${hasPrice ? 'text-emerald-500' : 'text-slate-400'}">
+                Ostatnia cena: ${hasPrice ? `${currPrice.toFixed(2)} zł` : 'Oczekuje na skan bota'}
               </div>
             </div>
-            <button onclick="removeTarget(${originalIndex})" class="text-xs md:text-sm text-rose-500 hover:text-rose-700 font-bold px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 cursor-pointer transition">Usuń</button>
+            <button onclick="removeTarget(${idx})" class="px-3.5 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/80 text-rose-600 dark:text-rose-400 text-xs font-bold transition shrink-0">
+              Usuń
+            </button>
           </div>
         `;
       }).join('');
     }
 
-    async function saveWatchlist(commitMsg) {
-      const token = localStorage.getItem('sentinel_gh_token');
-      if (!token) {
-        alert("Podaj najpierw GitHub Token.");
-        return false;
-      }
-
-      // Zapisujemy listę posortowaną chronologicznie w pliku JSON
-      watchlistData.targets = sortTargetsChronologically(watchlistData.targets);
-
-      const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(watchlistData, null, 2))));
-      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/watchlist.json`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: commitMsg,
-          content: contentBase64,
-          sha: fileSha,
-          branch: "main"
-        })
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        alert(`Błąd zapisu: ${err.message}`);
-        return false;
-      }
-      const data = await res.json();
-      fileSha = data.content.sha;
-      renderTargets();
-      return true;
-    }
-
     async function addTarget() {
-      const fSel = document.getElementById('selFrom');
-      const tSel = document.getElementById('selTo');
-      const dateVal = document.getElementById('selDate').value;
-      const thresholdVal = parseInt(document.getElementById('selThreshold').value, 10);
+      const fromId = document.getElementById("selectFrom").value;
+      const toId = document.getElementById("selectTo").value;
+      const dateVal = document.getElementById("courseDate").value;
 
-      if (!fSel.value || !tSel.value) { alert("Wybierz przystanek odjazdu i przyjazdu!"); return; }
-      if (!dateVal) { alert("Wybierz datę!"); return; }
-      if (!selectedHours.size) { alert("Wybierz przynajmniej jedną godzinę!"); return; }
+      if (!fromId || !toId) { alert("Wybierz przystanek odjazdu i docelowy!"); return; }
+      if (fromId === toId) { alert("Przystanek początkowy i docelowy nie mogą być takie same!"); return; }
+      if (!dateVal) { alert("Wybierz poprawną datę!"); return; }
+      if (!selectedHour) { alert("Wybierz godzinę kursu z kafelków lub wpisz własną!"); return; }
 
-      const [yr, mo, da] = dateVal.split('-');
-      const dPl = `${da}.${mo}.${yr}`;
+      const fromObj = STOPS_DATA.find(s => s.id === fromId);
+      const toObj = STOPS_DATA.find(s => s.id === toId);
 
-      selectedHours.forEach(h => {
-        watchlistData.targets.push({
-          id: `${fSel.value}-${tSel.value}-${dateVal}-${h.replace(':', '')}`,
-          from_id: fSel.value,
-          from_name: fSel.options[fSel.selectedIndex].text,
-          to_id: tSel.value,
-          to_name: tSel.options[tSel.selectedIndex].text,
-          date: dPl,
-          hour: h,
-          seat_threshold: thresholdVal || 5,
-          baseline_price: 0.0,
-          lowest_seen_price: 999.0,
-          current_price: 0.0,
-          last_seats: 70
-        });
-      });
+      const [y, m, d] = dateVal.split('-');
+      const dateDmy = `${d}.${m}.${y}`;
 
-      const ok = await saveWatchlist(`Watchlist: Dodano ${fSel.options[fSel.selectedIndex].text} -> ${tSel.options[tSel.selectedIndex].text} (${dPl})`);
-      if (ok) {
-        alert("Pomyślnie dodano do obserwowanych!");
-        selectedHours.clear();
-        updateSchedule();
-      }
+      const seatThreshold = parseInt(document.getElementById("seatThreshold").value, 10) || 5;
+      const priceThresholdInput = document.getElementById("priceThreshold").value.trim();
+      const priceThreshold = priceThresholdInput ? parseFloat(priceThresholdInput) : null;
+
+      const newTarget = {
+        id: `${fromId}-${toId}-${y}${m}${d}-${selectedHour.replace(':', '')}`,
+        from_id: fromId,
+        from_name: fromObj ? fromObj.name : fromId,
+        to_id: toId,
+        to_name: toObj ? toObj.name : toId,
+        date: dateDmy,
+        hour: selectedHour,
+        seat_threshold: seatThreshold,
+        price_threshold: priceThreshold,
+        baseline_price: 0,
+        lowest_seen_price: 999,
+        current_price: 0,
+        last_seats: 70
+      };
+
+      targets.push(newTarget);
+      renderTargets();
+      await saveWatchlistToGithub();
     }
 
     async function removeTarget(idx) {
-      if (!confirm("Czy na pewno usunąć tę obserwację?")) return;
-      watchlistData.targets.splice(idx, 1);
-      await saveWatchlist("Watchlist: Usunięto zadanie monitorowania");
+      if (!confirm("Czy na pewno chcesz usunąć to zadanie z obserwowanych?")) return;
+      targets.splice(idx, 1);
+      renderTargets();
+      await saveWatchlistToGithub();
     }
 
-    initStationSelects();
+    async function saveWatchlistToGithub() {
+      if (!githubToken) {
+        alert("Zadanie zostało zaktualizowane w widoku! Aby zapisać zmiany na stałe w repozytorium GitHuba, kliknij przycisk '🔑 Token GitHub' na górze i podaj swój token.");
+        return;
+      }
+
+      try {
+        const repoOwner = "gkakol";
+        const repoName = "Hermes";
+        const filePath = "watchlist.json";
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+
+        // 1. Pobieramy bieżący SHA pliku
+        const getResp = await fetch(apiUrl, {
+          headers: {
+            "Authorization": `Bearer ${githubToken}`,
+            "Accept": "application/vnd.github.v3+json"
+          }
+        });
+
+        let sha = "";
+        let existingJson = { archived_targets: [] };
+
+        if (getResp.ok) {
+          const fileData = await getResp.json();
+          sha = fileData.sha;
+          try {
+            existingJson = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+          } catch(e) {}
+        }
+
+        const now = new Date();
+        const payloadData = {
+          updated_at: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`,
+          targets: targets,
+          archived_targets: existingJson.archived_targets || []
+        };
+
+        const utf8Content = unescape(encodeURIComponent(JSON.stringify(payloadData, null, 2)));
+        const base64Content = btoa(utf8Content);
+
+        // 2. Commit i Push przez API GitHuba
+        const putResp = await fetch(apiUrl, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${githubToken}`,
+            "Accept": "application/vnd.github.v3+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Telemetry & Watchlist Sync: ${payloadData.updated_at}`,
+            content: base64Content,
+            sha: sha || undefined
+          })
+        });
+
+        if (!putResp.ok) {
+          const errData = await putResp.json();
+          throw new Error(errData.message || "Błąd zapisu w GitHub API");
+        }
+
+        alert("Zapisano pomyślnie w repozytorium GitHub!");
+      } catch (err) {
+        console.error(err);
+        alert(`Błąd zapisu do GitHuba: ${err.message}`);
+      }
+    }
+
+    initStopsDropdowns();
+    updateHourChips();
+    updateTokenUI();
     loadWatchlist();
   </script>
 </body>
