@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-14 14:02:49",
+  "updated_at": "2026-10-14 18:25:07",
   "targets": [
     {
       "id": "123-47-2026-10-14-1400",
@@ -29,8 +29,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 50,
-      "last_checked": "2026-10-14 14:02:26"
+      "last_seats": 47,
+      "last_checked": "2026-10-14 18:24:45"
     },
     {
       "id": "123-47-2026-10-18-1740",
@@ -45,7 +45,7 @@
       "lowest_seen_price": 95,
       "current_price": 95.0,
       "last_seats": 50,
-      "last_checked": "2026-10-14 14:02:32"
+      "last_checked": "2026-10-14 18:24:51"
     },
     {
       "id": "47-123-2026-10-25-1718",
@@ -61,7 +61,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 47,
-      "last_checked": "2026-10-14 14:02:49"
+      "last_checked": "2026-10-14 18:25:07"
     }
   ],
   "archived_targets": []
