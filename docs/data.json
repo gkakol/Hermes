@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-19 00:52:04",
+  "updated_at": "2026-10-19 05:56:31",
   "total_courses": 1231,
   "past_courses": 387,
   "future_courses": 844,
@@ -10041,7 +10041,7 @@
       "price": 114.3,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 53,
+      "seats": 52,
       "is_past": false,
       "sold_out": false
     },
