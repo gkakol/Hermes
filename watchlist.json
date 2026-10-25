@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25 06:54:54",
+  "updated_at": "2026-10-25 12:30:06",
   "targets": [
     {
       "id": "47-123-2026-10-25-1718",
@@ -14,8 +14,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 29,
-      "last_checked": "2026-10-25 06:54:54"
+      "last_seats": 22,
+      "last_checked": "2026-10-25 12:30:06"
     }
   ],
   "archived_targets": [
