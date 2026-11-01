@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-01 07:21:05",
+  "updated_at": "2026-11-01 13:22:40",
   "total_courses": 1231,
   "past_courses": 494,
   "future_courses": 737,
-  "sold_out_cnt": 17,
+  "sold_out_cnt": 10,
   "analytics": {
     "days": [
       "Pn",
@@ -2505,7 +2505,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 50,
       "is_past": false,
       "sold_out": false
     },
@@ -2793,7 +2793,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -3189,9 +3189,9 @@
       "price": 120.65,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 1,
+      "seats": 50,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Wrocław ➔ Sanok",
@@ -3237,9 +3237,9 @@
       "price": 120.65,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 1,
+      "seats": 47,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Wrocław ➔ Sanok",
@@ -3297,7 +3297,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 11,
+      "seats": 13,
       "is_past": false,
       "sold_out": false
     },
@@ -3309,9 +3309,9 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 1,
+      "seats": 50,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Wrocław ➔ Sanok",
@@ -3321,9 +3321,9 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 1,
+      "seats": 50,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Sanok ➔ Wrocław",
@@ -3429,9 +3429,9 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 2,
+      "seats": 4,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Wrocław ➔ Sanok",
@@ -3441,9 +3441,9 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 1,
+      "seats": 49,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Sanok ➔ Wrocław",
@@ -3465,9 +3465,9 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 1,
+      "seats": 48,
       "is_past": false,
-      "sold_out": true
+      "sold_out": false
     },
     {
       "route": "Sanok ➔ Wrocław",
@@ -4221,7 +4221,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -5409,7 +5409,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -5769,7 +5769,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 49,
+      "seats": 48,
       "is_past": false,
       "sold_out": false
     },
@@ -5841,7 +5841,7 @@
       "price": 120.65,
       "min_price": 107.95,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 49,
       "is_past": false,
       "sold_out": false
     },
@@ -5961,7 +5961,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 50,
+      "seats": 49,
       "is_past": false,
       "sold_out": false
     },
@@ -6093,7 +6093,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -6621,7 +6621,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 46,
+      "seats": 45,
       "is_past": false,
       "sold_out": false
     },
@@ -6729,7 +6729,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 47,
+      "seats": 45,
       "is_past": false,
       "sold_out": false
     },
@@ -7089,7 +7089,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 44,
+      "seats": 43,
       "is_past": false,
       "sold_out": false
     },
@@ -7233,7 +7233,7 @@
       "price": 120.65,
       "min_price": 107.95,
       "max_price": 120.65,
-      "seats": 44,
+      "seats": 43,
       "is_past": false,
       "sold_out": false
     },
@@ -7401,7 +7401,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 46,
+      "seats": 44,
       "is_past": false,
       "sold_out": false
     },
@@ -7785,7 +7785,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 46,
+      "seats": 45,
       "is_past": false,
       "sold_out": false
     },
@@ -7893,7 +7893,7 @@
       "price": 120.65,
       "min_price": 107.95,
       "max_price": 120.65,
-      "seats": 46,
+      "seats": 45,
       "is_past": false,
       "sold_out": false
     },
@@ -7905,7 +7905,7 @@
       "price": 120.65,
       "min_price": 107.95,
       "max_price": 120.65,
-      "seats": 45,
+      "seats": 44,
       "is_past": false,
       "sold_out": false
     },
@@ -8037,7 +8037,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 48,
+      "seats": 47,
       "is_past": false,
       "sold_out": false
     },
@@ -8385,7 +8385,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 26,
+      "seats": 24,
       "is_past": false,
       "sold_out": false
     },
@@ -8565,7 +8565,7 @@
       "price": 120.65,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 51,
+      "seats": 50,
       "is_past": false,
       "sold_out": false
     },
@@ -8613,7 +8613,7 @@
       "price": 120.65,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 66,
+      "seats": 60,
       "is_past": false,
       "sold_out": false
     },
@@ -8637,7 +8637,7 @@
       "price": 120.65,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 41,
+      "seats": 40,
       "is_past": false,
       "sold_out": false
     },
@@ -8649,7 +8649,7 @@
       "price": 120.65,
       "min_price": 114.3,
       "max_price": 120.65,
-      "seats": 47,
+      "seats": 46,
       "is_past": false,
       "sold_out": false
     },
@@ -8661,7 +8661,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 58,
+      "seats": 56,
       "is_past": false,
       "sold_out": false
     },
@@ -8721,7 +8721,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 56,
+      "seats": 52,
       "is_past": false,
       "sold_out": false
     },
@@ -8733,7 +8733,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 33,
+      "seats": 25,
       "is_past": false,
       "sold_out": false
     },
@@ -8745,7 +8745,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 55,
+      "seats": 54,
       "is_past": false,
       "sold_out": false
     },
@@ -8757,7 +8757,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 45,
+      "seats": 42,
       "is_past": false,
       "sold_out": false
     },
@@ -8769,7 +8769,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 19,
+      "seats": 16,
       "is_past": false,
       "sold_out": false
     },
@@ -8781,7 +8781,7 @@
       "price": 120.65,
       "min_price": 120.65,
       "max_price": 120.65,
-      "seats": 47,
+      "seats": 44,
       "is_past": false,
       "sold_out": false
     },
