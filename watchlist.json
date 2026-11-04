@@ -1,23 +1,6 @@
 {
-  "updated_at": "2026-11-03 21:56:48",
-  "targets": [
-    {
-      "id": "47-123-2026-11-03-0038",
-      "from_id": "47",
-      "from_name": "DOMARADZ",
-      "to_id": "123",
-      "to_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
-      "date": "03.11.2026",
-      "hour": "00:38",
-      "seat_threshold": 5,
-      "price_threshold": null,
-      "baseline_price": 95.0,
-      "lowest_seen_price": 95.0,
-      "current_price": 95.0,
-      "last_seats": 17,
-      "last_checked": "2026-11-03 00:37:10"
-    }
-  ],
+  "updated_at": "2026-11-04 02:18:27",
+  "targets": [],
   "archived_targets": [
     {
       "id": "123-47-2026-10-14-1400",
@@ -84,6 +67,23 @@
       "last_seats": 19,
       "last_checked": "2026-10-25 16:25:55",
       "archived_at": "2026-10-26 00:56:18"
+    },
+    {
+      "id": "47-123-2026-11-03-0038",
+      "from_id": "47",
+      "from_name": "DOMARADZ",
+      "to_id": "123",
+      "to_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
+      "date": "03.11.2026",
+      "hour": "00:38",
+      "seat_threshold": 5,
+      "price_threshold": null,
+      "baseline_price": 95.0,
+      "lowest_seen_price": 95.0,
+      "current_price": 95.0,
+      "last_seats": 17,
+      "last_checked": "2026-11-03 00:37:10",
+      "archived_at": "2026-11-04 02:18:27"
     }
   ]
 }
