@@ -152,6 +152,21 @@
       "last_seats": 70
     },
     {
+      "id": "47-123-2026-12-14-0038",
+      "from_id": "47",
+      "from_name": "DOMARADZ",
+      "to_id": "123",
+      "to_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
+      "date": "14.12.2026",
+      "hour": "00:38",
+      "seat_threshold": 5,
+      "price_threshold": null,
+      "baseline_price": 0,
+      "lowest_seen_price": 999,
+      "current_price": 0,
+      "last_seats": 70
+    },
+    {
       "id": "123-47-2026-12-18-1400",
       "from_id": "123",
       "from_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
