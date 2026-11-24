@@ -1,22 +1,6 @@
 {
-  "updated_at": "2026-11-23 19:12:34",
+  "updated_at": "2026-11-24 05:15:23",
   "targets": [
-    {
-      "id": "47-123-2026-11-23-0038",
-      "from_id": "47",
-      "from_name": "DOMARADZ",
-      "to_id": "123",
-      "to_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
-      "date": "23.11.2026",
-      "hour": "00:38",
-      "seat_threshold": 5,
-      "price_threshold": null,
-      "baseline_price": 95.0,
-      "lowest_seen_price": 95.0,
-      "current_price": 95.0,
-      "last_seats": 50,
-      "last_checked": "2026-11-22 22:08:10"
-    },
     {
       "id": "123-47-2026-11-27-1400",
       "from_id": "123",
@@ -30,8 +14,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 39,
-      "last_checked": "2026-11-23 19:08:13"
+      "last_seats": 38,
+      "last_checked": "2026-11-24 05:11:14"
     },
     {
       "id": "123-47-2026-11-27-1740",
@@ -47,7 +31,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 42,
-      "last_checked": "2026-11-23 19:08:30"
+      "last_checked": "2026-11-24 05:11:29"
     },
     {
       "id": "47-123-2026-11-29-1718",
@@ -62,8 +46,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 34,
-      "last_checked": "2026-11-23 19:08:46"
+      "last_seats": 33,
+      "last_checked": "2026-11-24 05:11:46"
     },
     {
       "id": "47-123-2026-11-30-0038",
@@ -79,7 +63,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 43,
-      "last_checked": "2026-11-23 19:09:01"
+      "last_checked": "2026-11-24 05:12:03"
     },
     {
       "id": "47-123-2026-11-30-0038",
@@ -95,7 +79,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 43,
-      "last_checked": "2026-11-23 19:09:27"
+      "last_checked": "2026-11-24 05:12:17"
     },
     {
       "id": "123-47-2026-12-04-1400",
@@ -110,8 +94,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 45,
-      "last_checked": "2026-11-23 19:09:46"
+      "last_seats": 44,
+      "last_checked": "2026-11-24 05:12:35"
     },
     {
       "id": "123-47-2026-12-04-1740",
@@ -127,7 +111,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 50,
-      "last_checked": "2026-11-23 19:09:52"
+      "last_checked": "2026-11-24 05:12:41"
     },
     {
       "id": "47-123-2026-12-06-1718",
@@ -143,7 +127,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 47,
-      "last_checked": "2026-11-23 19:10:08"
+      "last_checked": "2026-11-24 05:12:58"
     },
     {
       "id": "47-123-2026-12-07-0038",
@@ -159,7 +143,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 44,
-      "last_checked": "2026-11-23 19:10:26"
+      "last_checked": "2026-11-24 05:13:15"
     },
     {
       "id": "123-47-2026-12-11-1400",
@@ -175,7 +159,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 47,
-      "last_checked": "2026-11-23 19:10:43"
+      "last_checked": "2026-11-24 05:13:36"
     },
     {
       "id": "123-47-2026-12-11-1400",
@@ -191,7 +175,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 47,
-      "last_checked": "2026-11-23 19:11:01"
+      "last_checked": "2026-11-24 05:13:53"
     },
     {
       "id": "123-47-2026-12-11-1740",
@@ -207,7 +191,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 49,
-      "last_checked": "2026-11-23 19:11:18"
+      "last_checked": "2026-11-24 05:14:10"
     },
     {
       "id": "47-123-2026-12-13-1108",
@@ -222,8 +206,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 48,
-      "last_checked": "2026-11-23 19:11:35"
+      "last_seats": 49,
+      "last_checked": "2026-11-24 05:14:27"
     },
     {
       "id": "47-123-2026-12-13-1718",
@@ -239,7 +223,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 50,
-      "last_checked": "2026-11-23 19:11:41"
+      "last_checked": "2026-11-24 05:14:33"
     },
     {
       "id": "47-123-2026-12-14-0038",
@@ -255,7 +239,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 49,
-      "last_checked": "2026-11-23 19:11:58"
+      "last_checked": "2026-11-24 05:14:49"
     },
     {
       "id": "123-47-2026-12-18-1400",
@@ -271,7 +255,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 49,
-      "last_checked": "2026-11-23 19:12:16"
+      "last_checked": "2026-11-24 05:15:06"
     },
     {
       "id": "123-47-2026-12-18-1740",
@@ -287,7 +271,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 45,
-      "last_checked": "2026-11-23 19:12:34"
+      "last_checked": "2026-11-24 05:15:23"
     }
   ],
   "archived_targets": [
@@ -407,6 +391,23 @@
       "last_seats": 23,
       "last_checked": "2026-11-22 15:44:01",
       "archived_at": "2026-11-23 02:45:17"
+    },
+    {
+      "id": "47-123-2026-11-23-0038",
+      "from_id": "47",
+      "from_name": "DOMARADZ",
+      "to_id": "123",
+      "to_name": "GLIWICE Centrum Przesiadkowe ul. Składowa 8a",
+      "date": "23.11.2026",
+      "hour": "00:38",
+      "seat_threshold": 5,
+      "price_threshold": null,
+      "baseline_price": 95.0,
+      "lowest_seen_price": 95.0,
+      "current_price": 95.0,
+      "last_seats": 50,
+      "last_checked": "2026-11-22 22:08:10",
+      "archived_at": "2026-11-24 05:10:59"
     }
   ]
 }
