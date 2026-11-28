@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-28 01:49:44",
+  "updated_at": "2026-11-28 10:01:16",
   "targets": [
     {
       "id": "47-123-2026-11-29-1718",
@@ -14,8 +14,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 35,
-      "last_checked": "2026-11-28 01:44:51"
+      "last_seats": 33,
+      "last_checked": "2026-11-28 09:57:42"
     },
     {
       "id": "47-123-2026-11-30-0038",
@@ -30,8 +30,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 31,
-      "last_checked": "2026-11-28 01:45:11"
+      "last_seats": 48,
+      "last_checked": "2026-11-28 09:57:53"
     },
     {
       "id": "47-123-2026-11-30-0038",
@@ -46,8 +46,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 31,
-      "last_checked": "2026-11-28 01:45:21"
+      "last_seats": 48,
+      "last_checked": "2026-11-28 09:58:06"
     },
     {
       "id": "123-47-2026-12-04-1400",
@@ -63,7 +63,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 41,
-      "last_checked": "2026-11-28 01:45:42"
+      "last_checked": "2026-11-28 09:58:22"
     },
     {
       "id": "123-47-2026-12-04-1740",
@@ -79,7 +79,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 47,
-      "last_checked": "2026-11-28 01:46:12"
+      "last_checked": "2026-11-28 09:58:38"
     },
     {
       "id": "47-123-2026-12-06-1718",
@@ -95,7 +95,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 43,
-      "last_checked": "2026-11-28 01:46:52"
+      "last_checked": "2026-11-28 09:58:55"
     },
     {
       "id": "47-123-2026-12-07-0038",
@@ -111,7 +111,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 42,
-      "last_checked": "2026-11-28 01:47:13"
+      "last_checked": "2026-11-28 09:59:11"
     },
     {
       "id": "123-47-2026-12-11-1400",
@@ -127,7 +127,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 45,
-      "last_checked": "2026-11-28 01:47:34"
+      "last_checked": "2026-11-28 09:59:26"
     },
     {
       "id": "123-47-2026-12-11-1400",
@@ -143,7 +143,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 45,
-      "last_checked": "2026-11-28 01:47:49"
+      "last_checked": "2026-11-28 09:59:42"
     },
     {
       "id": "123-47-2026-12-11-1740",
@@ -159,7 +159,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 48,
-      "last_checked": "2026-11-28 01:48:05"
+      "last_checked": "2026-11-28 09:59:58"
     },
     {
       "id": "47-123-2026-12-13-1108",
@@ -175,7 +175,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 48,
-      "last_checked": "2026-11-28 01:48:30"
+      "last_checked": "2026-11-28 10:00:14"
     },
     {
       "id": "47-123-2026-12-13-1718",
@@ -191,7 +191,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 49,
-      "last_checked": "2026-11-28 01:48:50"
+      "last_checked": "2026-11-28 10:00:30"
     },
     {
       "id": "47-123-2026-12-14-0038",
@@ -207,7 +207,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 49,
-      "last_checked": "2026-11-28 01:49:15"
+      "last_checked": "2026-11-28 10:00:46"
     },
     {
       "id": "123-47-2026-12-18-1400",
@@ -222,8 +222,8 @@
       "baseline_price": 95.0,
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
-      "last_seats": 48,
-      "last_checked": "2026-11-28 01:49:30"
+      "last_seats": 47,
+      "last_checked": "2026-11-28 10:01:02"
     },
     {
       "id": "123-47-2026-12-18-1740",
@@ -239,7 +239,7 @@
       "lowest_seen_price": 95.0,
       "current_price": 95.0,
       "last_seats": 40,
-      "last_checked": "2026-11-28 01:49:44"
+      "last_checked": "2026-11-28 10:01:16"
     }
   ],
   "archived_targets": [
